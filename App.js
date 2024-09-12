@@ -10,7 +10,7 @@ const App = () => {
       <Stack.Navigator>
         {/*Para cada vista se tiene que agregar aqui para mostrarse mediante un boton*/}
         <Stack.Screen
-          name="Home"
+          name="Login"
           component={HomeScreen}
           options={{ headerShown: false }}
         />
