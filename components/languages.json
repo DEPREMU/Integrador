@@ -1,0 +1,177 @@
+{
+  "languages": ["en", "es", "fr", "ja"],
+  "TextUser": {
+    "en": "User",
+    "es": "Usuario",
+    "fr": "Utilisateur",
+    "ja": "ユーザー"
+  },
+  "TextPassword": {
+    "en": "Password",
+    "es": "Contraseña",
+    "fr": "Mot de passe",
+    "ja": "パスワード"
+  },
+  "LogInNewAccount": {
+    "en": "Don't have an account? ",
+    "es": "¿No tienes una cuenta? ",
+    "fr": "Vous n'avez pas de compte ? ",
+    "ja": "アカウントをお持ちでないですか？ "
+  },
+  "SigInLogIn": {
+    "en": "Do you have an account? ",
+    "es": "¿Ya tienes una cuenta? ",
+    "fr": "Vous avez déjà un compte ? ",
+    "ja": "アカウントをお持ちですか？ "
+  },
+  "signIn": {
+    "es": "Registrarse",
+    "en": "Sign up",
+    "fr": "S'inscrire",
+    "ja": "サインアップ"
+  },
+  "logIn": {
+    "en": "Log in",
+    "es": "Iniciar sesión",
+    "fr": "Se connecter",
+    "ja": "ログイン"
+  },
+  "TextName": {
+    "en": "Full name",
+    "es": "Nombre completo",
+    "fr": "Nom complet",
+    "ja": "フルネーム"
+  },
+  "TextRestaurantName": {
+    "en": "Restaurant name",
+    "es": "Nombre del restaurante",
+    "fr": "Nom du restaurant",
+    "ja": "レストラン名"
+  },
+  "TextRoles": {
+    "en": "Roles",
+    "es": "Roles",
+    "fr": "Rôles",
+    "ja": "役割"
+  },
+  "options": {
+    "es": ["Cocinero", "Mesero", "Dueño"],
+    "en": ["Cook", "Waiter", "Owner"],
+    "fr": ["Cuisinier", "Serveur", "Propriétaire"],
+    "ja": ["料理人", "ウェイター", "オーナー"]
+  },
+  "error": {
+    "en": "Error",
+    "es": "Error",
+    "fr": "Erreur",
+    "ja": "エラー"
+  },
+  "pleaseFillFields": {
+    "en": "Please fill all fields",
+    "es": "Por favor llena todos los campos",
+    "fr": "Veuillez remplir tous les champs",
+    "ja": "すべてのフィールドに入力してください"
+  },
+  "askSignIn": {
+    "en": "Are you sure you want to sign up?",
+    "es": "¿Estás seguro que quieres registrarte?",
+    "fr": "Êtes-vous sûr de vouloir vous inscrire?",
+    "ja": "登録しますか？"
+  },
+  "cancel": {
+    "en": "Cancel",
+    "es": "Cancelar",
+    "fr": "Annuler",
+    "ja": "キャンセル"
+  },
+  "ok": {
+    "en": "Ok",
+    "es": "Aceptar",
+    "fr": "D'accord",
+    "ja": "はい"
+  },
+  "userOrPasswordWrong": {
+    "en": "User or password wrong",
+    "es": "Usuario o contraseña incorrectos",
+    "fr": "Utilisateur ou mot de passe incorrect",
+    "ja": "ユーザーまたはパスワードが間違っています"
+  },
+  "userAlreadyExists": {
+    "en": "User already exists",
+    "es": "El usuario ya existe",
+    "fr": "L'utilisateur existe déjà",
+    "ja": "ユーザーはすでに存在します"
+  },
+  "retry": {
+    "en": "Retry",
+    "es": "Reintentar",
+    "fr": "Réessayer",
+    "ja": "再試行"
+  },
+  "rememberMe": {
+    "en": "Remember me",
+    "es": "Recuérdame",
+    "fr": "Souviens-toi de moi",
+    "ja": "私を覚えてますか"
+  },
+  "restaurantNameWrong": {
+    "es": "El restaurante no existe, porfavor verifica el nombre.",
+    "en": "The restaurant does not exist, please verify the name.",
+    "fr": "Le restaurant n'existe pas, veuillez vérifier le nom.",
+    "ja": "レストランが存在しません、名前を確認してください。"
+  },
+  "restaurantAlreadyExists": {
+    "en": "The restaurant already exists, add a small variant.",
+    "es": "El restaurante ya existe, agrega una pequeña variante.",
+    "fr": "Le restaurant existe déjà, ajoutez une petite variante.",
+    "ja": "レストランはすでに存在します、少し変更してください。"
+  },
+  "signInSuccess": {
+    "en": "Successful registration",
+    "es": "Registro exitoso",
+    "fr": "Inscription réussie",
+    "ja": "登録成功"
+  },
+  "welcome": {
+    "en": "Welcome ${name}!",
+    "es": "¡Bienvenido ${name}!",
+    "fr": "Bienvenue ${name}!",
+    "ja": "${name} さん、ようこそ！"
+  },
+  "logInSuccess": {
+    "en": "Successful login",
+    "es": "Inicio de sesión exitoso",
+    "fr": "Connexion réussie",
+    "ja": "ログイン成功"
+  },
+  "logOut": {
+    "en": "Log out",
+    "es": "Cerrar sesión",
+    "fr": "Se déconnecter",
+    "ja": "ログアウト"
+  },
+  "logOutSuccess": {
+    "en": "Successful logout",
+    "es": "Cierre de sesión exitoso",
+    "fr": "Déconnexion réussie",
+    "ja": "ログアウト成功"
+  },
+  "askLogOut": {
+    "en": "Are you sure you want to log out?",
+    "es": "¿Estás seguro que quieres cerrar sesión?",
+    "fr": "Êtes-vous sûr de vouloir vous déconnecter?",
+    "ja": "ログアウトしますか？"
+  },
+  "exitAppConfirmation": {
+    "es": "¿Estás seguro que quieres salir de la aplicación?",
+    "en": "Are you sure you want to exit the application?",
+    "fr": "Êtes-vous sûr de vouloir quitter l'application?",
+    "ja": "アプリケーションを終了しますか？"
+  },
+  "exitText": {
+    "en": "Exit",
+    "es": "Salir",
+    "fr": "Sortie",
+    "ja": "出口"
+  }
+}

@@ -1,17 +1,41 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import HomeScreen from "./Screens/HomeScreen";
+import Login from "./Screens/Login";
+import Signin from "./Screens/Signin";
+import Owner from "./Screens/Owner";
+import Cook from "./Screens/Cook";
+import Waiter from "./Screens/Waiter";
 
 const App = () => {
   const Stack = createStackNavigator();
 
   return (
-    <NavigationContainer initialRouteName="Home">
+    <NavigationContainer initialRouteName="Login">
       <Stack.Navigator>
         {/*Para cada vista se tiene que agregar aqui para mostrarse mediante un boton*/}
         <Stack.Screen
           name="Login"
-          component={HomeScreen}
+          component={Login}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Signin"
+          component={Signin}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Owner"
+          component={Owner}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Cook"
+          component={Cook}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Waiter"
+          component={Waiter}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

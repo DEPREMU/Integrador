@@ -1,0 +1,47 @@
+App database "https://supabase.com" / "https://supabase.com/dashboard/projects" if you had one before 
+
+Project Settings  //  Bottom-left
+API (https://supabase.com/dashboard/project/{key/tokenByUser}/settings/api) //  {
+  Copy URL and paste in variable "supabaseUrl"
+  Copy in Project API Keys the one who says "anon  public" and paste in variable "supabaseKey"
+}
+
+Then:
+SQL Editor  (https://supabase.com/dashboard/project/{key/tokenByUser}/sql/new)  //  Paste the code below and run it.
+
+
+* IMPORTANT: Change columns and values in name_inventory* 
+
+CREATE OR REPLACE FUNCTION create_table(name TEXT)
+  RETURNS void LANGUAGE plpgsql AS $$
+  BEGIN
+    -- Crear la tabla principal
+    EXECUTE format('
+      CREATE TABLE IF NOT EXISTS %I (
+        id bigint primary key generated always as identity,
+        username varchar(50) unique not null,
+        password varchar(100) not null,
+        name VARCHAR(100) NOT NULL,
+        token text,
+        role varchar(100),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT current_timestamp
+      )
+    ', name);
+
+    -- Crear la tabla de inventario *Cambiar columnas*
+    EXECUTE format('
+      CREATE TABLE IF NOT EXISTS %I (
+        id bigint primary key generated always as identity,
+        username varchar(50) unique not null,
+        password varchar(100) not null,
+        name VARCHAR(100) NOT NULL,
+        token text,
+        role varchar(100),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT current_timestamp
+      )
+    ', name || '_inventory');
+  END;
+$$;
+
+
+SELECT * FROM pg_proc WHERE proname = 'create_table'; // Verify the function was made

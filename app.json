@@ -29,6 +29,9 @@
       "eas": {
         "projectId": "ca443e38-2ccc-49cc-a549-f1fa059e735a"
       }
-    }
+    },
+    "plugins": [
+      "expo-localization"
+    ]
   }
 }
