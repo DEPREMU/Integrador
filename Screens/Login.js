@@ -5,7 +5,6 @@ import {
   Image,
   TextInput,
   Alert,
-  ScrollView,
   BackHandler,
 } from "react-native";
 import stylesHS from "../styles/stylesHomeScreen";
@@ -24,29 +23,22 @@ import {
 } from "../components/globalVariables";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import languages from "../components/languages.json";
-import {
-  authUser,
-  getName,
-  getRole,
-  logIn,
-} from "../components/DataBaseConnection";
-import { api, supabase } from "../components/supabaseClient";
+import { getName, getRole, logIn } from "../components/DataBaseConnection";
 import { CheckBox } from "react-native-elements";
 import { useFocusEffect } from "@react-navigation/native";
 
 const Login = ({ navigation }) => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(true);
-  const [loadingText, setLoadingText] = useState("Loading.");
+  const thingsToLoad = 2;
   const [thingsLoaded, setThingsLoaded] = useState(0);
-  const thingsToLoad = 1;
+  const [loading, setLoading] = useState(true);
+  const [loadingText, setLoadingText] = useState("Loading.");
+  const [error, setError] = useState(true);
   const [errorText, setErrorText] = useState(null);
   const [language, setLanguage] = useState(null);
   const [restaurantName, setRestaurantName] = useState("");
   const [user, setUser] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  const [token, setToken] = useState(null);
 
   const checkUser = async () => {
     if (password == "" || user == "" || restaurantName == "") {
@@ -59,7 +51,6 @@ const Login = ({ navigation }) => {
           },
         ]
       );
-
       return;
     }
 
@@ -145,8 +136,6 @@ const Login = ({ navigation }) => {
       const language = await loadData(LANGUAGE_KEY_STORAGE);
       if (dataToken != null && dataRestaurantName != null) {
         const { name } = await getName(dataRestaurantName, dataToken);
-        setToken(dataToken);
-        setRestaurantName(dataRestaurantName);
         const { success, role, error } = await getRole(
           dataRestaurantName,
           dataToken
@@ -154,7 +143,7 @@ const Login = ({ navigation }) => {
         if (success && role) {
           Alert.alert(
             interpolateMessage(languages.welcome[language], [
-              name == null ? "" : name,
+              name != null ? name : "",
             ]),
             languages.logInSuccess[language],
             [
@@ -164,21 +153,25 @@ const Login = ({ navigation }) => {
             ]
           );
           navigation.navigate(role);
+        } else {
+          setError(true);
+          setErrorText("An error occurred during log in: " + error);
         }
-      }
+      } else setThingsLoaded((prevThingsLoaded) => prevThingsLoaded + 1);
     };
     loadTokenAndRestaurantName();
   }, []);
 
   useEffect(() => {
     if (thingsLoaded == thingsToLoad) setLoading(false);
-    else
-      setTimeout(() => {
-        if (loadingText.indexOf("...") > -1) setLoadingText("Loading.");
-        else if (loadingText.indexOf("..") > -1) setLoadingText("Loading...");
-        else if (loadingText.indexOf(".") > -1) setLoadingText("Loading..");
-      }, 1000);
-  }, [thingsLoaded]);
+    if (!loading) return;
+    setTimeout(() => {
+      if (loadingText == "Loading.") setLoadingText("Loading..");
+      if (loadingText == "Loading..") setLoadingText("Loading...");
+      if (loadingText == "Loading...") setLoadingText("Loading.");
+    }, 750);
+  }, [loadingText, loading]);
+
   useFocusEffect(
     React.useCallback(() => {
       const onBackPress = async () => {
@@ -205,35 +198,42 @@ const Login = ({ navigation }) => {
   );
 
   if (loading) return <Loading loadingText={loadingText} />;
-  if (error && errorText != null) return <Error error={errorText} />;
+  if (error && errorText != null)
+    return <Error error={errorText != null ? errorText : "Uknown error"} />;
 
   return (
     <View style={stylesHS.container}>
       <Image source={userImage} style={stylesHS.imageUser} />
       <Text style={stylesHS.text}>{languages.logIn[language]}</Text>
+
       <View style={stylesHS.formLogin}>
         <View style={stylesHS.user}>
           <Text style={stylesHS.textUser}>
             {languages.TextRestaurantName[language]}
           </Text>
+
           <TextInput
             placeholder={languages.TextRestaurantName[language]}
             onChangeText={(value) => setRestaurantName(value)}
             style={stylesHS.textInputUser}
           />
         </View>
+
         <View style={stylesHS.user}>
           <Text style={stylesHS.textUser}>{languages.TextUser[language]}</Text>
+
           <TextInput
             placeholder={languages.TextUser[language]}
             onChangeText={(value) => setUser(value)}
             style={stylesHS.textInputUser}
           />
         </View>
+
         <View style={stylesHS.pass}>
           <Text style={stylesHS.textPass}>
             {languages.TextPassword[language]}
           </Text>
+
           <TextInput
             placeholder={languages.TextPassword[language]}
             style={stylesHS.textInputPass}
@@ -241,26 +241,31 @@ const Login = ({ navigation }) => {
             onChangeText={(value) => setPassword(value)}
           />
         </View>
+
         <View style={stylesHS.ViewRemeberMe}>
           <CheckBox
             checked={rememberMe}
             onPress={() => setRememberMe(!rememberMe)}
             style={stylesHS.checkRemeberMe}
           />
+
           <Text style={stylesHS.rememberMeText}>
             {languages.rememberMe[language]}
           </Text>
         </View>
+
         <View style={stylesHS.newAccountView}>
           <Text style={stylesHS.newAccountText}>
             {languages.LogInNewAccount[language]}
           </Text>
+
           <TouchableOpacity onPress={() => navigation.navigate("Signin")}>
             <Text style={stylesHS.textSignin}>
               {languages.signIn[language]}
             </Text>
           </TouchableOpacity>
         </View>
+
         <TouchableOpacity
           style={stylesHS.signInButton}
           onPress={() => checkUser()}

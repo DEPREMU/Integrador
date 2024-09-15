@@ -8,7 +8,9 @@ import {
 } from "./globalVariables";
 import languages from "./languages.json";
 
-export default LogOut = ({ navigation }) => {
+export default LogOut = ({ navigation, top, bottom }) => {
+  if (top == null && bottom == null) top = 30;
+  if (bottom != null && top != null) bottom = null;
   const logOut = async () => {
     await AsyncStorage.removeItem(RESTAURANT_NAME_KEY_STORAGE);
     await AsyncStorage.removeItem(TOKEN_KEY_STORAGE);
@@ -23,7 +25,10 @@ export default LogOut = ({ navigation }) => {
   };
 
   return (
-    <TouchableOpacity style={styles.button} onPress={() => logOut()}>
+    <TouchableOpacity
+      style={[styles.button, { top: top, bottom: bottom }]}
+      onPress={() => logOut()}
+    >
       <Text style={styles.texts}>LogOut</Text>
     </TouchableOpacity>
   );
@@ -51,6 +56,5 @@ const styles = StyleSheet.create({
     elevation: 5,
     position: "absolute",
     left: 5,
-    top: 30,
   },
 });

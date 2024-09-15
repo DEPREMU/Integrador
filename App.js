@@ -5,6 +5,7 @@ import Signin from "./Screens/Signin";
 import Owner from "./Screens/Owner";
 import Cook from "./Screens/Cook";
 import Waiter from "./Screens/Waiter";
+import Settings from "./Screens/Settings";
 
 const App = () => {
   const Stack = createStackNavigator();
@@ -36,6 +37,11 @@ const App = () => {
         <Stack.Screen
           name="Waiter"
           component={Waiter}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Settings"
+          component={Settings}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

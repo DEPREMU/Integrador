@@ -173,5 +173,11 @@
     "es": "Salir",
     "fr": "Sortie",
     "ja": "出口"
+  },
+  "settingsText": {
+    "en": "Settings",
+    "es": "Configuración",
+    "fr": "Paramètres",
+    "ja": "設定"
   }
 }
