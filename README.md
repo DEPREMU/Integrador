@@ -9,6 +9,6 @@ git status //Busca nuevos cambios en el repositorio
 git pull // Descarga los archivos mas recientes del repositorio _Hacer esto antes de realizar cualquier nuevo cambio al proyecto LOCAL_
 
 Instalar node.js
-instalar en consola expo y eas-cli en la ruta del proyecto (npm install -g expo), (npm install -g eas-cli)
+instalar en consola expo y eas-cli en la ruta del proyecto (npm install), (npm install -g expo) y (npm install -g eas-cli) 
 (expo --version) / (eas --version) para verificar las instalaciones
 instalar expo-go para ver la aplicacion funcionando (Android/iPhone)
