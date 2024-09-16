@@ -17,9 +17,11 @@ const checkLanguage = async () => {
   try {
     const data = await AsyncStorage.getItem(LANGUAGE_KEY_STORAGE);
     if (data != null && data in languages.languages) return data;
-    await AsyncStorage.setItem(LANGUAGE_KEY_STORAGE, "en");
     const language = locales[0].languageTag.split("-")[0];
-    if (language in languages.languages) return language;
+    if (language in languages.languages) {
+      await AsyncStorage.setItem(LANGUAGE_KEY_STORAGE, language);
+      return language;
+    }
     return "en";
   } catch (error) {
     console.error(error);
@@ -43,27 +45,33 @@ const loadData = async (key) => {
 };
 
 const saveData = async () => {
-  const data = await AsyncStorage.setItem(key, value);
-  if (value != null) return data;
-  return null;
+  try {
+    await AsyncStorage.setItem(key, value);
+    return true;
+  } catch (error) {
+    return false;
+  }
 };
 const saveDataJSON = async (key, value) => {
-  const data = await AsyncStorage.setItem(key, JSON.stringify(value));
-  if (data != null) return data;
-  return null;
+  try {
+    await AsyncStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch (error) {
+    return false;
+  }
 };
 
 const Loading = ({ loadingText }) => {
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text style={{ fontSize: 18, textAlign: "Center" }}>{loadingText}</Text>
+      <Text style={{ fontSize: 18, textAlign: "center" }}>{loadingText}</Text>
     </View>
   );
 };
 const Error = ({ error }) => {
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text style={{ fontSize: 18, textAlign: "Center" }}>
+      <Text style={{ fontSize: 18, textAlign: "center" }}>
         Error cargando los componentes: {error}
       </Text>
     </View>

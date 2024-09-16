@@ -26,6 +26,7 @@ import languages from "../components/languages.json";
 import { getName, getRole, logIn } from "../components/DataBaseConnection";
 import { CheckBox } from "react-native-elements";
 import { useFocusEffect } from "@react-navigation/native";
+import { supabase } from "../components/supabaseClient";
 
 const Login = ({ navigation }) => {
   const thingsToLoad = 2;
@@ -39,6 +40,27 @@ const Login = ({ navigation }) => {
   const [user, setUser] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+
+  const depurar = async () => {
+    const user = "n s s1";
+    const password = "2 2 2 2";
+    const name = "n s s";
+    const token = "nr91ru391r91u3bur";
+    const role = "owner";
+    const restaurantName = "Test7";
+    await supabase.from(restaurantName).insert([
+      {
+        username: user,
+        password: password,
+        name: name,
+        token: token,
+        role: role,
+      },
+    ]);
+    const { data, error } = await supabase.from(restaurantName).select("*");
+    console.log(data);
+    console.log(error);
+  };
 
   const checkUser = async () => {
     if (password == "" || user == "" || restaurantName == "") {
@@ -163,7 +185,8 @@ const Login = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    if (thingsLoaded == thingsToLoad) setLoading(false);
+    if (thingsLoaded >= thingsToLoad) setLoading(false);
+
     if (!loading) return;
     setTimeout(() => {
       if (loadingText == "Loading.") setLoadingText("Loading..");
@@ -271,6 +294,12 @@ const Login = ({ navigation }) => {
           onPress={() => checkUser()}
         >
           <Text style={stylesHS.signInText}>{languages.logIn[language]}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={stylesHS.signInButton}
+          onPress={() => depurar()}
+        >
+          <Text style={stylesHS.signInText}>Depurar</Text>
         </TouchableOpacity>
       </View>
     </View>

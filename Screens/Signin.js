@@ -41,7 +41,6 @@ const Signin = ({ navigation }) => {
     if (value.indexOf(" ") == -1) {
       setRestaurantName(value);
     }
-    setRestaurantName(value);
   };
 
   const signingIn = async () => {
@@ -86,6 +85,18 @@ const Signin = ({ navigation }) => {
       Alert.alert(
         languages.error[language],
         languages.pleaseFillFields[language],
+        [
+          {
+            text: languages.ok[language],
+          },
+        ]
+      );
+      return;
+    }
+    if (isFinite(restaurantName) || isFinite(restaurantName[0])) {
+      Alert.alert(
+        languages.error[language],
+        languages.noNumbersInName[language],
         [
           {
             text: languages.ok[language],
@@ -215,6 +226,7 @@ const Signin = ({ navigation }) => {
               value={restaurantName}
               onChangeText={(value) => checkRestaurantName(value)}
               style={stylesHS.textInputUser}
+              maxLength={100}
             />
           </View>
 
@@ -226,6 +238,7 @@ const Signin = ({ navigation }) => {
               placeholder={languages.TextName[language]}
               onChangeText={(value) => setName(value)}
               style={stylesHS.textInputUser}
+              maxLength={100}
             />
           </View>
 
@@ -237,6 +250,7 @@ const Signin = ({ navigation }) => {
               placeholder={languages.TextUser[language]}
               onChangeText={(value) => setUser(value)}
               style={stylesHS.textInputUser}
+              maxLength={50}
             />
           </View>
 
@@ -249,6 +263,7 @@ const Signin = ({ navigation }) => {
               style={stylesHS.textInputPass}
               secureTextEntry={true}
               onChangeText={(value) => setPassword(value)}
+              maxLength={100}
             />
           </View>
 

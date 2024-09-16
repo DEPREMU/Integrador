@@ -179,5 +179,11 @@
     "es": "Configuración",
     "fr": "Paramètres",
     "ja": "設定"
+  },
+  "noNumbersInName": {
+    "en": "The name can't contain only numbers and can't start with a number",
+    "es": "El nombre no puede contener solo números y no puede empezar con un número",
+    "fr": "Le nom ne peut contenir que des chiffres et ne peut pas commencer par un chiffre",
+    "ja": "名前には数字だけを含めることはできず、数字で始めることはできません"
   }
 }

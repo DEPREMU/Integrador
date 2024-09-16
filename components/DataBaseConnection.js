@@ -36,46 +36,34 @@ const signIn = async (restaurantName, user, password, role, name) => {
   try {
     const token = generateToken();
 
-    await createTable(restaurantName);
-
-    const { data: insertData, error: insertError } = await supabase
-      .from(restaurantName)
-      .insert([
-        {
-          username: user,
-          password: password,
-          name: name,
-          token: String(token),
-          role: role,
-        },
-      ]);
-
-    if (insertError) {
-      console.error(
-        "Error registering user, insertError: ",
-        insertError.message
-      );
-      return { success: false, user: "", error: insertError.message };
+    if (role == "Owner") {
+      await createTable(restaurantName);
     }
 
-    // Selecciona el usuario recién insertado
+    await supabase.from(restaurantName).insert([
+      {
+        username: user,
+        password: password,
+        name: name,
+        token: token,
+        role: role,
+      },
+    ]);
+
     const { data: selectData, error: selectError } = await supabase
       .from(restaurantName)
       .select("*")
-      .eq("username", user)
-      .single();
-
+      .eq("username", user);
     if (selectError) {
       console.error("Error fetching user:", selectError.message);
       return { success: false, user: "", error: selectError.message };
     }
-
     if (selectData) {
-      return { success: true, user: selectData.username, error: null };
+      return { success: true, user: selectData[0].username, error: null };
     }
   } catch (error) {
     console.error("Unexpected error:", error);
-    return { success: false, user: "", error: error.message };
+    return { success: false, user: "", error: error };
   }
 };
 
