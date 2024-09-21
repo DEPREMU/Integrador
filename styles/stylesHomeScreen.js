@@ -5,6 +5,7 @@ export default stylesHS = StyleSheet.create({
   scrollView: {
     flex: 1,
     backgroundColor: "#FFFFFF",
+    paddingTop: 20,
   },
   container: {
     flex: 1,

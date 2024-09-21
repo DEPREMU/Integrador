@@ -36,9 +36,7 @@ const signIn = async (restaurantName, user, password, role, name) => {
   try {
     const token = generateToken();
 
-    if (role == "Owner") {
-      await createTable(restaurantName);
-    }
+    if (role == "Owner") await createTable(restaurantName);
 
     await supabase.from(restaurantName).insert([
       {
@@ -57,14 +55,14 @@ const signIn = async (restaurantName, user, password, role, name) => {
     if (selectError) {
       console.error("Error fetching user:", selectError.message);
       return { success: false, user: "", error: selectError.message };
-    }
-    if (selectData) {
+    } else if (selectData) {
       return { success: true, user: selectData[0].username, error: null };
     }
   } catch (error) {
     console.error("Unexpected error:", error);
-    return { success: false, user: "", error: error };
+    return { success: false, user: null, error: error };
   }
+  return { success: false, user: null, error: "Uknown error" };
 };
 
 const logIn = async (restaurantName, user, password) => {
@@ -120,6 +118,19 @@ const getRole = async (restaurantName, token) => {
   return { success: true, role: data.role, error: null };
 };
 
+const getRoleByUser = async (restaurantName, user) => {
+  const { data, error } = await supabase
+    .from(restaurantName)
+    .select("role")
+    .eq("userName", user)
+    .single();
+  if (error) {
+    console.error("Error getting role:", error.message);
+    return { success: false, role: null, error: error.message };
+  }
+  return { success: true, role: data.role, error: null };
+};
+
 const getName = async (restaurantName, token) => {
   const { data, error } = await supabase
     .from(restaurantName)
@@ -152,4 +163,5 @@ export {
   getRole,
   boolIsRestaurant,
   getName,
+  getRoleByUser,
 };

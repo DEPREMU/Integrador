@@ -5,23 +5,35 @@ import {
   RESTAURANT_NAME_KEY_STORAGE,
   TOKEN_KEY_STORAGE,
   BOOL_LOG_OUT,
+  saveData,
 } from "./globalVariables";
 import languages from "./languages.json";
+import { useEffect, useState } from "react";
 
 export default LogOut = ({ navigation, top, bottom }) => {
+  const [language, setLanguage] = useState("en");
+
+  useEffect(() => {
+    const loadLanguage = async () => {
+      const language = await checkLanguage();
+      if (language && languages.languages.indexOf(language) > -1)
+        setLanguage(language);
+    };
+    loadLanguage();
+  }, []);
+
   if (top == null && bottom == null) top = 30;
   if (bottom != null && top != null) bottom = null;
   const logOut = async () => {
     await AsyncStorage.removeItem(RESTAURANT_NAME_KEY_STORAGE);
     await AsyncStorage.removeItem(TOKEN_KEY_STORAGE);
-    await AsyncStorage.setItem(BOOL_LOG_OUT, "1");
-    const language = await checkLanguage();
-    Alert.alert(languages.logOut[language], languages.logOutSuccess[language], [
+    await saveData(BOOL_LOG_OUT, "1");
+    Alert.alert(languages[language].logOut, languages[language].logOutSuccess, [
       {
-        text: languages.ok[language],
+        text: languages[language].ok,
+        onPress: () => navigation.replace("Login"),
       },
     ]);
-    navigation.navigate("Login");
   };
 
   return (
@@ -29,7 +41,7 @@ export default LogOut = ({ navigation, top, bottom }) => {
       style={[styles.button, { top: top, bottom: bottom }]}
       onPress={() => logOut()}
     >
-      <Text style={styles.texts}>LogOut</Text>
+      <Text style={styles.texts}>{languages[language].logOut}</Text>
     </TouchableOpacity>
   );
 };

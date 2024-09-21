@@ -11,8 +11,8 @@ const App = () => {
   const Stack = createStackNavigator();
 
   return (
-    <NavigationContainer initialRouteName="Login">
-      <Stack.Navigator>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Login">
         {/*Para cada vista se tiene que agregar aqui para mostrarse mediante un boton*/}
         <Stack.Screen
           name="Login"

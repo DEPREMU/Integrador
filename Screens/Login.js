@@ -16,24 +16,24 @@ import {
   userImage,
   interpolateMessage,
   TOKEN_KEY_STORAGE,
-  loadData,
   RESTAURANT_NAME_KEY_STORAGE,
   LANGUAGE_KEY_STORAGE,
   BOOL_LOG_OUT,
+  saveDataFromDict,
+  loadDataInDict,
+  USER_KEY_STORAGE,
 } from "../components/globalVariables";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import languages from "../components/languages.json";
 import { getName, getRole, logIn } from "../components/DataBaseConnection";
 import { CheckBox } from "react-native-elements";
 import { useFocusEffect } from "@react-navigation/native";
-import { supabase } from "../components/supabaseClient";
 
 const Login = ({ navigation }) => {
   const thingsToLoad = 2;
   const [thingsLoaded, setThingsLoaded] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadingText, setLoadingText] = useState("Loading.");
-  const [error, setError] = useState(true);
+  const [error, setError] = useState(null);
   const [errorText, setErrorText] = useState(null);
   const [language, setLanguage] = useState(null);
   const [restaurantName, setRestaurantName] = useState("");
@@ -41,109 +41,74 @@ const Login = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
 
-  const depurar = async () => {
-    const user = "n s s1";
-    const password = "2 2 2 2";
-    const name = "n s s";
-    const token = "nr91ru391r91u3bur";
-    const role = "owner";
-    const restaurantName = "Test7";
-    await supabase.from(restaurantName).insert([
-      {
-        username: user,
-        password: password,
-        name: name,
-        token: token,
-        role: role,
-      },
-    ]);
-    const { data, error } = await supabase.from(restaurantName).select("*");
-    console.log(data);
-    console.log(error);
-  };
+  const depurar = async () => {};
 
-  const checkUser = async () => {
+  const loggingIn = async () => {
     if (password == "" || user == "" || restaurantName == "") {
-      Alert.alert(
-        languages.error[language],
-        languages.pleaseFillFields[language],
-        [
-          {
-            text: languages.ok[language],
-          },
-        ]
-      );
+      Alert.alert(languages[language].error, languages[language].pleaseFillFields, [
+        {
+          text: languages[language].ok,
+        },
+      ]);
       return;
     }
 
-    const {
-      success,
-      token,
-      data: data1,
-      error,
-    } = await logIn(restaurantName, user, password);
-    if (success && token != null) {
+    const { success, token, data, error } = await logIn(
+      restaurantName,
+      user,
+      password
+    );
+    if (success && token) {
       try {
-        if (rememberMe) {
-          await AsyncStorage.setItem(TOKEN_KEY_STORAGE, token);
-          await AsyncStorage.getItem(TOKEN_KEY_STORAGE);
-          await AsyncStorage.setItem(
-            RESTAURANT_NAME_KEY_STORAGE,
-            restaurantName
-          );
-          await AsyncStorage.getItem(RESTAURANT_NAME_KEY_STORAGE);
-        }
+        if (rememberMe)
+          await saveDataFromDict({
+            [TOKEN_KEY_STORAGE]: token,
+            [RESTAURANT_NAME_KEY_STORAGE]: restaurantName,
+          });
+
         Alert.alert(
-          interpolateMessage(languages.welcome[language], [data1.name]),
-          languages.logInSuccess[language],
+          interpolateMessage(languages[language].welcome, [data.name]),
+          languages[language].logInSuccess,
           [
             {
-              text: languages.ok[language],
+              text: languages[language].ok,
             },
           ]
         );
-        const { success, role, error } = await getRole(
-          restaurantName,
-          String(token)
-        );
+        const { success, role } = await getRole(restaurantName, String(token));
         if (success && role) {
-          await AsyncStorage.setItem(BOOL_LOG_OUT, "0");
-          navigation.navigate(role);
+          await saveDataFromDict({
+            [BOOL_LOG_OUT]: "0",
+            [USER_KEY_STORAGE]: user,
+          });
+          navigation.replace(role);
         }
       } catch (error) {
         setError(true);
         setErrorText(`An error occurred during log in: ${error}`);
       }
-    } else if (error && error == "UserOrPasswordWrong") {
-      Alert.alert(
-        languages.error[language],
-        languages.userOrPasswordWrong[language],
-        [
-          {
-            text: languages.retry[language],
-          },
-        ]
-      );
-    } else if (error == "restaurantDoesNotExist") {
-      Alert.alert(
-        languages.error[language],
-        languages.restaurantNameWrong[language],
-        [
-          {
-            text: languages.retry[language],
-          },
-        ]
-      );
-    }
+    } else if (error && error == "UserOrPasswordWrong")
+      Alert.alert(languages[language].error, languages[language].userOrPasswordWrong, [
+        {
+          text: languages[language].retry,
+        },
+      ]);
+    else if (error == "restaurantDoesNotExist")
+      Alert.alert(languages[language].error, languages[language].restaurantNameWrong, [
+        {
+          text: languages[language].retry,
+        },
+      ]);
   };
 
   useEffect(() => {
     const changeLanguage = async () => {
       try {
         const language = await checkLanguage();
+        console.log(`LanguageLogin: ${language}`);
         setLanguage(language);
       } catch (error) {
-        setLanguage("en");
+        console.error(`Error loading language ${error}`);
       } finally {
         setThingsLoaded((prevThingsLoaded) => prevThingsLoaded + 1);
       }
@@ -153,31 +118,39 @@ const Login = ({ navigation }) => {
 
   useEffect(() => {
     const loadTokenAndRestaurantName = async () => {
-      const dataToken = await loadData(TOKEN_KEY_STORAGE);
-      const dataRestaurantName = await loadData(RESTAURANT_NAME_KEY_STORAGE);
-      const language = await loadData(LANGUAGE_KEY_STORAGE);
-      if (dataToken != null && dataRestaurantName != null) {
+      const loadedData = await loadDataInDict([
+        TOKEN_KEY_STORAGE,
+        RESTAURANT_NAME_KEY_STORAGE,
+        LANGUAGE_KEY_STORAGE,
+      ]);
+      const {
+        [TOKEN_KEY_STORAGE]: dataToken,
+        [RESTAURANT_NAME_KEY_STORAGE]: dataRestaurantName,
+        [LANGUAGE_KEY_STORAGE]: language,
+      } = loadedData;
+
+      if (dataToken && dataRestaurantName) {
         const { name } = await getName(dataRestaurantName, dataToken);
-        const { success, role, error } = await getRole(
-          dataRestaurantName,
-          dataToken
-        );
-        if (success && role) {
+        const { role, error } = await getRole(dataRestaurantName, dataToken);
+        if (role)
           Alert.alert(
-            interpolateMessage(languages.welcome[language], [
-              name != null ? name : "",
-            ]),
-            languages.logInSuccess[language],
+            interpolateMessage(
+              languages[language].welcome,
+              [name ? name : ""]
+            ),
+            language
+              ? languages[language].logInSuccess
+              : languages[language].logInSuccess,
             [
               {
-                text: languages.ok[language],
+                text: languages[language].ok,
+                onPress: navigation.replace(role),
               },
             ]
           );
-          navigation.navigate(role);
-        } else {
+        else {
           setError(true);
-          setErrorText("An error occurred during log in: " + error);
+          setErrorText(`An error occurred during log in: ${error}`);
         }
       } else setThingsLoaded((prevThingsLoaded) => prevThingsLoaded + 1);
     };
@@ -185,33 +158,30 @@ const Login = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    if (thingsLoaded >= thingsToLoad) setLoading(false);
+    if (!loading || thingsLoaded >= thingsToLoad) setLoading(false);
 
-    if (!loading) return;
     setTimeout(() => {
-      if (loadingText == "Loading.") setLoadingText("Loading..");
-      if (loadingText == "Loading..") setLoadingText("Loading...");
-      if (loadingText == "Loading...") setLoadingText("Loading.");
+      setLoadingText(() => {
+        if (loadingText == "Loading.") return "Loading..";
+        else if (loadingText == "Loading..") return "Loading...";
+        return "Loading.";
+      });
     }, 750);
   }, [loadingText, loading]);
 
   useFocusEffect(
     React.useCallback(() => {
       const onBackPress = async () => {
-        Alert.alert(
-          languages.exitText[language],
-          languages.exitAppConfirmation[language],
-          [
-            {
-              text: languages.cancel[language],
-              onPress: () => null,
-            },
-            {
-              text: languages.exitText[language],
-              onPress: () => BackHandler.exitApp(),
-            },
-          ]
-        );
+        Alert.alert(languages[language].exitText, languages[language].exitAppConfirmation, [
+          {
+            text: languages[language].cancel,
+            onPress: () => null,
+          },
+          {
+            text: languages[language].exitText,
+            onPress: () => BackHandler.exitApp(),
+          },
+        ]);
         return true;
       };
       BackHandler.addEventListener("hardwareBackPress", onBackPress);
@@ -220,45 +190,57 @@ const Login = ({ navigation }) => {
     }, [])
   );
 
-  if (loading) return <Loading loadingText={loadingText} />;
-  if (error && errorText != null)
-    return <Error error={errorText != null ? errorText : "Uknown error"} />;
+  if (loading)
+    return (
+      <Loading
+        loadingText={loadingText}
+        progress={
+          thingsLoaded / thingsToLoad > 1 ? 1 : thingsLoaded / thingsToLoad
+        }
+      />
+    );
+
+  if (error)
+    return (
+      <Error
+        navigation={navigation}
+        error={errorText ? errorText : languages[language].errorText + "Uknown error"}
+      />
+    );
 
   return (
     <View style={stylesHS.container}>
       <Image source={userImage} style={stylesHS.imageUser} />
-      <Text style={stylesHS.text}>{languages.logIn[language]}</Text>
+      <Text style={stylesHS.text}>{languages[language].logIn}</Text>
 
       <View style={stylesHS.formLogin}>
         <View style={stylesHS.user}>
           <Text style={stylesHS.textUser}>
-            {languages.TextRestaurantName[language]}
+            {languages[language].TextRestaurantName}
           </Text>
 
           <TextInput
-            placeholder={languages.TextRestaurantName[language]}
+            placeholder={languages[language].TextRestaurantName}
             onChangeText={(value) => setRestaurantName(value)}
             style={stylesHS.textInputUser}
           />
         </View>
 
         <View style={stylesHS.user}>
-          <Text style={stylesHS.textUser}>{languages.TextUser[language]}</Text>
+          <Text style={stylesHS.textUser}>{languages[language].TextUser}</Text>
 
           <TextInput
-            placeholder={languages.TextUser[language]}
+            placeholder={languages[language].TextUser}
             onChangeText={(value) => setUser(value)}
             style={stylesHS.textInputUser}
           />
         </View>
 
         <View style={stylesHS.pass}>
-          <Text style={stylesHS.textPass}>
-            {languages.TextPassword[language]}
-          </Text>
+          <Text style={stylesHS.textPass}>{languages[language].TextPassword}</Text>
 
           <TextInput
-            placeholder={languages.TextPassword[language]}
+            placeholder={languages[language].TextPassword}
             style={stylesHS.textInputPass}
             secureTextEntry={true}
             onChangeText={(value) => setPassword(value)}
@@ -272,34 +254,24 @@ const Login = ({ navigation }) => {
             style={stylesHS.checkRemeberMe}
           />
 
-          <Text style={stylesHS.rememberMeText}>
-            {languages.rememberMe[language]}
-          </Text>
+          <Text style={stylesHS.rememberMeText}>{languages[language].rememberMe}</Text>
         </View>
 
         <View style={stylesHS.newAccountView}>
           <Text style={stylesHS.newAccountText}>
-            {languages.LogInNewAccount[language]}
+            {languages[language].LogInNewAccount}
           </Text>
 
           <TouchableOpacity onPress={() => navigation.navigate("Signin")}>
-            <Text style={stylesHS.textSignin}>
-              {languages.signIn[language]}
-            </Text>
+            <Text style={stylesHS.textSignin}>{languages[language].signIn}</Text>
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity
           style={stylesHS.signInButton}
-          onPress={() => checkUser()}
+          onPress={() => loggingIn()}
         >
-          <Text style={stylesHS.signInText}>{languages.logIn[language]}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={stylesHS.signInButton}
-          onPress={() => depurar()}
-        >
-          <Text style={stylesHS.signInText}>Depurar</Text>
+          <Text style={stylesHS.signInText}>{languages[language].logIn}</Text>
         </TouchableOpacity>
       </View>
     </View>

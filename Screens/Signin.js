@@ -10,25 +10,24 @@ import {
 } from "react-native";
 import stylesHS from "../styles/stylesHomeScreen";
 import { Picker } from "@react-native-picker/picker";
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   checkLanguage,
   Error,
   Loading,
   userImage,
 } from "../components/globalVariables";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import languages from "../components/languages.json";
 import { boolIsRestaurant, signIn } from "../components/DataBaseConnection";
 import { useFocusEffect } from "@react-navigation/native";
 
 const Signin = ({ navigation }) => {
+  const thingsToLoad = 2;
+  const [thingsLoaded, setThingsLoaded] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadingText, setLoadingText] = useState("Loading.");
   const [error, setError] = useState(false);
   const [errorText, setErrorText] = useState("");
-  const [thingsLoaded, setThingsLoaded] = useState(0);
-  const thingsToLoad = 2;
   const [language, setLanguage] = useState(null);
   const [restaurantName, setRestaurantName] = useState("");
   const [name, setName] = useState("");
@@ -36,39 +35,28 @@ const Signin = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
   const [options, setOptions] = useState(null);
-
-  const checkRestaurantName = (value) => {
-    if (value.indexOf(" ") == -1) {
-      setRestaurantName(value);
-    }
-  };
+  const getTranslations = () => languages[language] || languages.en;
+  const checkRestaurantName = (value) =>
+    value.indexOf(" ") === -1 ? setRestaurantName(value) : null;
 
   const signingIn = async () => {
     try {
-      const index = languages.options[language].indexOf(role);
-
-      const {
-        success,
-        user: user1,
-        error,
-      } = await signIn(
+      const index = getTranslations().options.indexOf(role);
+      const roleValue = languages.en.options[index];
+      const { success, error } = await signIn(
         restaurantName,
         user,
         password,
-        languages.options["en"][index],
+        roleValue,
         name
       );
       if (success) {
-        Alert.alert(
-          languages.signIn[language],
-          languages.signInSuccess[language],
-          [
-            {
-              text: languages.logIn[language],
-            },
-          ]
-        );
-        navigation.navigate("Login");
+        Alert.alert(getTranslations().signIn, getTranslations().signInSuccess, [
+          {
+            text: getTranslations().logIn,
+          },
+        ]);
+        navigation.replace("Login");
       } else {
         setError(true);
         setErrorText(error);
@@ -82,50 +70,42 @@ const Signin = ({ navigation }) => {
 
   const checkSignin = async () => {
     if (user == "" || password == "" || name == "" || restaurantName == "") {
-      Alert.alert(
-        languages.error[language],
-        languages.pleaseFillFields[language],
-        [
-          {
-            text: languages.ok[language],
-          },
-        ]
-      );
+      Alert.alert(getTranslations().error, getTranslations().pleaseFillFields, [
+        {
+          text: getTranslations().ok,
+        },
+      ]);
       return;
     }
     if (isFinite(restaurantName) || isFinite(restaurantName[0])) {
-      Alert.alert(
-        languages.error[language],
-        languages.noNumbersInName[language],
-        [
-          {
-            text: languages.ok[language],
-          },
-        ]
-      );
+      Alert.alert(getTranslations().error, getTranslations().noNumbersInName, [
+        {
+          text: getTranslations().ok,
+        },
+      ]);
       return;
     }
 
     const boolExistRestaurant = await boolIsRestaurant(restaurantName);
-    if (role == languages.options[language][2] && boolExistRestaurant) {
+    if (role == getTranslations().options[2] && boolExistRestaurant) {
       Alert.alert(
-        languages.error[language],
-        languages.restaurantAlreadyExists[language],
+        getTranslations().error,
+        getTranslations().restaurantAlreadyExists,
         [
           {
-            text: languages.ok[language],
+            text: getTranslations().ok,
           },
         ]
       );
       return;
     }
-    Alert.alert(languages.signIn[language], languages.askSignIn[language], [
+    Alert.alert(getTranslations().signIn, getTranslations().askSignIn, [
       {
-        text: languages.cancel[language],
+        text: getTranslations().cancel,
         onPress: () => {},
       },
       {
-        text: languages.ok[language],
+        text: getTranslations().ok,
         onPress: () => {
           signingIn();
         },
@@ -134,25 +114,15 @@ const Signin = ({ navigation }) => {
   };
 
   useEffect(() => {
-    const changeLanguage = async () => {
-      try {
-        const language = await checkLanguage();
-        setLanguage(language);
-        return language;
-      } catch (error) {
-        setLanguage("en");
-        return "en";
-      }
-    };
-
     const loadOptions = async () => {
-      const lang = await changeLanguage();
       try {
-        const opts = languages.options[lang];
+        const lang = await checkLanguage();
+        setLanguage(lang);
+        const opts = getTranslations().options;
         if (opts && opts.length > 0) {
           setOptions(opts);
           setRole(opts[0]);
-          setThingsLoaded((prevThingsLoaded) => prevThingsLoaded + 2);
+          setThingsLoaded((prev) => prev + 2);
         } else {
           setError(true);
           setErrorText("No options available.");
@@ -164,36 +134,34 @@ const Signin = ({ navigation }) => {
     };
 
     loadOptions();
-  }, [languages]);
+  }, []);
 
   useEffect(() => {
-    if (thingsLoaded === thingsToLoad) {
-      setLoading(false);
-    } else {
+    if (thingsLoaded === thingsToLoad) setLoading(false);
+    else {
       setTimeout(() => {
         setLoadingText((prev) => {
           if (prev === "Loading.") return "Loading..";
           if (prev === "Loading..") return "Loading...";
           return "Loading.";
         });
-      }, 1000);
+      }, 750);
     }
   }, [thingsLoaded]);
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       const onBackPress = async () => {
-        const language = await checkLanguage();
         Alert.alert(
-          languages.exitText[language],
-          languages.exitAppConfirmation[language],
+          getTranslations().exitText,
+          getTranslations().exitAppConfirmation,
           [
             {
-              text: languages.cancel[language],
+              text: getTranslations().cancel,
               onPress: () => null,
             },
             {
-              text: languages.exitText[language],
+              text: getTranslations().exitText,
               onPress: () => BackHandler.exitApp(),
             },
           ]
@@ -206,23 +174,33 @@ const Signin = ({ navigation }) => {
     }, [])
   );
 
-  if (loading) return <Loading loadingText={loadingText} />;
-  if (error) return <Error error={errorText} />;
+  if (loading)
+    return (
+      <Loading
+        loadingText={loadingText}
+        progress={
+          thingsLoaded / thingsToLoad > 1 ? 1 : thingsLoaded / thingsToLoad
+        }
+      />
+    );
+  if (error) return <Error navigation={navigation} component={"Signin"} error={errorText} />;
+
+  const translations = getTranslations();
 
   return (
     <ScrollView style={stylesHS.scrollView}>
       <View style={stylesHS.container}>
         <Image source={userImage} style={stylesHS.imageUser} />
 
-        <Text style={stylesHS.text}>{languages.signIn[language]}</Text>
+        <Text style={stylesHS.text}>{translations.signIn}</Text>
 
         <View style={stylesHS.formLogin}>
           <View style={stylesHS.user}>
             <Text style={stylesHS.textUser}>
-              {languages.TextRestaurantName[language]}
+              {translations.TextRestaurantName}
             </Text>
             <TextInput
-              placeholder={languages.TextRestaurantName[language]}
+              placeholder={translations.TextRestaurantName}
               value={restaurantName}
               onChangeText={(value) => checkRestaurantName(value)}
               style={stylesHS.textInputUser}
@@ -231,11 +209,9 @@ const Signin = ({ navigation }) => {
           </View>
 
           <View style={stylesHS.user}>
-            <Text style={stylesHS.textUser}>
-              {languages.TextName[language]}
-            </Text>
+            <Text style={stylesHS.textUser}>{translations.TextName}</Text>
             <TextInput
-              placeholder={languages.TextName[language]}
+              placeholder={translations.TextName}
               onChangeText={(value) => setName(value)}
               style={stylesHS.textInputUser}
               maxLength={100}
@@ -243,11 +219,9 @@ const Signin = ({ navigation }) => {
           </View>
 
           <View style={stylesHS.user}>
-            <Text style={stylesHS.textUser}>
-              {languages.TextUser[language]}
-            </Text>
+            <Text style={stylesHS.textUser}>{translations.TextUser}</Text>
             <TextInput
-              placeholder={languages.TextUser[language]}
+              placeholder={translations.TextUser}
               onChangeText={(value) => setUser(value)}
               style={stylesHS.textInputUser}
               maxLength={50}
@@ -255,11 +229,9 @@ const Signin = ({ navigation }) => {
           </View>
 
           <View style={stylesHS.pass}>
-            <Text style={stylesHS.textPass}>
-              {languages.TextPassword[language]}
-            </Text>
+            <Text style={stylesHS.textPass}>{translations.TextPassword}</Text>
             <TextInput
-              placeholder={languages.TextPassword[language]}
+              placeholder={translations.TextPassword}
               style={stylesHS.textInputPass}
               secureTextEntry={true}
               onChangeText={(value) => setPassword(value)}
@@ -267,7 +239,7 @@ const Signin = ({ navigation }) => {
             />
           </View>
 
-          <Text style={stylesHS.roles}>{languages.TextRoles[language]}</Text>
+          <Text style={stylesHS.roles}>{translations.TextRoles}</Text>
 
           <View style={stylesHS.pickerContainer}>
             <Picker
@@ -283,21 +255,17 @@ const Signin = ({ navigation }) => {
 
           <View style={stylesHS.newAccountView}>
             <Text style={stylesHS.newAccountText}>
-              {languages.SigInLogIn[language]}
+              {translations.SigInLogIn}
             </Text>
             <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-              <Text style={stylesHS.textSignin}>
-                {languages.logIn[language]}
-              </Text>
+              <Text style={stylesHS.textSignin}>{translations.logIn}</Text>
             </TouchableOpacity>
           </View>
           <TouchableOpacity
             style={stylesHS.signInButton}
             onPress={() => checkSignin()}
           >
-            <Text style={stylesHS.signInText}>
-              {languages.signIn[language]}
-            </Text>
+            <Text style={stylesHS.signInText}>{translations.signIn}</Text>
           </TouchableOpacity>
         </View>
       </View>

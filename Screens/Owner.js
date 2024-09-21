@@ -6,19 +6,17 @@ import {
   TouchableOpacity,
   Animated,
   ScrollView,
-  Image,
 } from "react-native";
 import styleOwner from "../styles/stylesScreenOwner";
-import LogOut from "../components/logOut";
+import LogOut from "../components/LogOut";
 import { useFocusEffect } from "@react-navigation/native";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
-  height,
-  interpolateMessage,
   LANGUAGE_KEY_STORAGE,
   loadData,
   Loading,
   widthDivided,
+  Error,
 } from "../components/globalVariables";
 import languages from "../components/languages.json";
 
@@ -42,14 +40,33 @@ const Owner = ({ navigation }) => {
   const [error, setError] = useState(false);
   const [errorText, setErrorText] = useState(null);
   const thingsToLoad = 1;
+  const getTranslations = () => languages[lang] || languages.en;
 
   useEffect(() => {
-    if (!loading) return;
+    const loadLanguage = async () => {
+      try {
+        const language = await loadData(LANGUAGE_KEY_STORAGE);
+        setLang(language);
+      } catch {
+        setLang("en");
+      } finally {
+        setThingsLoaded((prev) => prev + 1);
+      }
+    };
+
+    loadLanguage();
+  }, []);
+
+  useEffect(() => {
+    if (!loading || thingsLoaded >= thingsToLoad) setLoading(false);
+
     setTimeout(() => {
-      if (loadingText == "Loading.") setLoadingText("Loading..");
-      if (loadingText == "Loading..") setLoadingText("Loading...");
-      if (loadingText == "Loading...") setLoadingText("Loading.");
-    }, 1000);
+      setLoadingText((prev) => {
+        if (prev === "Loading.") return "Loading..";
+        if (prev === "Loading..") return "Loading...";
+        return "Loading.";
+      });
+    }, 750);
   }, [loadingText]);
 
   useEffect(() => {
@@ -65,53 +82,41 @@ const Owner = ({ navigation }) => {
     }).start();
   }, [boolShowLeft]);
 
-  useEffect(() => {
-    const loadLanguage = async () => {
-      const language = await loadData(LANGUAGE_KEY_STORAGE);
-      if (language != null) setLang(language);
-    };
-    try {
-      loadLanguage();
-    } catch (error) {
-      setLang("en");
-    } finally {
-      setThingsLoaded(thingsLoaded + 1);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (thingsLoaded == thingsToLoad) {
-      setLoading(false);
-    }
-  }, [thingsLoaded]);
-
   useFocusEffect(
-    React.useCallback(() => {
-      const onBackPress = async () => {
-        Alert.alert(
-          languages.exitText[lang],
-          languages.exitAppConfirmation[lang],
-          [
-            {
-              text: languages.cancel[lang],
-              onPress: () => null,
-            },
-            {
-              text: languages.exitText[lang],
-              onPress: () => BackHandler.exitApp(),
-            },
-          ]
-        );
+    useCallback(() => {
+      const onBackPress = () => {
+        const translations = getTranslations();
+        Alert.alert(translations.exitText, translations.exitAppConfirmation, [
+          {
+            text: translations.cancel,
+            onPress: () => null,
+          },
+          {
+            text: translations.exitText,
+            onPress: () => BackHandler.exitApp(),
+          },
+        ]);
         return true;
       };
+
       BackHandler.addEventListener("hardwareBackPress", onBackPress);
       return () =>
         BackHandler.removeEventListener("hardwareBackPress", onBackPress);
-    }, [])
+    }, [lang])
   );
 
-  if (loading) return <Loading loadingText={loadingText} />;
-  if (error) return <Error error={errorText != null ? errorText : ""} />;
+  if (loading)
+    return (
+      <Loading
+        loadingText={loadingText}
+        progress={
+          thingsLoaded / thingsToLoad > 1 ? 1 : thingsLoaded / thingsToLoad
+        }
+      />
+    );
+  if (error) return <Error error={errorText || ""} />;
+
+  const translations = getTranslations();
 
   return (
     <View style={styleOwner.container}>
@@ -132,6 +137,7 @@ const Owner = ({ navigation }) => {
             {showTextButton}
           </Animated.Text>
         </TouchableOpacity>
+        <Text style={[styleOwner.texts]}>{translations.ownerText}</Text>
       </View>
 
       <Animated.View
@@ -143,7 +149,7 @@ const Owner = ({ navigation }) => {
             onPress={() => navigation.navigate("Settings")}
           >
             <Text style={styleOwner.textOptions}>
-              {languages.settingsText[lang]}
+              {translations.settingsText}
             </Text>
             <Text style={[styleOwner.textOptions]}>{">"}</Text>
           </TouchableOpacity>
@@ -167,7 +173,6 @@ const Owner = ({ navigation }) => {
 
         <LogOut navigation={navigation} bottom={100} />
       </Animated.View>
-      <Text style={styleOwner.texts}>Owner</Text>
     </View>
   );
 };

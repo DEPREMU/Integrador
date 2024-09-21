@@ -1,5 +1,5 @@
 import { View, Text } from "react-native";
-import LogOut from "../components/logOut";
+import LogOut from "../components/LogOut";
 const Cook = ({ navigation }) => {
   return (
     <View>
