@@ -12,7 +12,6 @@ export default stylesHS = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
-    paddingTop: 30,
   },
   imageUser: {
     width: 100,
@@ -81,6 +80,7 @@ export default stylesHS = StyleSheet.create({
     borderRadius: 5,
     paddingVertical: 15,
     alignItems: "center",
+    justifyContent: "center",
   },
   signInText: {
     color: "#FFFFFF",

@@ -7,6 +7,7 @@ import {
   Alert,
   ScrollView,
   BackHandler,
+  ActivityIndicator,
 } from "react-native";
 import stylesHS from "../styles/stylesHomeScreen";
 import { Picker } from "@react-native-picker/picker";
@@ -35,6 +36,7 @@ const Signin = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
   const [options, setOptions] = useState(null);
+  const [boolSigningIn, setBoolSigningIn] = useState(false);
   const getTranslations = () => languages[language] || languages.en;
   const checkRestaurantName = (value) =>
     value.indexOf(" ") === -1 ? setRestaurantName(value) : null;
@@ -51,12 +53,13 @@ const Signin = ({ navigation }) => {
         name
       );
       if (success) {
+        setBoolSigningIn(false);
         Alert.alert(getTranslations().signIn, getTranslations().signInSuccess, [
           {
             text: getTranslations().logIn,
+            onPress: () => navigation.replace("Login"),
           },
         ]);
-        navigation.replace("Login");
       } else {
         setError(true);
         setErrorText(error);
@@ -69,18 +72,26 @@ const Signin = ({ navigation }) => {
   };
 
   const checkSignin = async () => {
+    setBoolSigningIn(true);
     if (user == "" || password == "" || name == "" || restaurantName == "") {
       Alert.alert(getTranslations().error, getTranslations().pleaseFillFields, [
         {
           text: getTranslations().ok,
+          onPress: () => {
+            setBoolSigningIn(false);
+          },
         },
       ]);
       return;
     }
+
     if (isFinite(restaurantName) || isFinite(restaurantName[0])) {
       Alert.alert(getTranslations().error, getTranslations().noNumbersInName, [
         {
           text: getTranslations().ok,
+          onPress: () => {
+            setBoolSigningIn(false);
+          },
         },
       ]);
       return;
@@ -94,11 +105,15 @@ const Signin = ({ navigation }) => {
         [
           {
             text: getTranslations().ok,
+            onPress: () => {
+              setBoolSigningIn(false);
+            },
           },
         ]
       );
       return;
     }
+
     Alert.alert(getTranslations().signIn, getTranslations().askSignIn, [
       {
         text: getTranslations().cancel,
@@ -137,17 +152,16 @@ const Signin = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    if (thingsLoaded === thingsToLoad) setLoading(false);
-    else {
+    if (thingsLoaded >= thingsToLoad) setLoading(false);
+    else
       setTimeout(() => {
         setLoadingText((prev) => {
           if (prev === "Loading.") return "Loading..";
-          if (prev === "Loading..") return "Loading...";
+          else if (prev === "Loading..") return "Loading...";
           return "Loading.";
         });
       }, 750);
-    }
-  }, [thingsLoaded]);
+  }, [loadingText]);
 
   useFocusEffect(
     useCallback(() => {
@@ -183,7 +197,10 @@ const Signin = ({ navigation }) => {
         }
       />
     );
-  if (error) return <Error navigation={navigation} component={"Signin"} error={errorText} />;
+  if (error)
+    return (
+      <Error navigation={navigation} component="Signin" error={errorText} />
+    );
 
   const translations = getTranslations();
 
@@ -257,6 +274,7 @@ const Signin = ({ navigation }) => {
             <Text style={stylesHS.newAccountText}>
               {translations.SigInLogIn}
             </Text>
+
             <TouchableOpacity onPress={() => navigation.navigate("Login")}>
               <Text style={stylesHS.textSignin}>{translations.logIn}</Text>
             </TouchableOpacity>
@@ -265,7 +283,11 @@ const Signin = ({ navigation }) => {
             style={stylesHS.signInButton}
             onPress={() => checkSignin()}
           >
-            <Text style={stylesHS.signInText}>{translations.signIn}</Text>
+            {boolSigningIn ? (
+              <ActivityIndicator size={25} />
+            ) : (
+              <Text style={stylesHS.signInText}>{translations.signIn}</Text>
+            )}
           </TouchableOpacity>
         </View>
       </View>

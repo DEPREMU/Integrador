@@ -1,5 +1,5 @@
 import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Login from "./Screens/Login";
 import Signin from "./Screens/Signin";
 import Owner from "./Screens/Owner";
@@ -8,12 +8,12 @@ import Waiter from "./Screens/Waiter";
 import Settings from "./Screens/Settings";
 
 const App = () => {
-  const Stack = createStackNavigator();
+  const Stack = createNativeStackNavigator();
 
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
-        {/*Para cada vista se tiene que agregar aqui para mostrarse mediante un boton*/}
+        {/* Para cada vista se tiene que agregar aqui para mostrarse mediante un boton */}
         <Stack.Screen
           name="Login"
           component={Login}

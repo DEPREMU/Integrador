@@ -6,6 +6,7 @@ import {
   TextInput,
   Alert,
   BackHandler,
+  ActivityIndicator,
 } from "react-native";
 import stylesHS from "../styles/stylesHomeScreen";
 import React, { useEffect, useState } from "react";
@@ -40,16 +41,21 @@ const Login = ({ navigation }) => {
   const [user, setUser] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-
-  const depurar = async () => {};
+  const [boolLogginIn, setBoolLoggingIn] = useState(false);
 
   const loggingIn = async () => {
+    setBoolLoggingIn(true);
     if (password == "" || user == "" || restaurantName == "") {
-      Alert.alert(languages[language].error, languages[language].pleaseFillFields, [
-        {
-          text: languages[language].ok,
-        },
-      ]);
+      Alert.alert(
+        languages[language].error,
+        languages[language].pleaseFillFields,
+        [
+          {
+            text: languages[language].ok,
+            onPress: () => setBoolLoggingIn(false),
+          },
+        ]
+      );
       return;
     }
 
@@ -59,6 +65,7 @@ const Login = ({ navigation }) => {
       password
     );
     if (success && token) {
+      setBoolLoggingIn(false);
       try {
         if (rememberMe)
           await saveDataFromDict({
@@ -88,24 +95,33 @@ const Login = ({ navigation }) => {
         setErrorText(`An error occurred during log in: ${error}`);
       }
     } else if (error && error == "UserOrPasswordWrong")
-      Alert.alert(languages[language].error, languages[language].userOrPasswordWrong, [
-        {
-          text: languages[language].retry,
-        },
-      ]);
+      Alert.alert(
+        languages[language].error,
+        languages[language].userOrPasswordWrong,
+        [
+          {
+            text: languages[language].retry,
+            onPress: () => setBoolLoggingIn(false),
+          },
+        ]
+      );
     else if (error == "restaurantDoesNotExist")
-      Alert.alert(languages[language].error, languages[language].restaurantNameWrong, [
-        {
-          text: languages[language].retry,
-        },
-      ]);
+      Alert.alert(
+        languages[language].error,
+        languages[language].restaurantNameWrong,
+        [
+          {
+            text: languages[language].retry,
+            onPress: () => setBoolLoggingIn(false),
+          },
+        ]
+      );
   };
 
   useEffect(() => {
     const changeLanguage = async () => {
       try {
         const language = await checkLanguage();
-        console.log(`LanguageLogin: ${language}`);
         setLanguage(language);
       } catch (error) {
         console.error(`Error loading language ${error}`);
@@ -134,10 +150,7 @@ const Login = ({ navigation }) => {
         const { role, error } = await getRole(dataRestaurantName, dataToken);
         if (role)
           Alert.alert(
-            interpolateMessage(
-              languages[language].welcome,
-              [name ? name : ""]
-            ),
+            interpolateMessage(languages[language].welcome, [name ? name : ""]),
             language
               ? languages[language].logInSuccess
               : languages[language].logInSuccess,
@@ -159,29 +172,34 @@ const Login = ({ navigation }) => {
 
   useEffect(() => {
     if (!loading || thingsLoaded >= thingsToLoad) setLoading(false);
-
-    setTimeout(() => {
+    let timer;
+    timer = setTimeout(() => {
       setLoadingText(() => {
         if (loadingText == "Loading.") return "Loading..";
         else if (loadingText == "Loading..") return "Loading...";
         return "Loading.";
       });
     }, 750);
+    return () => clearTimeout(timer);
   }, [loadingText, loading]);
 
   useFocusEffect(
     React.useCallback(() => {
       const onBackPress = async () => {
-        Alert.alert(languages[language].exitText, languages[language].exitAppConfirmation, [
-          {
-            text: languages[language].cancel,
-            onPress: () => null,
-          },
-          {
-            text: languages[language].exitText,
-            onPress: () => BackHandler.exitApp(),
-          },
-        ]);
+        Alert.alert(
+          languages[language].exitText,
+          languages[language].exitAppConfirmation,
+          [
+            {
+              text: languages[language].cancel,
+              onPress: () => null,
+            },
+            {
+              text: languages[language].exitText,
+              onPress: () => BackHandler.exitApp(),
+            },
+          ]
+        );
         return true;
       };
       BackHandler.addEventListener("hardwareBackPress", onBackPress);
@@ -204,7 +222,9 @@ const Login = ({ navigation }) => {
     return (
       <Error
         navigation={navigation}
-        error={errorText ? errorText : languages[language].errorText + "Uknown error"}
+        error={
+          errorText ? errorText : languages[language].errorText + "Uknown error"
+        }
       />
     );
 
@@ -237,7 +257,9 @@ const Login = ({ navigation }) => {
         </View>
 
         <View style={stylesHS.pass}>
-          <Text style={stylesHS.textPass}>{languages[language].TextPassword}</Text>
+          <Text style={stylesHS.textPass}>
+            {languages[language].TextPassword}
+          </Text>
 
           <TextInput
             placeholder={languages[language].TextPassword}
@@ -247,15 +269,20 @@ const Login = ({ navigation }) => {
           />
         </View>
 
-        <View style={stylesHS.ViewRemeberMe}>
+        <TouchableOpacity
+          style={stylesHS.ViewRemeberMe}
+          onPress={() => setRememberMe(!rememberMe)}
+        >
           <CheckBox
             checked={rememberMe}
             onPress={() => setRememberMe(!rememberMe)}
             style={stylesHS.checkRemeberMe}
           />
 
-          <Text style={stylesHS.rememberMeText}>{languages[language].rememberMe}</Text>
-        </View>
+          <Text style={stylesHS.rememberMeText}>
+            {languages[language].rememberMe}
+          </Text>
+        </TouchableOpacity>
 
         <View style={stylesHS.newAccountView}>
           <Text style={stylesHS.newAccountText}>
@@ -263,7 +290,9 @@ const Login = ({ navigation }) => {
           </Text>
 
           <TouchableOpacity onPress={() => navigation.navigate("Signin")}>
-            <Text style={stylesHS.textSignin}>{languages[language].signIn}</Text>
+            <Text style={stylesHS.textSignin}>
+              {languages[language].signIn}
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -271,10 +300,15 @@ const Login = ({ navigation }) => {
           style={stylesHS.signInButton}
           onPress={() => loggingIn()}
         >
-          <Text style={stylesHS.signInText}>{languages[language].logIn}</Text>
+          {boolLogginIn ? (
+            <ActivityIndicator size={25} />
+          ) : (
+            <Text style={stylesHS.signInText}>{languages[language].logIn}</Text>
+          )}
         </TouchableOpacity>
       </View>
     </View>
   );
 };
+
 export default Login;

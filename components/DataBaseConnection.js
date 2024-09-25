@@ -54,15 +54,15 @@ const signIn = async (restaurantName, user, password, role, name) => {
       .eq("username", user);
     if (selectError) {
       console.error("Error fetching user:", selectError.message);
-      return { success: false, user: "", error: selectError.message };
+      return { success: false, error: selectError.message };
     } else if (selectData) {
-      return { success: true, user: selectData[0].username, error: null };
+      return { success: true, error: null };
     }
   } catch (error) {
     console.error("Unexpected error:", error);
-    return { success: false, user: null, error: error };
+    return { success: false, error: error };
   }
-  return { success: false, user: null, error: "Uknown error" };
+  return { success: false, error: "Uknown error" };
 };
 
 const logIn = async (restaurantName, user, password) => {

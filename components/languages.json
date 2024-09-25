@@ -1,4 +1,11 @@
 {
+  "languages": ["en", "es", "fr", "ja"],
+  "languagesNames": {
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "ja": "日本語"
+  },
   "en": {
     "TextUser": "User",
     "TextPassword": "Password",
@@ -162,12 +169,5 @@
     "confirmed": "確認済み。",
     "recommendRestart": "変更を適用するためにアプリを再起動することをお勧めします！",
     "ownerText": "オーナー"
-  },
-  "languages": ["en", "es", "fr", "ja"],
-  "languagesNames": {
-    "en": "English",
-    "es": "Español",
-    "fr": "Français",
-    "ja": "日本語"
   }
 }

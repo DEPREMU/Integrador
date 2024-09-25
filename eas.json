@@ -1,6 +1,6 @@
 {
   "cli": {
-    "version": ">= 12.3.0"
+    "version": ">= 12.4.1"
   },
   "build": {
     "development": {
@@ -12,12 +12,6 @@
         "buildType": "apk"
       },
       "distribution": "internal"
-    },
-    "production": {
-      "distribution": "store",
-      "android": {
-        "buildType": "aab"
-      }
     }
   },
   "submit": {

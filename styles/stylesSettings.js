@@ -6,7 +6,7 @@ export default stylesSettings = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FFFFFF",
     alignItems: "center",
-    paddingTop:20
+    paddingTop: 20,
   },
   texts: {
     fontSize: 18,

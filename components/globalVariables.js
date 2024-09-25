@@ -113,7 +113,7 @@ const Loading = ({ loadingText, progress }) => {
       <Text style={{ fontSize: 18, textAlign: "center", marginVertical: 5 }}>
         {loadingText}
       </Text>
-      <ActivityIndicator size="large" color="#0000ff" />
+      {/* <ActivityIndicator size="large" color="#0000ff" /> */}
       <Bar
         progress={progress}
         width={200}
@@ -132,7 +132,7 @@ const Loading = ({ loadingText, progress }) => {
  * @param {Object} props - The component props.
  * @param {string} props.error - The error message.
  * @param {Object} props.navigation - The navigation object.
- * @param {string} [props.component="Login"] - The component name.
+ * @param {string} [props.component="Login"] - The component name. Default: Login.
  * @returns {JSX.Element} The rendered Error component.
  */
 const Error = ({ error, navigation, component = "Login" }) => {
@@ -150,24 +150,26 @@ const Error = ({ error, navigation, component = "Login" }) => {
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       <Text style={{ fontSize: 18, textAlign: "center" }}>{error}</Text>
-      <TouchableOpacity
-        style={{
-          backgroundColor: "gray",
-          borderRadius: 5,
-          padding: 10,
-          marginVertical: 10,
-        }}
-        onPress={() => navigation.replace(component)}
-      >
-        <Text
+      {navigation && (
+        <TouchableOpacity
           style={{
-            color: "white",
-            fontSize: 18,
+            backgroundColor: "gray",
+            borderRadius: 5,
+            padding: 10,
+            marginVertical: 10,
           }}
+          onPress={() => navigation.replace(component)}
         >
-          {languages[language].retry}
-        </Text>
-      </TouchableOpacity>
+          <Text
+            style={{
+              color: "white",
+              fontSize: 18,
+            }}
+          >
+            {languages[language].retry}
+          </Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
