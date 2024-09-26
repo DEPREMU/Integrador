@@ -133,7 +133,7 @@ const Signin = ({ navigation }) => {
       try {
         const lang = await checkLanguage();
         setLanguage(lang);
-        const opts = getTranslations().options;
+        const opts = languages[lang].options;
         if (opts && opts.length > 0) {
           setOptions(opts);
           setRole(opts[0]);

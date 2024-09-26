@@ -42,20 +42,19 @@ const Login = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [boolLogginIn, setBoolLoggingIn] = useState(false);
+  const getTranlations = () => languages[language] || languages.en;
 
   const loggingIn = async () => {
     setBoolLoggingIn(true);
     if (password == "" || user == "" || restaurantName == "") {
-      Alert.alert(
-        languages[language].error,
-        languages[language].pleaseFillFields,
-        [
-          {
-            text: languages[language].ok,
-            onPress: () => setBoolLoggingIn(false),
+      Alert.alert(getTranlations().error, getTranlations().pleaseFillFields, [
+        {
+          text: getTranlations().ok,
+          onPress: () => {
+            setBoolLoggingIn(null);
           },
-        ]
-      );
+        },
+      ]);
       return;
     }
 
@@ -96,23 +95,21 @@ const Login = ({ navigation }) => {
       }
     } else if (error && error == "UserOrPasswordWrong")
       Alert.alert(
-        languages[language].error,
-        languages[language].userOrPasswordWrong,
+        getTranlations().error,
+        getTranlations().userOrPasswordWrong,
         [
           {
-            text: languages[language].retry,
-            onPress: () => setBoolLoggingIn(false),
+            text: getTranlations().retry,
           },
         ]
       );
     else if (error == "restaurantDoesNotExist")
       Alert.alert(
-        languages[language].error,
-        languages[language].restaurantNameWrong,
+        getTranlations().error,
+        getTranlations().restaurantNameWrong,
         [
           {
-            text: languages[language].retry,
-            onPress: () => setBoolLoggingIn(false),
+            text: getTranlations().retry,
           },
         ]
       );
@@ -151,12 +148,10 @@ const Login = ({ navigation }) => {
         if (role)
           Alert.alert(
             interpolateMessage(languages[language].welcome, [name ? name : ""]),
-            language
-              ? languages[language].logInSuccess
-              : languages[language].logInSuccess,
+            getTranlations().logInSuccess,
             [
               {
-                text: languages[language].ok,
+                text: getTranlations().ok,
                 onPress: navigation.replace(role),
               },
             ]
@@ -187,15 +182,15 @@ const Login = ({ navigation }) => {
     React.useCallback(() => {
       const onBackPress = async () => {
         Alert.alert(
-          languages[language].exitText,
-          languages[language].exitAppConfirmation,
+          getTranlations().exitText,
+          getTranlations().exitAppConfirmation,
           [
             {
-              text: languages[language].cancel,
+              text: getTranlations().cancel,
               onPress: () => null,
             },
             {
-              text: languages[language].exitText,
+              text: getTranlations().exitText,
               onPress: () => BackHandler.exitApp(),
             },
           ]
