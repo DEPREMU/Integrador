@@ -22,7 +22,7 @@ import {
   BOOL_LOG_OUT,
   saveDataFromDict,
   loadDataInDict,
-  USER_KEY_STORAGE,
+  saveData,
 } from "../components/globalVariables";
 import languages from "../components/languages.json";
 import { getName, getRole, logIn } from "../components/DataBaseConnection";
@@ -58,7 +58,7 @@ const Login = ({ navigation }) => {
       return;
     }
 
-    const { success, token, data, error } = await logIn(
+    const { success, token,tokenTime,  data, error } = await logIn(
       restaurantName,
       user,
       password
@@ -66,28 +66,26 @@ const Login = ({ navigation }) => {
     if (success && token) {
       setBoolLoggingIn(false);
       try {
-        if (rememberMe)
-          await saveDataFromDict({
-            [TOKEN_KEY_STORAGE]: token,
-            [RESTAURANT_NAME_KEY_STORAGE]: restaurantName,
-          });
+        if (rememberMe) {
+          await saveData(TOKEN_KEY_STORAGE, token);
+        }
 
-        Alert.alert(
-          interpolateMessage(languages[language].welcome, [data.name]),
-          languages[language].logInSuccess,
-          [
-            {
-              text: languages[language].ok,
-            },
-          ]
-        );
         const { success, role } = await getRole(restaurantName, String(token));
         if (success && role) {
           await saveDataFromDict({
             [BOOL_LOG_OUT]: "0",
-            [USER_KEY_STORAGE]: user,
+            [RESTAURANT_NAME_KEY_STORAGE]: restaurantName,
           });
-          navigation.replace(role);
+          Alert.alert(
+            interpolateMessage(getTranlations().welcome, [data.name]),
+            getTranlations().logInSuccess,
+            [
+              {
+                text: getTranlations().ok,
+                onPress: () => navigation.replace(role),
+              },
+            ]
+          );
         }
       } catch (error) {
         setError(true);
@@ -113,13 +111,13 @@ const Login = ({ navigation }) => {
           },
         ]
       );
+    setBoolLoggingIn(false);
   };
 
   useEffect(() => {
     const changeLanguage = async () => {
       try {
-        const language = await checkLanguage();
-        setLanguage(language);
+        setLanguage(await checkLanguage());
       } catch (error) {
         console.error(`Error loading language ${error}`);
       } finally {
@@ -147,12 +145,12 @@ const Login = ({ navigation }) => {
         const { role, error } = await getRole(dataRestaurantName, dataToken);
         if (role)
           Alert.alert(
-            interpolateMessage(languages[language].welcome, [name ? name : ""]),
+            interpolateMessage(getTranlations().welcome, [name ? name : ""]),
             getTranlations().logInSuccess,
             [
               {
                 text: getTranlations().ok,
-                onPress: navigation.replace(role),
+                onPress: () => navigation.replace(role),
               },
             ]
           );

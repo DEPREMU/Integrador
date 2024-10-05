@@ -1,5 +1,6 @@
 {
   "expo": {
+    "jsEngine": "hermes",
     "name": "Restaurant",
     "slug": "Restaurant",
     "version": "0.0.2",
@@ -30,8 +31,6 @@
         "projectId": "ca443e38-2ccc-49cc-a549-f1fa059e735a"
       }
     },
-    "plugins": [
-      "expo-localization"
-    ]
+    "plugins": ["expo-localization"]
   }
 }
