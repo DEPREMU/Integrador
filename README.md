@@ -1,15 +1,69 @@
 # Integrador
 
-Comandos basicos de git
-git clone https://github.com/DEPREMU/Integrador.git //Hacer esto primero para descargar el proyecto
-git add FileName/. //Agregas el archivo nuevo o colocas un punto para subir todo el proyecto
-git commit //Te abrira un archivo donde comentaras los cambios hechos _POSTERIOR AL ADD_
-git commit -m "Mensaje de el/los cambio/s" //Es lo mismo que el anterior solo que no te abre el archivo, tu colocas el mensaje directo en el comando
-git status //Busca nuevos cambios en el repositorio
-git pull // Descarga los archivos mas recientes del repositorio _Hacer esto antes de realizar cualquier nuevo cambio al proyecto LOCAL_
-git push // para subir los archivos previamente seleccionados en git add
+# Comandos Básicos de Git
 
-Instalar node.js >=v22 (current)
-instalar en consola expo y eas-cli en la ruta del proyecto (npm install), (npm install -g expo) y (npm install -g eas-cli) 
-(expo --version) / (eas --version) para verificar las instalaciones
-instalar expo-go para ver la aplicacion funcionando (Android/iPhone)
+## 1. Clonar el Repositorio
+Para descargar el proyecto, ejecuta el siguiente comando:
+```
+git clone https://github.com/DEPREMU/Integrador.git
+```
+
+## 2. Agregar Cambios
+Para agregar archivos al área de preparación (staging):
+```
+git add FileName/      # Agrega un archivo específico
+git add .              # Agrega todos los cambios en el proyecto
+```
+
+## 3. Confirmar Cambios
+Realiza un commit de los cambios agregados:
+```
+git commit             # Abre un editor para que escribas el mensaje del commit
+```
+O bien, si prefieres hacerlo en una línea:
+```
+git commit -m "Mensaje de el/los cambio/s"
+```
+
+## 4. Verificar Estado del Repositorio
+Para ver el estado de los archivos y detectar cambios no comprometidos:
+```
+git status
+```
+
+## 5. Actualizar desde el Repositorio Remoto
+Antes de realizar nuevos cambios, asegúrate de tener la última versión del proyecto:
+```
+git pull
+```
+
+## 6. Subir Cambios al Repositorio Remoto
+Para enviar tus cambios al repositorio remoto:
+```
+git push
+```
+
+---
+
+# Configuración del Proyecto
+
+## 1. Instalar Node.js
+Asegúrate de tener Node.js instalado (versión >= 22). Puedes descargarlo desde [nodejs.org](https://nodejs.org/).
+
+## 2. Instalar Dependencias
+Navega a la ruta del proyecto y ejecuta los siguientes comandos:
+```
+npm install            # Instala las dependencias del proyecto
+npm install -g expo    # Instala Expo CLI globalmente
+npm install -g eas-cli # Instala EAS CLI globalmente
+```
+
+## 3. Verificar Instalaciones
+Para confirmar que Expo y EAS están instalados correctamente, ejecuta:
+```
+expo --version
+eas --version
+```
+
+## 4. Instalar Expo Go
+Para ver la aplicación en funcionamiento, instala Expo Go en tu dispositivo (disponible para Android e iPhone).
