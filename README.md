@@ -37,7 +37,19 @@ Antes de realizar nuevos cambios, asegúrate de tener la última versión del pr
 git pull
 ```
 
-## 6. Subir Cambios al Repositorio Remoto
+## 6. Crear y posicionarse en la rama
+Para subir updates y que se verifique antes de agregarse al main:
+```
+git checkout -b nombreDeRama
+```
+
+## 7. Subir cambios al Repositorio Remoto en una Rama 
+Para enviar tus cambios a la rama y evitar posibles problemas en el Main:
+```
+git push origin nombreDeRama
+```
+
+## 8. Subir Cambios al Repositorio Remoto en la rama Main
 Para enviar tus cambios al repositorio remoto:
 ```
 git push
