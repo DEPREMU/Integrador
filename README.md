@@ -58,7 +58,7 @@ npm install -g expo    # Instala Expo CLI globalmente
 npm install -g eas-cli # Instala EAS CLI globalmente
 ```
 
-## 3. Verificar Instalaciones
+## 3. Verificar Instalaciones (Opcional)
 Para confirmar que Expo y EAS están instalados correctamente, ejecuta:
 ```
 expo --version
@@ -66,4 +66,4 @@ eas --version
 ```
 
 ## 4. Instalar Expo Go
-Para ver la aplicación en funcionamiento, instala Expo Go en tu dispositivo (disponible para Android e iPhone).
+Para ver la aplicación en funcionamiento, instala Expo Go en tu dispositivo (Android y/o iPhone).
