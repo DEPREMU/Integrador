@@ -15,11 +15,16 @@ import React, { useEffect, useState, useCallback } from "react";
 import {
   checkLanguage,
   Error,
+  hashPassword,
   Loading,
   userImage,
 } from "../components/globalVariables";
 import languages from "../components/languages.json";
-import { boolIsRestaurant, signIn } from "../components/DataBaseConnection";
+import {
+  boolIsRestaurant,
+  boolUserExist,
+  signIn,
+} from "../components/DataBaseConnection";
 import { useFocusEffect } from "@react-navigation/native";
 
 const Signin = ({ navigation }) => {
@@ -45,13 +50,15 @@ const Signin = ({ navigation }) => {
     try {
       const index = getTranslations().options.indexOf(role);
       const roleValue = languages.en.options[index];
+      const hashedPassword = hashPassword(password);
       const { success, error } = await signIn(
         restaurantName,
         user,
-        password,
+        hashedPassword,
         roleValue,
         name
       );
+
       if (success) {
         setBoolSigningIn(false);
         Alert.alert(getTranslations().signIn, getTranslations().signInSuccess, [
@@ -60,6 +67,19 @@ const Signin = ({ navigation }) => {
             onPress: () => navigation.replace("Login"),
           },
         ]);
+      } else if (error && error.indexOf("does not exist") > -1) {
+        Alert.alert(
+          getTranslations().errorText,
+          getTranslations().restaurantNameWrong,
+          [
+            {
+              text: getTranslations().ok,
+              onPress: () => {
+                setBoolSigningIn(false);
+              },
+            },
+          ]
+        );
       } else {
         setError(true);
         setErrorText(error);
@@ -98,6 +118,7 @@ const Signin = ({ navigation }) => {
     }
 
     const boolExistRestaurant = await boolIsRestaurant(restaurantName);
+    const boolUserExists = await boolUserExist(restaurantName, user);
     if (role == getTranslations().options[2] && boolExistRestaurant) {
       Alert.alert(
         getTranslations().error,
@@ -113,11 +134,25 @@ const Signin = ({ navigation }) => {
       );
       return;
     }
+    if (boolUserExists) {
+      Alert.alert(
+        getTranslations().error,
+        getTranslations().userAlreadyExists,
+        [
+          {
+            text: getTranslations().ok,
+            onPress: () => {
+              setBoolSigningIn(false);
+            },
+          },
+        ]
+      );
+      return;
+    }
 
     Alert.alert(getTranslations().signIn, getTranslations().askSignIn, [
       {
         text: getTranslations().cancel,
-        onPress: () => {},
       },
       {
         text: getTranslations().ok,
@@ -216,6 +251,7 @@ const Signin = ({ navigation }) => {
             <Text style={stylesHS.textUser}>
               {translations.TextRestaurantName}
             </Text>
+
             <TextInput
               placeholder={translations.TextRestaurantName}
               value={restaurantName}

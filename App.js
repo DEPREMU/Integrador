@@ -12,7 +12,7 @@ const App = () => {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
+      <Stack.Navigator initialRouteName="Signin">
         {/* Para cada vista se tiene que agregar aqui para mostrarse mediante un boton */}
         <Stack.Screen
           name="Login"

@@ -6,6 +6,7 @@ import uuid from "react-native-uuid";
 import { Bar } from "react-native-progress";
 import { TouchableOpacity } from "react-native";
 import { useEffect, useState } from "react";
+import bcrypt from "react-native-bcrypt";
 
 const userImage = require("../assets/userImage.png");
 const BOOL_LOG_OUT = "@boolLogOut";
@@ -18,17 +19,21 @@ const generateToken = () => uuid.v4();
 const widthDivided = (num) => width / num;
 const heightDivided = (num) => height / num;
 
+const saltHashPassword = bcrypt.genSaltSync(10);
+const hashPassword = (password) => bcrypt.hashSync(password, saltHashPassword);
+const verifyPassword = (originalPassword, inputPassword) =>
+  bcrypt.compareSync(inputPassword, originalPassword);
+
 const checkLanguage = async () => {
   try {
     const data = await loadData(LANGUAGE_KEY_STORAGE);
-    const languageAvailable = languages.languages.indexOf(data);
-    if (data && languageAvailable > -1) return data;
+    if (data) return data;
 
-    const locales = Localization.getLocales();
-    const language = locales[0].languageTag.split("-")[0];
-    const languageAvailable1 = languages.languages.indexOf(language);
-    if (language && languageAvailable1) {
-      await saveData(LANGUAGE_KEY_STORAGE, "en");
+    const locales = Localization.getLocales()[0];
+    const language = locales.languageTag.split("-")[0];
+    const languageAvailable = languages.languages.indexOf(language) > -1;
+    if (language && languageAvailable) {
+      await saveData(LANGUAGE_KEY_STORAGE, language);
       return language;
     }
   } catch (error) {
@@ -37,21 +42,19 @@ const checkLanguage = async () => {
   return "en";
 };
 
-const loadData = async (key) => {
-  return await AsyncStorage.getItem(key);
-};
+const loadData = async (key) => await AsyncStorage.getItem(key);
 
 const loadDataInDict = async (keys) => {
   try {
     const data = {};
-    for (let index = 0; index < keys.length; index++) {
-      data[keys[index]] = await AsyncStorage.getItem(keys[index]);
-    }
+    Object.entries(keys).forEach(async (key, index) => {
+      data[key] = await AsyncStorage.getItem(key);
+    });
     return data;
   } catch (error) {
     console.error(error);
-    return null;
   }
+  return null;
 };
 
 const saveData = async (key, value) => {
@@ -65,63 +68,68 @@ const saveData = async (key, value) => {
 
 const saveDataFromArray = async (keys, values) => {
   try {
-    for (let index = 0; index < keys.length; index++) {
-      await AsyncStorage.setItem(keys[index], values[index]);
-    }
-    return true;
-  } catch (error) {
-    console.error(error);
-    return false;
-  }
-};
-
-const saveDataFromDict = async (data) => {
-  try {
-    const savePromises = Object.keys(data).map(async (key) => {
-      await AsyncStorage.setItem(key, data[key]);
+    const savePromises = Object.entries(keys).map(async (key, index) => {
+      await AsyncStorage.setItem(key, values[index]);
     });
     await Promise.all(savePromises);
     return true;
   } catch (error) {
     console.error(error);
-    return false;
   }
+  return false;
+};
+
+const saveDataFromDict = async (data) => {
+  try {
+    const savePromises = Object.keys(data).map(async ([key, value]) => {
+      await AsyncStorage.setItem(key, value);
+    });
+    await Promise.all(savePromises);
+    return true;
+  } catch (error) {
+    console.error(error);
+  }
+  return false;
 };
 
 const saveDataJSON = async (key, value) => {
   try {
     await AsyncStorage.setItem(key, JSON.stringify(value));
     return true;
-  } catch (error) {
-    return false;
-  }
+  } catch (error) {}
+  return false;
 };
 
 /**
  * Renders a loading component with optional loading text and progress.
  *
  * @param {Object} props - The component props.
- * @param {string} props.loadingText - The text to display while loading.
- * @param {number} props.progress - The progress value (between 0 and 1).
+ * @param {string} props.loadingText - The text to display while loading. Null won't show the text
+ * @param {number} props.progress - The progress value (between 0 and 1). Null won't show the Bar
+ * @param {boolean} props.boolActivityIndicator - The boolean to show ActivityIndicator. Default false
  * @returns {JSX.Element} The rendered loading component.
  */
-const Loading = ({ loadingText, progress }) => {
-  if (loadingText == null) loadingText = "";
-  if (progress == null) progress = 0;
+const Loading = ({ loadingText, progress, boolActivityIndicator = false }) => {
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text style={{ fontSize: 18, textAlign: "center", marginVertical: 5 }}>
-        {loadingText}
-      </Text>
-      {/* <ActivityIndicator size="large" color="#0000ff" /> */}
-      <Bar
-        progress={progress}
-        width={200}
-        height={15}
-        color="#3b5998"
-        unfilledColor="#e0e0e0"
-        borderWidth={0}
-      />
+      {loadingText != null && (
+        <Text style={{ fontSize: 18, textAlign: "center", marginVertical: 5 }}>
+          {loadingText}
+        </Text>
+      )}
+      {boolActivityIndicator && (
+        <ActivityIndicator size="large" color="#0000ff" />
+      )}
+      {progress != null && (
+        <Bar
+          progress={progress}
+          width={200}
+          height={15}
+          color="#3b5998"
+          unfilledColor="#e0e0e0"
+          borderWidth={0}
+        />
+      )}
     </View>
   );
 };
@@ -139,37 +147,35 @@ const Error = ({ error, navigation, component = "Login" }) => {
   const [language, setLanguage] = useState("en");
 
   useEffect(() => {
-    const loadLanguage = async () => {
-      const language = await checkLanguage();
-      if (language && languages.languages.indexOf(language) > -1)
-        setLanguage(language);
-    };
+    const loadLanguage = async () => setLanguage(await checkLanguage());
     loadLanguage();
   }, []);
 
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       <Text style={{ fontSize: 18, textAlign: "center" }}>{error}</Text>
-      {navigation && (
-        <TouchableOpacity
-          style={{
-            backgroundColor: "gray",
-            borderRadius: 5,
-            padding: 10,
-            marginVertical: 10,
-          }}
-          onPress={() => navigation.replace(component)}
-        >
-          <Text
-            style={{
-              color: "white",
-              fontSize: 18,
-            }}
-          >
-            {languages[language].retry}
-          </Text>
-        </TouchableOpacity>
-      )}
+      {navigation != null &&
+        component !=
+          null(
+            <TouchableOpacity
+              style={{
+                backgroundColor: "gray",
+                borderRadius: 5,
+                padding: 10,
+                marginVertical: 10,
+              }}
+              onPress={() => navigation.replace(component)}
+            >
+              <Text
+                style={{
+                  color: "white",
+                  fontSize: 18,
+                }}
+              >
+                {languages[language].retry}
+              </Text>
+            </TouchableOpacity>
+          )}
     </View>
   );
 };
@@ -191,6 +197,24 @@ const interpolateMessage = (message, variables) => {
     const index = parseInt(key);
     return variables[index] !== undefined ? variables[index] : match;
   });
+};
+
+/**
+ * Calculates the time difference in minutes from the given order time to the current time.
+ *
+ * @param {string} orderTime - The order time in a format recognized by the Date constructor (yyyy-mm-ddTHH:MM:SSZ).
+ * @returns {number} - The time difference in minutes.
+ * @example
+ * **Current time 2024-09-27T12:10:00Z**
+ * const orderTime = "2024-09-27T12:00:00Z";
+ * const minutesPassed = calculateTime(orderTime);
+ * console.log(minutesPassed); // Output: 10
+ */
+const calculateTime = (orderTime) => {
+  const timeOrder = new Date(orderTime);
+  const diff = new Date() - timeOrder;
+  const minutes = Math.floor(diff / 60000);
+  return minutes;
 };
 
 export {
@@ -215,4 +239,8 @@ export {
   saveDataFromArray,
   saveDataFromDict,
   loadDataInDict,
+  calculateTime,
+  hashPassword,
+  verifyPassword,
+  saltHashPassword,
 };

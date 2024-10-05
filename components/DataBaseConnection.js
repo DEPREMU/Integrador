@@ -1,5 +1,10 @@
 import { supabase } from "./supabaseClient";
-import { generateToken } from "./globalVariables";
+import {
+  generateToken,
+  hashPassword,
+  saltHashPassword,
+  verifyPassword,
+} from "./globalVariables";
 
 const createTable = async (baseName) => {
   try {
@@ -38,6 +43,9 @@ const signIn = async (restaurantName, user, password, role, name) => {
 
     if (role == "Owner") await createTable(restaurantName);
 
+    const { error } = await supabase.from(restaurantName).select("*");
+    if (error) return { success: false, error: error.message };
+
     await supabase.from(restaurantName).insert([
       {
         username: user,
@@ -72,18 +80,18 @@ const logIn = async (restaurantName, user, password) => {
       .select("*")
       .eq("username", user);
     if (data && data.length > 0) {
-      if (data[0].password != password)
+      const boolCorrectPassword = verifyPassword(data[0].password, password);
+      if (!boolCorrectPassword)
         return {
           success: false,
           token: null,
-          data: null,
           error: "UserOrPasswordWrong",
         };
-      else if (data[0].password == password)
+      else if (boolCorrectPassword)
         return {
           success: true,
           token: data[0].token,
-          data: data[0],
+          tokenTime: data[0].tokenTime,
           error: null,
         };
     } else if (error && String(error.message).indexOf("does not exist") > 0)
@@ -92,17 +100,11 @@ const logIn = async (restaurantName, user, password) => {
         token: null,
         error: "restaurantDoesNotExist",
       };
-    else {
-      return {
-        success: false,
-        token: null,
-        error: "UserOrPasswordWrong",
-      };
-    }
   } catch (error) {
     console.error(error);
     return { success: false, token: null, error: error };
   }
+  return { success: false, token: null, error: null };
 };
 
 const getRole = async (restaurantName, token) => {
@@ -155,6 +157,90 @@ const boolIsRestaurant = async (restaurantName) => {
   return false;
 };
 
+const boolUserExist = async (restaurantName, userName) => {
+  try {
+    const { data } = await supabase
+      .from(restaurantName)
+      .select("*")
+      .eq("username", userName);
+    if (data != null) return true;
+  } catch (error) {
+    console.error(error);
+  }
+  return false;
+};
+
+const deleteOrderDB = async (restaurantName, orderID) => {
+  try {
+    const restaurantNameOrders = `${restaurantName}_orders`;
+
+    // 1. Eliminar la orden mediante orderID
+    const { error: deleteError } = await supabase
+      .from(restaurantNameOrders)
+      .delete()
+      .match({ id: orderID });
+
+    if (deleteError) return { success: false, error: deleteError };
+
+    // 2. Reordenar IDs en la tabla
+    const { data: rows, error: fetchError } = await supabase
+      .from(restaurantNameOrders)
+      .select("*");
+
+    if (fetchError) return { success: false, error: fetchError };
+
+    // 3. Actualizar IDs
+    const updates = rows.map((row, index) => ({
+      id: row.id,
+      new_id: index + 1,
+    }));
+
+    for (const update of updates) {
+      const { error: updateError } = await supabase
+        .from(restaurantNameOrders)
+        .update({ id: update.new_id })
+        .match({ id: update.id });
+
+      if (updateError) return { success: false, error: updateError };
+    }
+
+    return { success: true, error: null };
+  } catch (error) {
+    console.error("Error:", error);
+    return { success: false, error: error };
+  }
+};
+
+const loadOrders = async (restaurantName) => {
+  const { data, error } = await supabase
+    .from(`${restaurantName}_orders`)
+    .select("*");
+
+  const orders = {};
+  if (data && data.length > 0) {
+    data.forEach((value) => {
+      orders[value.id] = {
+        order: value.order,
+        characteristics: value.characteristics,
+        orderTime: value.orderTime,
+      };
+    });
+    return {
+      success: true,
+      orders: orders,
+      error: null,
+    };
+  } else if (error) {
+    console.error("Error loading orders:", error.message);
+    return { success: false, orders: null, error: error.message };
+  } else
+    return {
+      success: true,
+      orders: null,
+      error: null,
+    };
+};
+
 export {
   createTable,
   authUser,
@@ -164,4 +250,7 @@ export {
   boolIsRestaurant,
   getName,
   getRoleByUser,
+  deleteOrderDB,
+  loadOrders,
+  boolUserExist,
 };

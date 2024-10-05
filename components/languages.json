@@ -45,7 +45,11 @@
     "selectLanguage": "Change language",
     "confirmed": "Confirmed.",
     "recommendRestart": "We recommend to restart the app to apply changes!",
-    "ownerText": "Owner"
+    "ownerText": "Owner",
+    "cookText": "Cook",
+    "minAgo": "Minutes ago.",
+    "ready": "Ready",
+    "orderText": "Order:"
   },
   "es": {
     "TextUser": "Usuario",
@@ -86,7 +90,8 @@
     "selectLanguage": "Cambiar idioma",
     "confirmed": "Confirmado.",
     "recommendRestart": "¡Recomendamos reiniciar la aplicación para aplicar los cambios!",
-    "ownerText": "Dueño"
+    "ownerText": "Dueño",
+    "cookText": "Cocinero"
   },
   "fr": {
     "TextUser": "Utilisateur",
