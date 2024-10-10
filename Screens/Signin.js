@@ -74,9 +74,7 @@ const Signin = ({ navigation }) => {
           [
             {
               text: getTranslations().ok,
-              onPress: () => {
-                setBoolSigningIn(false);
-              },
+              onPress: () => setBoolSigningIn(false),
             },
           ]
         );
@@ -97,9 +95,7 @@ const Signin = ({ navigation }) => {
       Alert.alert(getTranslations().error, getTranslations().pleaseFillFields, [
         {
           text: getTranslations().ok,
-          onPress: () => {
-            setBoolSigningIn(false);
-          },
+          onPress: () => setBoolSigningIn(false),
         },
       ]);
       return;
@@ -109,9 +105,7 @@ const Signin = ({ navigation }) => {
       Alert.alert(getTranslations().error, getTranslations().noNumbersInName, [
         {
           text: getTranslations().ok,
-          onPress: () => {
-            setBoolSigningIn(false);
-          },
+          onPress: () => setBoolSigningIn(false),
         },
       ]);
       return;
@@ -126,9 +120,7 @@ const Signin = ({ navigation }) => {
         [
           {
             text: getTranslations().ok,
-            onPress: () => {
-              setBoolSigningIn(false);
-            },
+            onPress: () => setBoolSigningIn(false),
           },
         ]
       );
@@ -141,9 +133,7 @@ const Signin = ({ navigation }) => {
         [
           {
             text: getTranslations().ok,
-            onPress: () => {
-              setBoolSigningIn(false);
-            },
+            onPress: () => setBoolSigningIn(false),
           },
         ]
       );
@@ -156,9 +146,7 @@ const Signin = ({ navigation }) => {
       },
       {
         text: getTranslations().ok,
-        onPress: () => {
-          signingIn();
-        },
+        onPress: () => signingIn(),
       },
     ]);
   };
@@ -220,7 +208,7 @@ const Signin = ({ navigation }) => {
       BackHandler.addEventListener("hardwareBackPress", onBackPress);
       return () =>
         BackHandler.removeEventListener("hardwareBackPress", onBackPress);
-    }, [])
+    }, [language])
   );
 
   if (loading)
@@ -295,15 +283,17 @@ const Signin = ({ navigation }) => {
           <Text style={stylesHS.roles}>{translations.TextRoles}</Text>
 
           <View style={stylesHS.pickerContainer}>
-            <Picker
-              selectedValue={role}
-              onValueChange={(itemValue) => setRole(itemValue)}
-              style={stylesHS.picker}
-            >
-              {options.map((option, index) => (
-                <Picker.Item key={index} label={option} value={option} />
-              ))}
-            </Picker>
+            {options && (
+              <Picker
+                selectedValue={role}
+                onValueChange={(itemValue) => setRole(itemValue)}
+                style={stylesHS.picker}
+              >
+                {options.map((option, index) => (
+                  <Picker.Item key={index} label={option} value={option} />
+                ))}
+              </Picker>
+            )}
           </View>
 
           <View style={stylesHS.newAccountView}>
@@ -311,7 +301,7 @@ const Signin = ({ navigation }) => {
               {translations.SigInLogIn}
             </Text>
 
-            <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+            <TouchableOpacity onPress={() => navigation.replace("Login")}>
               <Text style={stylesHS.textSignin}>{translations.logIn}</Text>
             </TouchableOpacity>
           </View>

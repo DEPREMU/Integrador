@@ -42,19 +42,17 @@ const checkLanguage = async () => {
   return "en";
 };
 
+const removeData = async (key) => await AsyncStorage.removeItem(key);
+
 const loadData = async (key) => await AsyncStorage.getItem(key);
 
 const loadDataInDict = async (keys) => {
-  try {
-    const data = {};
-    Object.entries(keys).forEach(async (key, index) => {
-      data[key] = await AsyncStorage.getItem(key);
-    });
-    return data;
-  } catch (error) {
-    console.error(error);
-  }
-  return null;
+  if (typeof keys != "object" || (keys && keys.length == 0)) return null;
+  const data = {};
+  keys.forEach(async (key) => {
+    data[key] = await AsyncStorage.getItem(key);
+  });
+  return data;
 };
 
 const saveData = async (key, value) => {
@@ -232,6 +230,7 @@ export {
   loadData,
   saveData,
   saveDataJSON,
+  removeData,
   userImage,
   checkLanguage,
   generateToken,

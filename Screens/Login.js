@@ -23,6 +23,8 @@ import {
   saveDataFromDict,
   loadDataInDict,
   saveData,
+  loadData,
+  removeData,
 } from "../components/globalVariables";
 import languages from "../components/languages.json";
 import { getName, getRole, logIn } from "../components/DataBaseConnection";
@@ -50,15 +52,13 @@ const Login = ({ navigation }) => {
       Alert.alert(getTranlations().error, getTranlations().pleaseFillFields, [
         {
           text: getTranlations().ok,
-          onPress: () => {
-            setBoolLoggingIn(null);
-          },
+          onPress: () => setBoolLoggingIn(null),
         },
       ]);
       return;
     }
 
-    const { success, token,tokenTime,  data, error } = await logIn(
+    const { success, token, data, error } = await logIn(
       restaurantName,
       user,
       password
@@ -66,9 +66,8 @@ const Login = ({ navigation }) => {
     if (success && token) {
       setBoolLoggingIn(false);
       try {
-        if (rememberMe) {
-          await saveData(TOKEN_KEY_STORAGE, token);
-        }
+        if (rememberMe) await saveData(TOKEN_KEY_STORAGE, token);
+        await saveData(RESTAURANT_NAME_KEY_STORAGE, restaurantName);
 
         const { success, role } = await getRole(restaurantName, String(token));
         if (success && role) {
@@ -98,6 +97,7 @@ const Login = ({ navigation }) => {
         [
           {
             text: getTranlations().retry,
+            onPress: () => setBoolLoggingIn(null),
           },
         ]
       );
@@ -108,10 +108,11 @@ const Login = ({ navigation }) => {
         [
           {
             text: getTranlations().retry,
+            onPress: () => setBoolLoggingIn(null),
           },
         ]
       );
-    setBoolLoggingIn(false);
+    setBoolLoggingIn(null);
   };
 
   useEffect(() => {
@@ -129,16 +130,8 @@ const Login = ({ navigation }) => {
 
   useEffect(() => {
     const loadTokenAndRestaurantName = async () => {
-      const loadedData = await loadDataInDict([
-        TOKEN_KEY_STORAGE,
-        RESTAURANT_NAME_KEY_STORAGE,
-        LANGUAGE_KEY_STORAGE,
-      ]);
-      const {
-        [TOKEN_KEY_STORAGE]: dataToken,
-        [RESTAURANT_NAME_KEY_STORAGE]: dataRestaurantName,
-        [LANGUAGE_KEY_STORAGE]: language,
-      } = loadedData;
+      const dataToken = await loadData(TOKEN_KEY_STORAGE);
+      const dataRestaurantName = await loadData(RESTAURANT_NAME_KEY_STORAGE);
 
       if (dataToken && dataRestaurantName) {
         const { name } = await getName(dataRestaurantName, dataToken);
@@ -198,7 +191,7 @@ const Login = ({ navigation }) => {
       BackHandler.addEventListener("hardwareBackPress", onBackPress);
       return () =>
         BackHandler.removeEventListener("hardwareBackPress", onBackPress);
-    }, [])
+    }, [language])
   );
 
   if (loading)
@@ -282,7 +275,7 @@ const Login = ({ navigation }) => {
             {languages[language].LogInNewAccount}
           </Text>
 
-          <TouchableOpacity onPress={() => navigation.navigate("Signin")}>
+          <TouchableOpacity onPress={() => navigation.replace("Signin")}>
             <Text style={stylesHS.textSignin}>
               {languages[language].signIn}
             </Text>

@@ -63,7 +63,7 @@ const signIn = async (restaurantName, user, password, role, name) => {
     if (selectError) {
       console.error("Error fetching user:", selectError.message);
       return { success: false, error: selectError.message };
-    } else if (selectData) {
+    } else if (selectData.length > 0) {
       return { success: true, error: null };
     }
   } catch (error) {
@@ -91,6 +91,7 @@ const logIn = async (restaurantName, user, password) => {
         return {
           success: true,
           token: data[0].token,
+          data: data[0],
           tokenTime: data[0].tokenTime,
           error: null,
         };
