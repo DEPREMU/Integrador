@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Animated,
   ScrollView,
+  TextInput,
 } from "react-native";
 import styleOwner from "../styles/stylesScreenOwner";
 import LogOut from "../components/LogOut";
@@ -17,8 +18,10 @@ import {
   Loading,
   widthDivided,
   Error,
+  RESTAURANT_NAME_KEY_STORAGE,
 } from "../components/globalVariables";
 import languages from "../components/languages.json";
+import DeleteRestaurant from "../components/DeleteRestaurant";
 
 const Owner = ({ navigation }) => {
   const [options, setOptions] = useState("0");
@@ -39,8 +42,32 @@ const Owner = ({ navigation }) => {
   const [thingsLoaded, setThingsLoaded] = useState(0);
   const [error, setError] = useState(false);
   const [errorText, setErrorText] = useState(null);
-  const thingsToLoad = 1;
+  const [boolDeleteRestaurant, setBoolDeleteRestaurant] = useState(false);
+  const [restaurantName, setRestaurantName] = useState("");
+
+  const thingsToLoad = 2;
   const getTranslations = () => languages[lang] || languages.en;
+
+  const confirmDeleteRestaurant = () => {
+    const translations = getTranslations();
+    Alert.alert(
+      translations.deleteRestaurant,
+      translations.deleteRestaurantConfirmation,
+      [
+        {
+          text: translations.cancel,
+          onPress: () => null,
+        },
+        {
+          text: translations.deleteRestaurant,
+          onPress: () => setBoolDeleteRestaurant(true),
+          style: "destructive",
+        },
+      ]
+    );
+  };
+
+  const onCancel = () => setBoolDeleteRestaurant((prev) => !prev);
 
   useEffect(() => {
     const loadLanguage = async () => {
@@ -53,20 +80,33 @@ const Owner = ({ navigation }) => {
         setThingsLoaded((prev) => prev + 1);
       }
     };
+    const loadRestaurantName = async () => {
+      try {
+        const data = await loadData(RESTAURANT_NAME_KEY_STORAGE);
+        setRestaurantName(data);
+      } catch {
+        setError(true);
+        setErrorText("Error loading restaurant name");
+      } finally {
+        setThingsLoaded((prev) => prev + 1);
+      }
+    };
 
     loadLanguage();
+    loadRestaurantName();
   }, []);
 
   useEffect(() => {
     if (!loading || thingsLoaded >= thingsToLoad) setLoading(false);
 
-    setTimeout(() => {
+    let timer = setTimeout(() => {
       setLoadingText((prev) => {
         if (prev === "Loading.") return "Loading..";
         if (prev === "Loading..") return "Loading...";
         return "Loading.";
       });
     }, 750);
+    return () => clearTimeout(timer);
   }, [loadingText]);
 
   useEffect(() => {
@@ -114,9 +154,26 @@ const Owner = ({ navigation }) => {
         }
       />
     );
-  if (error) return <Error error={errorText || ""} />;
+  if (error)
+    return (
+      <Error
+        error={errorText || ""}
+        component="Owner"
+        navigation={navigation}
+      />
+    );
 
   const translations = getTranslations();
+
+  if (boolDeleteRestaurant)
+    return (
+      <DeleteRestaurant
+        translations={translations}
+        navigation={navigation}
+        onCancel={onCancel}
+        restaurantName={restaurantName}
+      />
+    );
 
   return (
     <View style={styleOwner.container}>
@@ -163,10 +220,12 @@ const Owner = ({ navigation }) => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styleOwner.options}
-            onPress={() => setOptions("3")}
+            style={styleOwner.buttonDeleteRestaurant}
+            onPress={() => confirmDeleteRestaurant()}
           >
-            <Text style={styleOwner.textOptions}>Option 3</Text>
+            <Text style={[styleOwner.textOptions, { color: "white" }]}>
+              {translations.deleteRestaurant}
+            </Text>
             <Text style={[styleOwner.textOptions]}>{">"}</Text>
           </TouchableOpacity>
         </ScrollView>

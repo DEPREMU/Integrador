@@ -136,4 +136,15 @@ export default styleOwner = StyleSheet.create({
     fontWeight: "bold",
     color: Colors.textPrimary,
   },
+  buttonDeleteRestaurant: {
+    backgroundColor: "rgb(210,0,0)",
+    borderColor: Colors.borderColor,
+    justifyContent: "space-around",
+    flexDirection: "row",
+    padding: 8,
+    borderWidth: 2,
+    margin: 5,
+    alignItems: "center",
+    flex: 1,
+  },
 });

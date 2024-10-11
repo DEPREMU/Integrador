@@ -18,10 +18,8 @@ import {
   interpolateMessage,
   TOKEN_KEY_STORAGE,
   RESTAURANT_NAME_KEY_STORAGE,
-  LANGUAGE_KEY_STORAGE,
   BOOL_LOG_OUT,
   saveDataFromDict,
-  loadDataInDict,
   saveData,
   loadData,
   removeData,
@@ -44,14 +42,15 @@ const Login = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [boolLogginIn, setBoolLoggingIn] = useState(false);
-  const getTranlations = () => languages[language] || languages.en;
+  const getTranslations = () => languages[language] || languages.en;
 
   const loggingIn = async () => {
+    const translations = getTranslations();
     setBoolLoggingIn(true);
     if (password == "" || user == "" || restaurantName == "") {
-      Alert.alert(getTranlations().error, getTranlations().pleaseFillFields, [
+      Alert.alert(translations.error, translations.pleaseFillFields, [
         {
-          text: getTranlations().ok,
+          text: translations.ok,
           onPress: () => setBoolLoggingIn(null),
         },
       ]);
@@ -76,11 +75,11 @@ const Login = ({ navigation }) => {
             [RESTAURANT_NAME_KEY_STORAGE]: restaurantName,
           });
           Alert.alert(
-            interpolateMessage(getTranlations().welcome, [data.name]),
-            getTranlations().logInSuccess,
+            interpolateMessage(translations.welcome, [data.name]),
+            translations.logInSuccess,
             [
               {
-                text: getTranlations().ok,
+                text: translations.ok,
                 onPress: () => navigation.replace(role),
               },
             ]
@@ -91,44 +90,38 @@ const Login = ({ navigation }) => {
         setErrorText(`An error occurred during log in: ${error}`);
       }
     } else if (error && error == "UserOrPasswordWrong")
-      Alert.alert(
-        getTranlations().error,
-        getTranlations().userOrPasswordWrong,
-        [
-          {
-            text: getTranlations().retry,
-            onPress: () => setBoolLoggingIn(null),
-          },
-        ]
-      );
+      Alert.alert(translations.error, translations.userOrPasswordWrong, [
+        {
+          text: translations.retry,
+          onPress: () => setBoolLoggingIn(null),
+        },
+      ]);
     else if (error == "restaurantDoesNotExist")
-      Alert.alert(
-        getTranlations().error,
-        getTranlations().restaurantNameWrong,
-        [
-          {
-            text: getTranlations().retry,
-            onPress: () => setBoolLoggingIn(null),
-          },
-        ]
-      );
+      Alert.alert(translations.error, translations.restaurantNameWrong, [
+        {
+          text: translations.retry,
+          onPress: () => setBoolLoggingIn(null),
+        },
+      ]);
     setBoolLoggingIn(null);
   };
 
   useEffect(() => {
-    const changeLanguage = async () => {
+    const loadLanguage = async () => {
       try {
         setLanguage(await checkLanguage());
       } catch (error) {
-        console.error(`Error loading language ${error}`);
+        console.error(`Error loading language: ${error}`);
       } finally {
         setThingsLoaded((prevThingsLoaded) => prevThingsLoaded + 1);
       }
     };
-    changeLanguage();
+    loadLanguage();
   }, []);
 
   useEffect(() => {
+    const translations = getTranslations();
+
     const loadTokenAndRestaurantName = async () => {
       const dataToken = await loadData(TOKEN_KEY_STORAGE);
       const dataRestaurantName = await loadData(RESTAURANT_NAME_KEY_STORAGE);
@@ -138,11 +131,11 @@ const Login = ({ navigation }) => {
         const { role, error } = await getRole(dataRestaurantName, dataToken);
         if (role)
           Alert.alert(
-            interpolateMessage(getTranlations().welcome, [name ? name : ""]),
-            getTranlations().logInSuccess,
+            interpolateMessage(translations.welcome, [name ? name : ""]),
+            translations.logInSuccess,
             [
               {
-                text: getTranlations().ok,
+                text: translations.ok,
                 onPress: () => navigation.replace(role),
               },
             ]
@@ -171,21 +164,18 @@ const Login = ({ navigation }) => {
 
   useFocusEffect(
     React.useCallback(() => {
+      const translations = getTranslations();
       const onBackPress = async () => {
-        Alert.alert(
-          getTranlations().exitText,
-          getTranlations().exitAppConfirmation,
-          [
-            {
-              text: getTranlations().cancel,
-              onPress: () => null,
-            },
-            {
-              text: getTranlations().exitText,
-              onPress: () => BackHandler.exitApp(),
-            },
-          ]
-        );
+        Alert.alert(translations.exitText, translations.exitAppConfirmation, [
+          {
+            text: translations.cancel,
+            onPress: () => null,
+          },
+          {
+            text: translations.exitText,
+            onPress: () => BackHandler.exitApp(),
+          },
+        ]);
         return true;
       };
       BackHandler.addEventListener("hardwareBackPress", onBackPress);
@@ -214,41 +204,41 @@ const Login = ({ navigation }) => {
       />
     );
 
+  const translations = getTranslations();
+
   return (
     <View style={stylesHS.container}>
       <Image source={userImage} style={stylesHS.imageUser} />
-      <Text style={stylesHS.text}>{languages[language].logIn}</Text>
+      <Text style={stylesHS.text}>{translations.logIn}</Text>
 
       <View style={stylesHS.formLogin}>
         <View style={stylesHS.user}>
           <Text style={stylesHS.textUser}>
-            {languages[language].TextRestaurantName}
+            {translations.TextRestaurantName}
           </Text>
 
           <TextInput
-            placeholder={languages[language].TextRestaurantName}
+            placeholder={translations.TextRestaurantName}
             onChangeText={(value) => setRestaurantName(value)}
             style={stylesHS.textInputUser}
           />
         </View>
 
         <View style={stylesHS.user}>
-          <Text style={stylesHS.textUser}>{languages[language].TextUser}</Text>
+          <Text style={stylesHS.textUser}>{translations.TextUser}</Text>
 
           <TextInput
-            placeholder={languages[language].TextUser}
+            placeholder={translations.TextUser}
             onChangeText={(value) => setUser(value)}
             style={stylesHS.textInputUser}
           />
         </View>
 
         <View style={stylesHS.pass}>
-          <Text style={stylesHS.textPass}>
-            {languages[language].TextPassword}
-          </Text>
+          <Text style={stylesHS.textPass}>{translations.TextPassword}</Text>
 
           <TextInput
-            placeholder={languages[language].TextPassword}
+            placeholder={translations.TextPassword}
             style={stylesHS.textInputPass}
             secureTextEntry={true}
             onChangeText={(value) => setPassword(value)}
@@ -265,20 +255,16 @@ const Login = ({ navigation }) => {
             style={stylesHS.checkRemeberMe}
           />
 
-          <Text style={stylesHS.rememberMeText}>
-            {languages[language].rememberMe}
-          </Text>
+          <Text style={stylesHS.rememberMeText}>{translations.rememberMe}</Text>
         </TouchableOpacity>
 
         <View style={stylesHS.newAccountView}>
           <Text style={stylesHS.newAccountText}>
-            {languages[language].LogInNewAccount}
+            {translations.LogInNewAccount}
           </Text>
 
           <TouchableOpacity onPress={() => navigation.replace("Signin")}>
-            <Text style={stylesHS.textSignin}>
-              {languages[language].signIn}
-            </Text>
+            <Text style={stylesHS.textSignin}>{translations.signIn}</Text>
           </TouchableOpacity>
         </View>
 
@@ -289,7 +275,7 @@ const Login = ({ navigation }) => {
           {boolLogginIn ? (
             <ActivityIndicator size={25} />
           ) : (
-            <Text style={stylesHS.signInText}>{languages[language].logIn}</Text>
+            <Text style={stylesHS.signInText}>{translations.logIn}</Text>
           )}
         </TouchableOpacity>
       </View>

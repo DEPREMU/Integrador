@@ -8,7 +8,7 @@ import {
 
 const createTable = async (baseName) => {
   try {
-    const { data, error } = await supabase.rpc("create_table", {
+    const { error } = await supabase.rpc("create_table", {
       name: baseName,
     });
     if (error) throw error;
@@ -17,23 +17,14 @@ const createTable = async (baseName) => {
   }
 };
 
-const authUser = async (restaurantName, username, password) => {
+const deleteTables = async (baseName) => {
   try {
-    const { data, error } = await supabase
-      .from(restaurantName)
-      .select("*")
-      .eq("username", username);
-
-    if (data != null) {
-      if (password == data[0].password) return data;
-    }
-    if (error) {
-      console.error("Error authenticating user:", error.message);
-      throw error;
-    }
+    const { error } = await supabase.rpc("delete_tables", {
+      name: baseName,
+    });
+    if (error) throw error;
   } catch (error) {
-    console.error("Error authenticating user:", error.message);
-    throw error;
+    console.error("Error deleting table:", error);
   }
 };
 
@@ -121,19 +112,6 @@ const getRole = async (restaurantName, token) => {
   return { success: true, role: data.role, error: null };
 };
 
-const getRoleByUser = async (restaurantName, user) => {
-  const { data, error } = await supabase
-    .from(restaurantName)
-    .select("role")
-    .eq("userName", user)
-    .single();
-  if (error) {
-    console.error("Error getting role:", error.message);
-    return { success: false, role: null, error: error.message };
-  }
-  return { success: true, role: data.role, error: null };
-};
-
 const getName = async (restaurantName, token) => {
   const { data, error } = await supabase
     .from(restaurantName)
@@ -164,7 +142,7 @@ const boolUserExist = async (restaurantName, userName) => {
       .from(restaurantName)
       .select("*")
       .eq("username", userName);
-    if (data != null) return true;
+    if (data && data.length > 0) return true;
   } catch (error) {
     console.error(error);
   }
@@ -244,14 +222,13 @@ const loadOrders = async (restaurantName) => {
 
 export {
   createTable,
-  authUser,
   signIn,
   logIn,
   getRole,
   boolIsRestaurant,
   getName,
-  getRoleByUser,
   deleteOrderDB,
   loadOrders,
   boolUserExist,
+  deleteTables,
 };

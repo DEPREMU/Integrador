@@ -152,28 +152,26 @@ const Error = ({ error, navigation, component = "Login" }) => {
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       <Text style={{ fontSize: 18, textAlign: "center" }}>{error}</Text>
-      {navigation != null &&
-        component !=
-          null(
-            <TouchableOpacity
-              style={{
-                backgroundColor: "gray",
-                borderRadius: 5,
-                padding: 10,
-                marginVertical: 10,
-              }}
-              onPress={() => navigation.replace(component)}
-            >
-              <Text
-                style={{
-                  color: "white",
-                  fontSize: 18,
-                }}
-              >
-                {languages[language].retry}
-              </Text>
-            </TouchableOpacity>
-          )}
+      {navigation != null && (
+        <TouchableOpacity
+          style={{
+            backgroundColor: "gray",
+            borderRadius: 5,
+            padding: 10,
+            marginVertical: 10,
+          }}
+          onPress={() => navigation.replace(component)}
+        >
+          <Text
+            style={{
+              color: "white",
+              fontSize: 18,
+            }}
+          >
+            {languages[language].retry}
+          </Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -191,8 +189,8 @@ const Error = ({ error, navigation, component = "Login" }) => {
  * console.log(interpolatedMessage); // Output: "Hello Teste, welcome to our app!"
  */
 const interpolateMessage = (message, variables) => {
-  return String(message).replace(/\$\{(\w+)\}/g, (match, key) => {
-    const index = parseInt(key);
+  return String(message).replace(/\$\{(\d+)\}/g, (match, key) => {
+    const index = parseInt(key, 10);
     return variables[index] !== undefined ? variables[index] : match;
   });
 };

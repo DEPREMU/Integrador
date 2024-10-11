@@ -48,8 +48,9 @@ const Signin = ({ navigation }) => {
 
   const signingIn = async () => {
     try {
-      const index = getTranslations().options.indexOf(role);
-      const roleValue = languages.en.options[index];
+      const translations = getTranslations();
+      const indexOfRole = translations.options.indexOf(role);
+      const roleValue = languages.en.options[indexOfRole];
       const hashedPassword = hashPassword(password);
       const { success, error } = await signIn(
         restaurantName,
@@ -59,25 +60,23 @@ const Signin = ({ navigation }) => {
         name
       );
 
-      if (success) {
-        setBoolSigningIn(false);
-        Alert.alert(getTranslations().signIn, getTranslations().signInSuccess, [
+      if (success)
+        Alert.alert(translations.signIn, translations.signInSuccess, [
           {
-            text: getTranslations().logIn,
-            onPress: () => navigation.replace("Login"),
+            text: translations.logIn,
+            onPress: () => {
+              navigation.replace("Login");
+              setBoolSigningIn(false);
+            },
           },
         ]);
-      } else if (error && error.indexOf("does not exist") > -1) {
-        Alert.alert(
-          getTranslations().errorText,
-          getTranslations().restaurantNameWrong,
-          [
-            {
-              text: getTranslations().ok,
-              onPress: () => setBoolSigningIn(false),
-            },
-          ]
-        );
+      else if (error && error.indexOf("does not exist") > -1) {
+        Alert.alert(translations.errorText, translations.restaurantNameWrong, [
+          {
+            text: translations.ok,
+            onPress: () => setBoolSigningIn(false),
+          },
+        ]);
       } else {
         setError(true);
         setErrorText(error);
@@ -91,20 +90,21 @@ const Signin = ({ navigation }) => {
 
   const checkSignin = async () => {
     setBoolSigningIn(true);
+    const translations = getTranslations();
     if (user == "" || password == "" || name == "" || restaurantName == "") {
-      Alert.alert(getTranslations().error, getTranslations().pleaseFillFields, [
+      Alert.alert(translations.error, translations.pleaseFillFields, [
         {
-          text: getTranslations().ok,
+          text: translations.ok,
           onPress: () => setBoolSigningIn(false),
         },
       ]);
       return;
     }
 
-    if (isFinite(restaurantName) || isFinite(restaurantName[0])) {
-      Alert.alert(getTranslations().error, getTranslations().noNumbersInName, [
+    if (isFinite(restaurantName[0])) {
+      Alert.alert(translations.error, translations.noNumbersInName, [
         {
-          text: getTranslations().ok,
+          text: translations.ok,
           onPress: () => setBoolSigningIn(false),
         },
       ]);
@@ -113,39 +113,32 @@ const Signin = ({ navigation }) => {
 
     const boolExistRestaurant = await boolIsRestaurant(restaurantName);
     const boolUserExists = await boolUserExist(restaurantName, user);
-    if (role == getTranslations().options[2] && boolExistRestaurant) {
-      Alert.alert(
-        getTranslations().error,
-        getTranslations().restaurantAlreadyExists,
-        [
-          {
-            text: getTranslations().ok,
-            onPress: () => setBoolSigningIn(false),
-          },
-        ]
-      );
+    if (role == translations.options[2] && boolExistRestaurant) {
+      Alert.alert(translations.error, translations.restaurantAlreadyExists, [
+        {
+          text: translations.ok,
+          onPress: () => setBoolSigningIn(false),
+        },
+      ]);
       return;
     }
     if (boolUserExists) {
-      Alert.alert(
-        getTranslations().error,
-        getTranslations().userAlreadyExists,
-        [
-          {
-            text: getTranslations().ok,
-            onPress: () => setBoolSigningIn(false),
-          },
-        ]
-      );
+      Alert.alert(translations.error, translations.userAlreadyExists, [
+        {
+          text: translations.ok,
+          onPress: () => setBoolSigningIn(false),
+        },
+      ]);
       return;
     }
 
-    Alert.alert(getTranslations().signIn, getTranslations().askSignIn, [
+    Alert.alert(translations.signIn, translations.askSignIn, [
       {
-        text: getTranslations().cancel,
+        text: translations.cancel,
+        onPress: () => setBoolSigningIn(false),
       },
       {
-        text: getTranslations().ok,
+        text: translations.ok,
         onPress: () => signingIn(),
       },
     ]);
@@ -175,34 +168,34 @@ const Signin = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
+    let timer;
     if (thingsLoaded >= thingsToLoad) setLoading(false);
     else
-      setTimeout(() => {
+      timer = setTimeout(() => {
         setLoadingText((prev) => {
           if (prev === "Loading.") return "Loading..";
           else if (prev === "Loading..") return "Loading...";
           return "Loading.";
         });
       }, 750);
+
+    return () => clearTimeout(timer);
   }, [loadingText]);
 
   useFocusEffect(
     useCallback(() => {
+      const translations = getTranslations();
       const onBackPress = async () => {
-        Alert.alert(
-          getTranslations().exitText,
-          getTranslations().exitAppConfirmation,
-          [
-            {
-              text: getTranslations().cancel,
-              onPress: () => null,
-            },
-            {
-              text: getTranslations().exitText,
-              onPress: () => BackHandler.exitApp(),
-            },
-          ]
-        );
+        Alert.alert(translations.exitText, translations.exitAppConfirmation, [
+          {
+            text: translations.cancel,
+            onPress: () => null,
+          },
+          {
+            text: translations.exitText,
+            onPress: () => BackHandler.exitApp(),
+          },
+        ]);
         return true;
       };
       BackHandler.addEventListener("hardwareBackPress", onBackPress);
@@ -298,7 +291,7 @@ const Signin = ({ navigation }) => {
 
           <View style={stylesHS.newAccountView}>
             <Text style={stylesHS.newAccountText}>
-              {translations.SigInLogIn}
+              {translations.SignInLogIn}
             </Text>
 
             <TouchableOpacity onPress={() => navigation.replace("Login")}>

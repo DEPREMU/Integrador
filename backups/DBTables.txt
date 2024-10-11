@@ -52,4 +52,25 @@ CREATE OR REPLACE FUNCTION create_table(name TEXT)
 $$;
 
 
+CREATE OR REPLACE FUNCTION delete_tables(name TEXT)
+  RETURNS void LANGUAGE plpgsql AS $$
+  BEGIN
+    -- Eliminar las tablas
+    EXECUTE format('
+      DROP TABLE %I
+    ', name);
+  
+    EXECUTE format('
+      DROP TABLE %I
+    ', name || '_inventory');
+  
+    EXECUTE format('
+      DROP TABLE %I
+    ', name || '_orders');
+  
+  END;
+$$;
+
+
+
 SELECT * FROM pg_proc WHERE proname = 'create_table'; // Verify the function was made
