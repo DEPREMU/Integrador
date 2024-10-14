@@ -9,7 +9,7 @@ import {
   calculateTime,
 } from "../components/globalVariables";
 import { deleteOrderDB, loadOrders } from "../components/DataBaseConnection";
-import React, { useEffect, useState, useFocusEffect } from "react";
+import React, { useEffect, useState } from "react";
 import LogOut from "../components/LogOut";
 import stylesCook from "../styles/stylesCook";
 import languages from "../components/languages.json";

@@ -54,7 +54,7 @@ const signIn = async (restaurantName, user, password, role, name) => {
     if (selectError) {
       console.error("Error fetching user:", selectError.message);
       return { success: false, error: selectError.message };
-    } else if (selectData.length > 0) {
+    } else if (selectData && selectData.length > 0) {
       return { success: true, error: null };
     }
   } catch (error) {
@@ -69,21 +69,17 @@ const logIn = async (restaurantName, user, password) => {
     const { data, error } = await supabase
       .from(restaurantName)
       .select("*")
-      .eq("username", user);
-    if (data && data.length > 0) {
-      const boolCorrectPassword = verifyPassword(data[0].password, password);
-      if (!boolCorrectPassword)
-        return {
-          success: false,
-          token: null,
-          error: "UserOrPasswordWrong",
-        };
-      else if (boolCorrectPassword)
+      .eq("username", user)
+      .single();
+
+    if (data) {
+      const boolCorrectPassword = verifyPassword(data.password, password);
+      if (boolCorrectPassword)
         return {
           success: true,
-          token: data[0].token,
-          data: data[0],
-          tokenTime: data[0].tokenTime,
+          token: data.token,
+          data: data,
+          tokenTime: data.tokenTime,
           error: null,
         };
     } else if (error && String(error.message).indexOf("does not exist") > 0)
@@ -96,7 +92,11 @@ const logIn = async (restaurantName, user, password) => {
     console.error(error);
     return { success: false, token: null, error: error };
   }
-  return { success: false, token: null, error: null };
+  return {
+    success: false,
+    token: null,
+    error: "UserOrPasswordWrong",
+  };
 };
 
 const getRole = async (restaurantName, token) => {

@@ -53,7 +53,9 @@
     "deleteRestaurant": "Delete restaurant",
     "deleteRestaurantConfirmation": "Are you sure you want to delete the restaurant? \nThis action does not have return",
     "writeTheRestaurantName": "Write the name of the restaurant to confirm!",
-    "delete": "Delete"
+    "delete": "Delete",
+    "deletedConfirmed": "Deleted successfully",
+    "deletedConfirmedText": "Deleted permanently. See you soon!"
   },
   "es": {
     "TextUser": "Usuario",

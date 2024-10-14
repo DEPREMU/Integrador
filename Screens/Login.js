@@ -1,7 +1,7 @@
 import {
   View,
   Text,
-  TouchableOpacity,
+  Pressable,
   Image,
   TextInput,
   Alert,
@@ -22,7 +22,6 @@ import {
   saveDataFromDict,
   saveData,
   loadData,
-  removeData,
 } from "../components/globalVariables";
 import languages from "../components/languages.json";
 import { getName, getRole, logIn } from "../components/DataBaseConnection";
@@ -62,29 +61,22 @@ const Login = ({ navigation }) => {
       user,
       password
     );
-    if (success && token) {
+    if (success && token && data) {
       setBoolLoggingIn(false);
       try {
         if (rememberMe) await saveData(TOKEN_KEY_STORAGE, token);
         await saveData(RESTAURANT_NAME_KEY_STORAGE, restaurantName);
 
-        const { success, role } = await getRole(restaurantName, String(token));
-        if (success && role) {
-          await saveDataFromDict({
-            [BOOL_LOG_OUT]: "0",
-            [RESTAURANT_NAME_KEY_STORAGE]: restaurantName,
-          });
-          Alert.alert(
-            interpolateMessage(translations.welcome, [data.name]),
-            translations.logInSuccess,
-            [
-              {
-                text: translations.ok,
-                onPress: () => navigation.replace(role),
-              },
-            ]
-          );
-        }
+        Alert.alert(
+          interpolateMessage(translations.welcome, [data.name]),
+          translations.logInSuccess,
+          [
+            {
+              text: translations.ok,
+              onPress: () => navigation.replace(data.role),
+            },
+          ]
+        );
       } catch (error) {
         setError(true);
         setErrorText(`An error occurred during log in: ${error}`);
@@ -245,8 +237,11 @@ const Login = ({ navigation }) => {
           />
         </View>
 
-        <TouchableOpacity
-          style={stylesHS.ViewRemeberMe}
+        <Pressable
+          style={({ pressed }) => [
+            stylesHS.ViewRemeberMe,
+            { opacity: pressed ? 0.5 : 1 },
+          ]}
           onPress={() => setRememberMe(!rememberMe)}
         >
           <CheckBox
@@ -256,20 +251,26 @@ const Login = ({ navigation }) => {
           />
 
           <Text style={stylesHS.rememberMeText}>{translations.rememberMe}</Text>
-        </TouchableOpacity>
+        </Pressable>
 
         <View style={stylesHS.newAccountView}>
           <Text style={stylesHS.newAccountText}>
             {translations.LogInNewAccount}
           </Text>
 
-          <TouchableOpacity onPress={() => navigation.replace("Signin")}>
+          <Pressable
+            onPress={() => navigation.replace("Signin")}
+            style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}
+          >
             <Text style={stylesHS.textSignin}>{translations.signIn}</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
 
-        <TouchableOpacity
-          style={stylesHS.signInButton}
+        <Pressable
+          style={({ pressed }) => [
+            stylesHS.signInButton,
+            { opacity: pressed ? 0.5 : 1 },
+          ]}
           onPress={() => loggingIn()}
         >
           {boolLogginIn ? (
@@ -277,7 +278,7 @@ const Login = ({ navigation }) => {
           ) : (
             <Text style={stylesHS.signInText}>{translations.logIn}</Text>
           )}
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </View>
   );

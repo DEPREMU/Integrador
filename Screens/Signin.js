@@ -1,7 +1,7 @@
 import {
   View,
   Text,
-  TouchableOpacity,
+  Pressable,
   Image,
   TextInput,
   Alert,
@@ -64,26 +64,17 @@ const Signin = ({ navigation }) => {
         Alert.alert(translations.signIn, translations.signInSuccess, [
           {
             text: translations.logIn,
-            onPress: () => {
-              navigation.replace("Login");
-              setBoolSigningIn(false);
-            },
+            onPress: () => navigation.replace("Login"),
           },
         ]);
-      else if (error && error.indexOf("does not exist") > -1) {
-        Alert.alert(translations.errorText, translations.restaurantNameWrong, [
-          {
-            text: translations.ok,
-            onPress: () => setBoolSigningIn(false),
-          },
-        ]);
-      } else {
+      else {
         setError(true);
         setErrorText(error);
+        console.error("Error during sign in:", error);
       }
     } catch (error) {
       setError(true);
-      setErrorText("An error occurred during sign in.");
+      setErrorText(`An error occurred during sign in. ${error}`);
       console.error("Error during sign in:", error);
     }
   };
@@ -112,8 +103,16 @@ const Signin = ({ navigation }) => {
     }
 
     const boolExistRestaurant = await boolIsRestaurant(restaurantName);
-    const boolUserExists = await boolUserExist(restaurantName, user);
-    if (role == translations.options[2] && boolExistRestaurant) {
+
+    if (!boolExistRestaurant && role != translations.options[2]) {
+      Alert.alert(translations.error, translations.restaurantNameWrong, [
+        {
+          text: translations.ok,
+          onPress: () => setBoolSigningIn(false),
+        },
+      ]);
+      return;
+    } else if (role == translations.options[2] && boolExistRestaurant) {
       Alert.alert(translations.error, translations.restaurantAlreadyExists, [
         {
           text: translations.ok,
@@ -122,6 +121,8 @@ const Signin = ({ navigation }) => {
       ]);
       return;
     }
+
+    const boolUserExists = await boolUserExist(restaurantName, user);
     if (boolUserExists) {
       Alert.alert(translations.error, translations.userAlreadyExists, [
         {
@@ -294,12 +295,19 @@ const Signin = ({ navigation }) => {
               {translations.SignInLogIn}
             </Text>
 
-            <TouchableOpacity onPress={() => navigation.replace("Login")}>
+            <Pressable
+              onPress={() => navigation.replace("Login")}
+              style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}
+            >
               <Text style={stylesHS.textSignin}>{translations.logIn}</Text>
-            </TouchableOpacity>
+            </Pressable>
           </View>
-          <TouchableOpacity
-            style={stylesHS.signInButton}
+
+          <Pressable
+            style={({ pressed }) => [
+              stylesHS.signInButton,
+              { opacity: pressed ? 0.5 : 1 },
+            ]}
             onPress={() => checkSignin()}
           >
             {boolSigningIn ? (
@@ -307,7 +315,7 @@ const Signin = ({ navigation }) => {
             ) : (
               <Text style={stylesHS.signInText}>{translations.signIn}</Text>
             )}
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </View>
     </ScrollView>
