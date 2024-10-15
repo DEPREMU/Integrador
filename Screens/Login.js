@@ -4,7 +4,6 @@ import {
   Pressable,
   Image,
   TextInput,
-  Alert,
   BackHandler,
   ActivityIndicator,
 } from "react-native";
@@ -18,8 +17,6 @@ import {
   interpolateMessage,
   TOKEN_KEY_STORAGE,
   RESTAURANT_NAME_KEY_STORAGE,
-  BOOL_LOG_OUT,
-  saveDataFromDict,
   saveData,
   loadData,
 } from "../components/globalVariables";
@@ -27,6 +24,7 @@ import languages from "../components/languages.json";
 import { getName, getRole, logIn } from "../components/DataBaseConnection";
 import { CheckBox } from "react-native-elements";
 import { useFocusEffect } from "@react-navigation/native";
+import Alert from "../components/Alert";
 
 const Login = ({ navigation }) => {
   const thingsToLoad = 2;
@@ -42,17 +40,24 @@ const Login = ({ navigation }) => {
   const [rememberMe, setRememberMe] = useState(false);
   const [boolLogginIn, setBoolLoggingIn] = useState(false);
   const getTranslations = () => languages[language] || languages.en;
+  const [visible, setVisible] = useState(false);
+  const [title, setTitle] = useState("Title");
+  const [message, setMessage] = useState("Message");
+  const [onOk, setOnOk] = useState(() => () => {});
+  const [onCancel, setOnCancel] = useState(() => () => {});
+  const [OkText, setOkText] = useState("Ok");
+  const [cancelText, setCancelText] = useState(null);
 
   const loggingIn = async () => {
     const translations = getTranslations();
     setBoolLoggingIn(true);
     if (password == "" || user == "" || restaurantName == "") {
-      Alert.alert(translations.error, translations.pleaseFillFields, [
-        {
-          text: translations.ok,
-          onPress: () => setBoolLoggingIn(null),
-        },
-      ]);
+      setTitle(translations.error);
+      setMessage(translations.pleaseFillFields);
+      setOnOk(() => () => setVisible(false));
+      setOkText(translations.ok);
+      setVisible(true);
+      setBoolLoggingIn(false);
       return;
     }
 
@@ -67,46 +72,41 @@ const Login = ({ navigation }) => {
         if (rememberMe) await saveData(TOKEN_KEY_STORAGE, token);
         await saveData(RESTAURANT_NAME_KEY_STORAGE, restaurantName);
 
-        Alert.alert(
-          interpolateMessage(translations.welcome, [data.name]),
-          translations.logInSuccess,
-          [
-            {
-              text: translations.ok,
-              onPress: () => navigation.replace(data.role),
-            },
-          ]
-        );
+        setTitle(interpolateMessage(translations.welcome, [data.name]));
+        setMessage(translations.logInSuccess);
+        setOnOk(() => () => {
+          navigation.replace(data.role);
+          setVisible(false);
+        });
+        setOkText(translations.ok);
+        setVisible(true);
       } catch (error) {
         setError(true);
         setErrorText(`An error occurred during log in: ${error}`);
       }
-    } else if (error && error == "UserOrPasswordWrong")
-      Alert.alert(translations.error, translations.userOrPasswordWrong, [
-        {
-          text: translations.retry,
-          onPress: () => setBoolLoggingIn(null),
-        },
-      ]);
-    else if (error == "restaurantDoesNotExist")
-      Alert.alert(translations.error, translations.restaurantNameWrong, [
-        {
-          text: translations.retry,
-          onPress: () => setBoolLoggingIn(null),
-        },
-      ]);
-    setBoolLoggingIn(null);
+    } else if (error && error == "UserOrPasswordWrong") {
+      setTitle(translations.error);
+      setMessage(translations.userOrPasswordWrong);
+      setOnOk(() => () => setVisible(false));
+      setOkText(translations.retry);
+      setVisible(true);
+      setBoolLoggingIn(false);
+    } else if (error == "restaurantDoesNotExist") {
+      setTitle(translations.error);
+      setMessage(translations.restaurantNameWrong);
+      setOnOk(() => () => setVisible(false));
+      setBoolLoggingIn(false);
+      setOkText(translations.retry);
+      setVisible(true);
+    }
+
+    setBoolLoggingIn(false);
   };
 
   useEffect(() => {
     const loadLanguage = async () => {
-      try {
-        setLanguage(await checkLanguage());
-      } catch (error) {
-        console.error(`Error loading language: ${error}`);
-      } finally {
-        setThingsLoaded((prevThingsLoaded) => prevThingsLoaded + 1);
-      }
+      setLanguage(await checkLanguage());
+      setThingsLoaded((prevThingsLoaded) => prevThingsLoaded + 1);
     };
     loadLanguage();
   }, []);
@@ -121,18 +121,15 @@ const Login = ({ navigation }) => {
       if (dataToken && dataRestaurantName) {
         const { name } = await getName(dataRestaurantName, dataToken);
         const { role, error } = await getRole(dataRestaurantName, dataToken);
-        if (role)
-          Alert.alert(
-            interpolateMessage(translations.welcome, [name ? name : ""]),
-            translations.logInSuccess,
-            [
-              {
-                text: translations.ok,
-                onPress: () => navigation.replace(role),
-              },
-            ]
+        if (role) {
+          setTitle(
+            interpolateMessage(translations.welcome, [name ? name : ""])
           );
-        else {
+          setMessage(translations.logInSuccess);
+          setOnOk(() => () => navigation.replace(role));
+          setOkText(translations.ok);
+          setVisible(true);
+        } else {
           setError(true);
           setErrorText(`An error occurred during log in: ${error}`);
         }
@@ -200,6 +197,15 @@ const Login = ({ navigation }) => {
 
   return (
     <View style={stylesHS.container}>
+      <Alert
+        visible={visible}
+        title={title}
+        message={message}
+        onOk={onOk}
+        onCancel={onCancel}
+        OkText={OkText}
+        cancelText={cancelText}
+      />
       <Image source={userImage} style={stylesHS.imageUser} />
       <Text style={stylesHS.text}>{translations.logIn}</Text>
 

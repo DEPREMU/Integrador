@@ -67,16 +67,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Fondo semi-transparente
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContainer: {
-    width: widthDivided(1.5), // 3/4 de la pantalla
+    width: widthDivided(1.3),
     padding: 20,
     backgroundColor: "white",
     borderRadius: 10,
     alignItems: "center",
-    elevation: 5, // Sombra para Android
-    shadowColor: "#000", // Sombra para iOS
+    elevation: 5,
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -87,12 +87,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 15,
     textAlign: "center",
   },
   message: {
     fontSize: 16,
     marginBottom: 20,
+    padding: 5,
     textAlign: "center",
     color: "#555",
   },
@@ -103,15 +104,15 @@ const styles = StyleSheet.create({
   },
   okButton: {
     padding: 10,
-    backgroundColor: "#6200ee", // Color principal
+    backgroundColor: "#6200ee",
     borderRadius: 5,
     alignItems: "center",
     flex: 1,
-    marginRight: 10,
+    marginHorizontal: 5,
   },
   cancelButton: {
     padding: 10,
-    backgroundColor: "#f44336", // Color de cancelación
+    backgroundColor: "#f44336",
     borderRadius: 5,
     alignItems: "center",
     flex: 1,
