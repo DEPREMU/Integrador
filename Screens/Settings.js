@@ -2,10 +2,9 @@ import {
   View,
   Text,
   Modal,
-  TouchableOpacity,
   ScrollView,
   Alert,
-  BackHandler,
+  Pressable,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import languages from "../components/languages.json";
@@ -140,12 +139,15 @@ const Settings = ({ navigation }) => {
         <Text style={stylesSettings.texts}>{translations.settingsText}</Text>
       </View>
       {role && (
-        <TouchableOpacity
+        <Pressable
           onPress={() => navigation.navigate(role)}
-          style={stylesSettings.buttonBack}
+          style={({ pressed }) => [
+            stylesSettings.buttonBack,
+            { opacity: pressed ? 0.5 : 1 },
+          ]}
         >
           <Text style={stylesSettings.settings}>{translations.back}</Text>
-        </TouchableOpacity>
+        </Pressable>
       )}
       <Modal
         animationType="slide"
@@ -160,25 +162,31 @@ const Settings = ({ navigation }) => {
               {translations.saveSettingsConfirm}
             </Text>
             <View style={stylesSettings.buttonsSaveData}>
-              <TouchableOpacity
+              <Pressable
                 onPress={() => {
                   setModalVisible(false);
                   setLanguage(languageCache);
                 }}
-                style={stylesSettings.buttonCancel}
+                style={({ pressed }) => [
+                  stylesSettings.buttonCancel,
+                  { opacity: pressed ? 0.5 : 1 },
+                ]}
               >
                 <Text>
                   {translations.cancel} {seconds}
                 </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
+              </Pressable>
+              <Pressable
                 onPress={() => {
                   confirm();
                 }}
-                style={stylesSettings.buttonConfirm}
+                style={({ pressed }) => [
+                  stylesSettings.buttonConfirm,
+                  { opacity: pressed ? 0.5 : 1 },
+                ]}
               >
                 <Text>{translations.ok}</Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
           </View>
         </View>
@@ -199,12 +207,15 @@ const Settings = ({ navigation }) => {
           </Picker>
         </View>
       </ScrollView>
-      <TouchableOpacity
+      <Pressable
         onPress={saveSettings}
-        style={stylesSettings.buttonSave}
+        style={({ pressed }) => [
+          stylesSettings.buttonSave,
+          { opacity: pressed ? 0.5 : 1 },
+        ]}
       >
         <Text style={stylesSettings.texts}>{translations.save}</Text>
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
 };

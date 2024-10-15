@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, Pressable } from "react-native";
 import {
   TOKEN_KEY_STORAGE,
   RESTAURANT_NAME_KEY_STORAGE,
@@ -61,10 +61,11 @@ const Cook = ({ navigation }) => {
   const getTranslations = () => languages[lang] || languages["en"];
 
   const loadOrdersCook = async () => {
+    console.log("LoadingOrders");
     if (restaurantName != null) {
       const { success, orders, error } = await loadOrders(restaurantName);
-      if (success) setOrders(orders != null ? JSON.stringify(orders) : null);
-      if (error) console.error(error);
+      if (success && orders) setOrders(JSON.stringify(orders));
+      else if (error) console.error(error);
     }
   };
 
@@ -137,47 +138,57 @@ const Cook = ({ navigation }) => {
 
   const translations = getTranslations();
 
+  const Orders = () =>
+    Object.entries(JSON.parse(orders)).map(([key, value], index) => (
+      <View key={index} style={stylesCook.viewByOrder}>
+        <View style={stylesCook.containerNumberOrder}>
+          <Text style={stylesCook.texts}>
+            {translations.orderText} {key}
+          </Text>
+          <Text style={stylesCook.texts}>
+            {calculateTime(value["orderTime"])} {translations.minAgo}
+          </Text>
+        </View>
+        <View style={stylesCook.orderContainer}>
+          <View style={stylesCook.order}>
+            <Text style={stylesCook.texts}>
+              {value["order"].split(", ").join("\n")}
+            </Text>
+          </View>
+          <View style={stylesCook.orderCharacteristics}>
+            <Text style={stylesCook.texts}>
+              {value["characteristics"].split(", ").join("\n")}
+            </Text>
+          </View>
+          <Pressable
+            style={({ pressed }) => [
+              stylesCook.buttonReady,
+              { opacity: pressed ? 0.5 : 1 },
+            ]}
+            onPress={() => deleteOrder(key)}
+          >
+            <Text style={stylesCook.texts}>
+              {translations.ready} {key}
+            </Text>
+          </Pressable>
+        </View>
+      </View>
+    ));
+
   return (
     <View style={stylesCook.container}>
+      <Text style={stylesCook.textRestaurant}>{restaurantName}</Text>
       <Text style={stylesCook.texts}>{translations.cookText}</Text>
 
-      {token != null && <LogOut navigation={navigation} />}
+      <LogOut navigation={navigation} translations={translations} />
+
+      {orders == null && (
+        <Text style={stylesCook.noOrdersLeft}>{translations.noOrdersLeft}</Text>
+      )}
+
       <ScrollView style={stylesCook.scrollViewOrders}>
-        {orders != null &&
-          Object.entries(JSON.parse(orders)).map(([key, value], index) => (
-            <View key={index} style={stylesCook.viewByOrder}>
-              <View style={stylesCook.containerNumberOrder}>
-                <Text style={stylesCook.texts}>
-                  {translations.orderText} {key}
-                </Text>
-                <Text style={stylesCook.texts}>
-                  {calculateTime(value["orderTime"])} {translations.minAgo}
-                </Text>
-              </View>
-              <View style={stylesCook.orderContainer}>
-                <View style={stylesCook.order}>
-                  <Text style={stylesCook.texts}>
-                    {value["order"].split(", ").join("\n")}
-                  </Text>
-                </View>
-                <View style={stylesCook.orderCharacteristics}>
-                  <Text style={stylesCook.texts}>
-                    {value["characteristics"].split(", ").join("\n")}
-                  </Text>
-                </View>
-                <TouchableOpacity
-                  style={stylesCook.buttonReady}
-                  onPress={() => deleteOrder(key)}
-                >
-                  <Text style={stylesCook.texts}>
-                    {translations.ready} {key}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))}
+        {orders != null && <Orders />}
       </ScrollView>
-      <Text style={stylesCook.texts}>{translations.cookText}</Text>
     </View>
   );
 };

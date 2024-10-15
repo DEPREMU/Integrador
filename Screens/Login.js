@@ -5,6 +5,7 @@ import {
   Image,
   TextInput,
   BackHandler,
+  Alert,
   ActivityIndicator,
 } from "react-native";
 import stylesHS from "../styles/stylesHomeScreen";
@@ -24,7 +25,7 @@ import languages from "../components/languages.json";
 import { getName, getRole, logIn } from "../components/DataBaseConnection";
 import { CheckBox } from "react-native-elements";
 import { useFocusEffect } from "@react-navigation/native";
-import Alert from "../components/Alert";
+import AlertModel from "../components/AlertModel";
 
 const Login = ({ navigation }) => {
   const thingsToLoad = 2;
@@ -91,6 +92,7 @@ const Login = ({ navigation }) => {
       setOkText(translations.retry);
       setVisible(true);
       setBoolLoggingIn(false);
+      console.log("User");
     } else if (error == "restaurantDoesNotExist") {
       setTitle(translations.error);
       setMessage(translations.restaurantNameWrong);
@@ -98,6 +100,7 @@ const Login = ({ navigation }) => {
       setBoolLoggingIn(false);
       setOkText(translations.retry);
       setVisible(true);
+      console.log("restaurant");
     }
 
     setBoolLoggingIn(false);
@@ -175,12 +178,23 @@ const Login = ({ navigation }) => {
 
   if (loading)
     return (
-      <Loading
-        loadingText={loadingText}
-        progress={
-          thingsLoaded / thingsToLoad > 1 ? 1 : thingsLoaded / thingsToLoad
-        }
-      />
+      <View style={{ flex: 1 }}>
+        <AlertModel
+          visible={visible}
+          title={title}
+          message={message}
+          onOk={onOk}
+          onCancel={onCancel}
+          OkText={OkText}
+          cancelText={cancelText}
+        />
+        <Loading
+          loadingText={loadingText}
+          progress={
+            thingsLoaded / thingsToLoad > 1 ? 1 : thingsLoaded / thingsToLoad
+          }
+        />
+      </View>
     );
 
   if (error)
@@ -197,7 +211,7 @@ const Login = ({ navigation }) => {
 
   return (
     <View style={stylesHS.container}>
-      <Alert
+      <AlertModel
         visible={visible}
         title={title}
         message={message}

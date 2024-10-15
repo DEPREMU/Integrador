@@ -1,62 +1,69 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { Text, StyleSheet, Alert, Platform, Pressable } from "react-native";
 import {
-  checkLanguage,
   RESTAURANT_NAME_KEY_STORAGE,
   TOKEN_KEY_STORAGE,
   BOOL_LOG_OUT,
   saveData,
 } from "./globalVariables";
-import languages from "./languages.json";
-import { useEffect, useState } from "react";
 
-export default LogOut = ({ navigation, top, bottom }) => {
-  const [language, setLanguage] = useState("en");
-
-  useEffect(() => {
-    const loadLanguage = async () => {
-      const language = await checkLanguage();
-      if (language && languages.languages.indexOf(language) > -1)
-        setLanguage(language);
-    };
-    loadLanguage();
-  }, []);
-
-  if (top == null && bottom == null) top = 30;
-  if (bottom != null && top != null) bottom = null;
+/**
+ * LogOut component that handles user logout functionality.
+ *
+ * @param {Object} props - The properties object.
+ * @param {Object} props.navigation - The navigation object for navigating between screens.
+ * @param {number} [props.top=30] - The top position of the button. Default 30
+ * @param {number} [props.bottom=null] - The bottom position of the button.
+ * @param {Object} props.translations - The translations object containing localized strings.
+ *
+ * @returns {JSX.Element} The rendered LogOut component.
+ */
+export default LogOut = ({
+  navigation,
+  top = 30,
+  bottom = null,
+  translations,
+}) => {
   const logOut = async () => {
     await AsyncStorage.removeItem(RESTAURANT_NAME_KEY_STORAGE);
     await AsyncStorage.removeItem(TOKEN_KEY_STORAGE);
     await saveData(BOOL_LOG_OUT, "1");
-    Alert.alert(languages[language].logOut, languages[language].logOutSuccess, [
+    if (Platform.OS == "web") navigation.replace("Login");
+    Alert.alert(translations.logOut, translations.logOutSuccess, [
       {
-        text: languages[language].ok,
+        text: translations.ok,
         onPress: () => navigation.replace("Login"),
       },
     ]);
   };
 
+  if (translations == null) {
+    console.warn("Translations not loaded, please load it to show the button");
+    return (
+      <Text style={styles.button}>
+        Translations not loaded, please load it to show the button
+      </Text>
+    );
+  }
+
   return (
-    <TouchableOpacity
-      style={[styles.button, { top: top, bottom: bottom }]}
+    <Pressable
+      style={({ pressed }) => [
+        styles.button,
+        {
+          top: !bottom ? top : null,
+          bottom: bottom,
+          opacity: pressed ? 0.5 : 1,
+        },
+      ]}
       onPress={() => logOut()}
     >
-      <Text style={styles.texts}>{languages[language].logOut}</Text>
-    </TouchableOpacity>
+      <Text style={styles.texts}>{translations.logOut}</Text>
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  texts: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
   button: {
     backgroundColor: "#FFFFFF",
     padding: 10,
@@ -68,5 +75,10 @@ const styles = StyleSheet.create({
     elevation: 5,
     position: "absolute",
     left: 5,
+    zIndex: 2,
+  },
+  texts: {
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });

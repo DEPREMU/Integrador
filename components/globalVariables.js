@@ -1,10 +1,15 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Dimensions, View, Text, ActivityIndicator } from "react-native";
+import {
+  Dimensions,
+  View,
+  Text,
+  ActivityIndicator,
+  Pressable,
+} from "react-native";
 import * as Localization from "expo-localization";
 import languages from "../components/languages.json";
 import uuid from "react-native-uuid";
 import { Bar } from "react-native-progress";
-import { TouchableOpacity } from "react-native";
 import { useEffect, useState } from "react";
 import bcrypt from "react-native-bcrypt";
 
@@ -153,13 +158,16 @@ const Error = ({ error, navigation, component = "Login" }) => {
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       <Text style={{ fontSize: 18, textAlign: "center" }}>{error}</Text>
       {navigation != null && (
-        <TouchableOpacity
-          style={{
-            backgroundColor: "gray",
-            borderRadius: 5,
-            padding: 10,
-            marginVertical: 10,
-          }}
+        <Pressable
+          style={({ pressed }) => [
+            {
+              backgroundColor: "gray",
+              borderRadius: 5,
+              padding: 10,
+              marginVertical: 10,
+            },
+            { opacity: pressed ? 0.5 : 1 },
+          ]}
           onPress={() => navigation.replace(component)}
         >
           <Text
@@ -170,7 +178,7 @@ const Error = ({ error, navigation, component = "Login" }) => {
           >
             {languages[language].retry}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       )}
     </View>
   );

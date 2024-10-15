@@ -58,4 +58,16 @@ export default stylesCook = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  noOrdersLeft: {
+    fontSize: 18,
+    fontWeight: "bold",
+    justifyContent: "center",
+    alignItems: "center",
+    textAlign: "center",
+  },
+  textRestaurant: {
+    fontSize: 30,
+    fontWeight: "bold",
+    color: "black",
+  },
 });

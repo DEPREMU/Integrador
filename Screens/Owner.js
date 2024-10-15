@@ -3,10 +3,9 @@ import {
   Text,
   BackHandler,
   Alert,
-  TouchableOpacity,
   Animated,
   ScrollView,
-  TextInput,
+  Pressable,
 } from "react-native";
 import styleOwner from "../styles/stylesScreenOwner";
 import LogOut from "../components/LogOut";
@@ -22,6 +21,7 @@ import {
 } from "../components/globalVariables";
 import languages from "../components/languages.json";
 import DeleteRestaurant from "../components/DeleteRestaurant";
+import AlertModel from "../components/AlertModel";
 
 const Owner = ({ navigation }) => {
   const [options, setOptions] = useState("0");
@@ -44,30 +44,35 @@ const Owner = ({ navigation }) => {
   const [errorText, setErrorText] = useState(null);
   const [boolDeleteRestaurant, setBoolDeleteRestaurant] = useState(false);
   const [restaurantName, setRestaurantName] = useState("");
+  const [visible, setVisible] = useState(false);
+  const [title, setTitle] = useState("Title");
+  const [message, setMessage] = useState("Message");
+  const [onOk, setOnOk] = useState(() => () => {});
+  const [onCancel, setOnCancel] = useState(() => () => {});
+  const [OkText, setOkText] = useState("Ok");
+  const [cancelText, setCancelText] = useState(null);
 
   const thingsToLoad = 2;
   const getTranslations = () => languages[lang] || languages.en;
 
   const confirmDeleteRestaurant = () => {
     const translations = getTranslations();
-    Alert.alert(
-      translations.deleteRestaurant,
-      translations.deleteRestaurantConfirmation,
-      [
-        {
-          text: translations.cancel,
-          onPress: () => null,
-        },
-        {
-          text: translations.deleteRestaurant,
-          onPress: () => setBoolDeleteRestaurant(true),
-          style: "destructive",
-        },
-      ]
-    );
+    setVisible(true);
+    setTitle(translations.deleteRestaurant);
+    setMessage(translations.deleteRestaurantConfirmation);
+    setOnOk(() => () => {
+      setBoolDeleteRestaurant(true);
+      setVisible(false);
+    });
+    setOnCancel(() => () => setVisible(false));
+    setOkText(translations.deleteRestaurant);
+    setCancelText(translations.cancel);
+    setOnCancel(() => () => {
+      setVisible(false);
+    });
   };
 
-  const onCancel = () => setBoolDeleteRestaurant((prev) => !prev);
+  const onCancelDeleteRestaurant = () => setBoolDeleteRestaurant(false);
 
   useEffect(() => {
     const loadLanguage = async () => {
@@ -170,16 +175,29 @@ const Owner = ({ navigation }) => {
       <DeleteRestaurant
         translations={translations}
         navigation={navigation}
-        onCancel={onCancel}
+        onCancel={onCancelDeleteRestaurant}
         restaurantName={restaurantName}
       />
     );
 
   return (
     <View style={styleOwner.container}>
+      <AlertModel
+        visible={visible}
+        title={title}
+        message={message}
+        onOk={onOk}
+        onCancel={onCancel}
+        OkText={OkText}
+        cancelText={cancelText}
+      />
+
       <View style={styleOwner.header}>
-        <TouchableOpacity
-          style={[styleOwner.buttonShow]}
+        <Pressable
+          style={({ pressed }) => [
+            styleOwner.buttonShow,
+            { opacity: pressed ? 0.5 : 1 },
+          ]}
           onPress={() => {
             setBoolShowLeft(!boolShowLeft);
           }}
@@ -193,7 +211,7 @@ const Owner = ({ navigation }) => {
           >
             {showTextButton}
           </Animated.Text>
-        </TouchableOpacity>
+        </Pressable>
         <Text style={[styleOwner.texts]}>{translations.ownerText}</Text>
       </View>
 
@@ -201,36 +219,49 @@ const Owner = ({ navigation }) => {
         style={[styleOwner.animatedView, { left: showLeftAnimation }]}
       >
         <ScrollView style={{ flex: 1 }}>
-          <TouchableOpacity
-            style={styleOwner.options}
+          <Pressable
+            style={({ pressed }) => [
+              styleOwner.options,
+              { opacity: pressed ? 0.5 : 1 },
+            ]}
             onPress={() => navigation.navigate("Settings")}
           >
             <Text style={styleOwner.textOptions}>
               {translations.settingsText}
             </Text>
             <Text style={[styleOwner.textOptions]}>{">"}</Text>
-          </TouchableOpacity>
+          </Pressable>
 
-          <TouchableOpacity
-            style={styleOwner.options}
+          <Pressable
+            style={({ pressed }) => [
+              styleOwner.options,
+              { opacity: pressed ? 0.5 : 1 },
+            ]}
             onPress={() => setOptions("2")}
           >
             <Text style={styleOwner.textOptions}>Option 2</Text>
             <Text style={[styleOwner.textOptions]}>{">"}</Text>
-          </TouchableOpacity>
+          </Pressable>
 
-          <TouchableOpacity
-            style={styleOwner.buttonDeleteRestaurant}
+          <Pressable
+            style={({ pressed }) => [
+              styleOwner.buttonDeleteRestaurant,
+              { opacity: pressed ? 0.5 : 1 },
+            ]}
             onPress={() => confirmDeleteRestaurant()}
           >
             <Text style={[styleOwner.textOptions, { color: "white" }]}>
               {translations.deleteRestaurant}
             </Text>
             <Text style={[styleOwner.textOptions]}>{">"}</Text>
-          </TouchableOpacity>
+          </Pressable>
         </ScrollView>
 
-        <LogOut navigation={navigation} bottom={100} />
+        <LogOut
+          navigation={navigation}
+          bottom={100}
+          translations={translations}
+        />
       </Animated.View>
     </View>
   );

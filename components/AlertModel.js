@@ -1,5 +1,5 @@
 import { Modal, View, Text, Pressable, StyleSheet } from "react-native";
-import { width, widthDivided } from "./globalVariables";
+import { widthDivided } from "./globalVariables";
 
 /**
  * Alert component that displays a modal with a title, message, and action buttons.
@@ -12,9 +12,9 @@ import { width, widthDivided } from "./globalVariables";
  * @param {function} props.onCancel - The function to call when the Cancel button is pressed.
  * @param {string} [props.OkText="Ok"] - The text displayed on the Ok button.
  * @param {string} [props.cancelText=null] - The text displayed on the Cancel button. If null, the Cancel button is not displayed.
- * @returns {JSX.Element} The rendered Alert component.
+ * @returns {JSX.Element} The rendered Alert component made with Model.
  */
-export default Alert = ({
+export default AlertModel = ({
   visible = false,
   title = "",
   message = "",

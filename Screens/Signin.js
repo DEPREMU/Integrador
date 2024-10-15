@@ -7,8 +7,7 @@ import {
   ScrollView,
   BackHandler,
   ActivityIndicator,
-  Platform,
-  Button,
+  Alert,
 } from "react-native";
 import stylesHS from "../styles/stylesHomeScreen";
 import { Picker } from "@react-native-picker/picker";
@@ -17,20 +16,26 @@ import {
   checkLanguage,
   Error,
   hashPassword,
+  interpolateMessage,
+  loadData,
   Loading,
+  RESTAURANT_NAME_KEY_STORAGE,
+  TOKEN_KEY_STORAGE,
   userImage,
 } from "../components/globalVariables";
 import languages from "../components/languages.json";
 import {
   boolIsRestaurant,
   boolUserExist,
+  getName,
+  getRole,
   signIn,
 } from "../components/DataBaseConnection";
 import { useFocusEffect } from "@react-navigation/native";
-import Alert from "../components/Alert";
+import AlertModel from "../components/AlertModel";
 
 const Signin = ({ navigation }) => {
-  const thingsToLoad = 2;
+  const thingsToLoad = 3;
   const [thingsLoaded, setThingsLoaded] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadingText, setLoadingText] = useState("Loading.");
@@ -80,6 +85,7 @@ const Signin = ({ navigation }) => {
         setMessage(translations.signInSuccess);
         setOkText(translations.logIn);
         setOnOk(() => () => navigation.replace("Login"));
+        setCancelText(null);
         setVisible(true);
       } else {
         setError(true);
@@ -99,6 +105,7 @@ const Signin = ({ navigation }) => {
     if (user == "" || password == "" || name == "" || restaurantName == "") {
       setTitle(translations.error);
       setMessage(translations.pleaseFillFields);
+      setCancelText(null);
       setOkText(translations.ok);
       setOnOk(() => () => {
         setVisible(false);
@@ -111,6 +118,7 @@ const Signin = ({ navigation }) => {
     if (isFinite(restaurantName[0])) {
       setTitle(translations.error);
       setMessage(translations.noNumbersInName);
+      setCancelText(null);
       setOkText(translations.ok);
       setOnOk(() => () => {
         setVisible(false);
@@ -129,6 +137,7 @@ const Signin = ({ navigation }) => {
       setOnOk(() => () => {
         setVisible(false);
         setBoolSigningIn(false);
+        setCancelText(null);
       });
       setVisible(true);
       return;
@@ -139,6 +148,7 @@ const Signin = ({ navigation }) => {
       setOnOk(() => () => {
         setVisible(false);
         setBoolSigningIn(false);
+        setCancelText(null);
       });
       setVisible(true);
       return;
@@ -148,6 +158,7 @@ const Signin = ({ navigation }) => {
     if (boolUserExists) {
       setTitle(translations.error);
       setMessage(translations.userAlreadyExists);
+      setCancelText(null);
       setOkText(translations.ok);
       setOnOk(() => () => {
         setVisible(false);
@@ -174,15 +185,18 @@ const Signin = ({ navigation }) => {
   };
 
   useEffect(() => {
+    const loadLanguage = async () => {
+      setLanguage(await checkLanguage());
+      setThingsLoaded((prev) => prev + 1);
+    };
+
     const loadOptions = async () => {
       try {
-        const lang = await checkLanguage();
-        setLanguage(lang);
-        const opts = languages[lang].options;
+        const opts = getTranslations().options;
         if (opts && opts.length > 0) {
           setOptions(opts);
           setRole(opts[0]);
-          setThingsLoaded((prev) => prev + 2);
+          setThingsLoaded((prev) => prev + 1);
         } else {
           setError(true);
           setErrorText("No options available.");
@@ -193,6 +207,31 @@ const Signin = ({ navigation }) => {
       }
     };
 
+    const loadTokenAndRestaurantName = async () => {
+      const translations = getTranslations();
+      const dataToken = await loadData(TOKEN_KEY_STORAGE);
+      const dataRestaurantName = await loadData(RESTAURANT_NAME_KEY_STORAGE);
+
+      if (dataToken && dataRestaurantName) {
+        const { name } = await getName(dataRestaurantName, dataToken);
+        const { role, error } = await getRole(dataRestaurantName, dataToken);
+        if (role) {
+          setTitle(
+            interpolateMessage(translations.welcome, [name ? name : ""])
+          );
+          setMessage(translations.logInSuccess);
+          setOnOk(() => () => navigation.replace(role));
+          setOkText(translations.ok);
+          setVisible(true);
+        } else {
+          setError(true);
+          setErrorText(`An error occurred during log in: ${error}`);
+        }
+      } else setThingsLoaded((prevThingsLoaded) => prevThingsLoaded + 1);
+    };
+
+    loadLanguage();
+    loadTokenAndRestaurantName();
     loadOptions();
   }, []);
 
@@ -235,12 +274,24 @@ const Signin = ({ navigation }) => {
 
   if (loading)
     return (
-      <Loading
-        loadingText={loadingText}
-        progress={
-          thingsLoaded / thingsToLoad > 1 ? 1 : thingsLoaded / thingsToLoad
-        }
-      />
+      <View style={{ flex: 1 }}>
+        <AlertModel
+          visible={visible}
+          title={title}
+          message={message}
+          onOk={onOk}
+          onCancel={onCancel}
+          OkText={OkText}
+          cancelText={cancelText}
+        />
+
+        <Loading
+          loadingText={loadingText}
+          progress={
+            thingsLoaded / thingsToLoad > 1 ? 1 : thingsLoaded / thingsToLoad
+          }
+        />
+      </View>
     );
   if (error)
     return (
@@ -251,7 +302,7 @@ const Signin = ({ navigation }) => {
 
   return (
     <ScrollView style={stylesHS.scrollView}>
-      <Alert
+      <AlertModel
         visible={visible}
         title={title}
         message={message}
@@ -314,7 +365,7 @@ const Signin = ({ navigation }) => {
           <Text style={stylesHS.roles}>{translations.TextRoles}</Text>
 
           <View style={stylesHS.pickerContainer}>
-            {options && (
+            {options != null && (
               <Picker
                 selectedValue={role}
                 onValueChange={(itemValue) => setRole(itemValue)}
