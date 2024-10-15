@@ -4,10 +4,11 @@ import {
   Pressable,
   Image,
   TextInput,
-  Alert,
   ScrollView,
   BackHandler,
   ActivityIndicator,
+  Platform,
+  Button,
 } from "react-native";
 import stylesHS from "../styles/stylesHomeScreen";
 import { Picker } from "@react-native-picker/picker";
@@ -26,6 +27,7 @@ import {
   signIn,
 } from "../components/DataBaseConnection";
 import { useFocusEffect } from "@react-navigation/native";
+import Alert from "../components/Alert";
 
 const Signin = ({ navigation }) => {
   const thingsToLoad = 2;
@@ -45,6 +47,19 @@ const Signin = ({ navigation }) => {
   const getTranslations = () => languages[language] || languages.en;
   const checkRestaurantName = (value) =>
     value.indexOf(" ") === -1 ? setRestaurantName(value) : null;
+  const [visible, setVisible] = React.useState(false);
+  const [title, setTitle] = React.useState("Titulo");
+  const [message, setMessage] = React.useState("Mensaje");
+  const [OkText, setOkText] = React.useState("Ok");
+  const [cancelText, setCancelText] = React.useState(null);
+  const [onOk, setOnOk] = useState(() => () => {
+    console.log("Modificar!!");
+    setVisible(false);
+  });
+  const [onCancel, setOnCancel] = useState(() => () => {
+    console.log("Modificar!!");
+    setVisible(false);
+  });
 
   const signingIn = async () => {
     try {
@@ -60,14 +75,13 @@ const Signin = ({ navigation }) => {
         name
       );
 
-      if (success)
-        Alert.alert(translations.signIn, translations.signInSuccess, [
-          {
-            text: translations.logIn,
-            onPress: () => navigation.replace("Login"),
-          },
-        ]);
-      else {
+      if (success) {
+        setTitle(translations.signIn);
+        setMessage(translations.signInSuccess);
+        setOkText(translations.logIn);
+        setOnOk(() => () => navigation.replace("Login"));
+        setVisible(true);
+      } else {
         setError(true);
         setErrorText(error);
         console.error("Error during sign in:", error);
@@ -83,66 +97,80 @@ const Signin = ({ navigation }) => {
     setBoolSigningIn(true);
     const translations = getTranslations();
     if (user == "" || password == "" || name == "" || restaurantName == "") {
-      Alert.alert(translations.error, translations.pleaseFillFields, [
-        {
-          text: translations.ok,
-          onPress: () => setBoolSigningIn(false),
-        },
-      ]);
+      setTitle(translations.error);
+      setMessage(translations.pleaseFillFields);
+      setOkText(translations.ok);
+      setOnOk(() => () => {
+        setVisible(false);
+        setBoolSigningIn(false);
+      });
+      setVisible(true);
       return;
     }
 
     if (isFinite(restaurantName[0])) {
-      Alert.alert(translations.error, translations.noNumbersInName, [
-        {
-          text: translations.ok,
-          onPress: () => setBoolSigningIn(false),
-        },
-      ]);
+      setTitle(translations.error);
+      setMessage(translations.noNumbersInName);
+      setOkText(translations.ok);
+      setOnOk(() => () => {
+        setVisible(false);
+        setBoolSigningIn(false);
+      });
+      setVisible(true);
       return;
     }
 
     const boolExistRestaurant = await boolIsRestaurant(restaurantName);
 
     if (!boolExistRestaurant && role != translations.options[2]) {
-      Alert.alert(translations.error, translations.restaurantNameWrong, [
-        {
-          text: translations.ok,
-          onPress: () => setBoolSigningIn(false),
-        },
-      ]);
+      setTitle(translations.error);
+      setMessage(translations.restaurantNameWrong);
+      setOkText(translations.ok);
+      setOnOk(() => () => {
+        setVisible(false);
+        setBoolSigningIn(false);
+      });
+      setVisible(true);
       return;
     } else if (role == translations.options[2] && boolExistRestaurant) {
-      Alert.alert(translations.error, translations.restaurantAlreadyExists, [
-        {
-          text: translations.ok,
-          onPress: () => setBoolSigningIn(false),
-        },
-      ]);
+      setTitle(translations.error);
+      setMessage(translations.restaurantAlreadyExists);
+      setOkText(translations.ok);
+      setOnOk(() => () => {
+        setVisible(false);
+        setBoolSigningIn(false);
+      });
+      setVisible(true);
       return;
     }
 
     const boolUserExists = await boolUserExist(restaurantName, user);
     if (boolUserExists) {
-      Alert.alert(translations.error, translations.userAlreadyExists, [
-        {
-          text: translations.ok,
-          onPress: () => setBoolSigningIn(false),
-        },
-      ]);
+      setTitle(translations.error);
+      setMessage(translations.userAlreadyExists);
+      setOkText(translations.ok);
+      setOnOk(() => () => {
+        setVisible(false);
+        setBoolSigningIn(false);
+      });
+      setVisible(true);
       return;
     }
 
-    Alert.alert(translations.signIn, translations.askSignIn, [
-      {
-        text: translations.cancel,
-        onPress: () => setBoolSigningIn(false),
-      },
-      {
-        text: translations.ok,
-        onPress: () => signingIn(),
-      },
-    ]);
+    //Preguntar si iniciar sesion
+    setOnCancel(() => () => {
+      setBoolSigningIn(false);
+      setVisible(false);
+    });
+    setOnOk(() => () => {
+      setVisible(false);
+      signingIn();
+    });
+    setTitle(translations.signIn);
+    setMessage(translations.askSignIn);
+    setVisible(true);
+    setCancelText(translations.cancel);
+    setOkText(translations.ok);
   };
 
   useEffect(() => {
@@ -223,6 +251,15 @@ const Signin = ({ navigation }) => {
 
   return (
     <ScrollView style={stylesHS.scrollView}>
+      <Alert
+        visible={visible}
+        title={title}
+        message={message}
+        onOk={onOk}
+        onCancel={onCancel}
+        OkText={OkText}
+        cancelText={cancelText}
+      />
       <View style={stylesHS.container}>
         <Image source={userImage} style={stylesHS.imageUser} />
 
