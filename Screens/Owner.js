@@ -18,10 +18,14 @@ import {
   widthDivided,
   Error,
   RESTAURANT_NAME_KEY_STORAGE,
+  checkLanguage,
+  tableNameErrorLogs,
+  appName,
 } from "../components/globalVariables";
 import languages from "../components/languages.json";
 import DeleteRestaurant from "../components/DeleteRestaurant";
 import AlertModel from "../components/AlertModel";
+import { insertInTable } from "../components/DataBaseConnection";
 
 const Owner = ({ navigation }) => {
   const [options, setOptions] = useState("0");
@@ -76,22 +80,22 @@ const Owner = ({ navigation }) => {
 
   useEffect(() => {
     const loadLanguage = async () => {
-      try {
-        const language = await loadData(LANGUAGE_KEY_STORAGE);
-        setLang(language);
-      } catch {
-        setLang("en");
-      } finally {
-        setThingsLoaded((prev) => prev + 1);
-      }
+      setLang(await checkLanguage());
+      setThingsLoaded((prev) => prev + 1);
     };
     const loadRestaurantName = async () => {
       try {
         const data = await loadData(RESTAURANT_NAME_KEY_STORAGE);
         setRestaurantName(data);
-      } catch {
+      } catch (error) {
         setError(true);
-        setErrorText("Error loading restaurant name");
+        setErrorText(`Error loading restaurant name ${error}`);
+        await insertInTable(tableNameErrorLogs, {
+          appName: appName,
+          error: `Error loading restaurant name ${error}`,
+          date: new Date().toLocaleString(),
+          component: `./Owner/useEffect/loadRestaurantName() catch (error) => Error loading restaurant name: ${error}`,
+        });
       } finally {
         setThingsLoaded((prev) => prev + 1);
       }
@@ -153,7 +157,6 @@ const Owner = ({ navigation }) => {
   if (loading)
     return (
       <Loading
-        loadingText={loadingText}
         progress={
           thingsLoaded / thingsToLoad > 1 ? 1 : thingsLoaded / thingsToLoad
         }

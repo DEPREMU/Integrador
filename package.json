@@ -18,7 +18,7 @@
     "@supabase/supabase-js": "^2.45.4",
     "axios": "^1.7.7",
     "color": "^4.2.3",
-    "expo": "^51.0.37",
+    "expo": "~51.0.38",
     "expo-localization": "~15.0.3",
     "expo-status-bar": "~1.12.1",
     "pretty-format": "^29.7.0",

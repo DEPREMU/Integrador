@@ -20,9 +20,19 @@ import {
   RESTAURANT_NAME_KEY_STORAGE,
   saveData,
   loadData,
+  removeData,
+  tableNameErrorLogs,
+  appName,
 } from "../components/globalVariables";
 import languages from "../components/languages.json";
-import { getName, getRole, logIn } from "../components/DataBaseConnection";
+import {
+  getDateToken,
+  getName,
+  getRole,
+  insertInTable,
+  logIn,
+  updateTableByDict,
+} from "../components/DataBaseConnection";
 import { CheckBox } from "react-native-elements";
 import { useFocusEffect } from "@react-navigation/native";
 import AlertModel from "../components/AlertModel";
@@ -70,7 +80,12 @@ const Login = ({ navigation }) => {
     if (success && token && data) {
       setBoolLoggingIn(false);
       try {
-        if (rememberMe) await saveData(TOKEN_KEY_STORAGE, token);
+        if (rememberMe) {
+          await saveData(TOKEN_KEY_STORAGE, token);
+          await updateTableByDict(restaurantName, token, {
+            tokenTime: new Date().toString(),
+          });
+        }
         await saveData(RESTAURANT_NAME_KEY_STORAGE, restaurantName);
 
         setTitle(interpolateMessage(translations.welcome, [data.name]));
@@ -84,6 +99,12 @@ const Login = ({ navigation }) => {
       } catch (error) {
         setError(true);
         setErrorText(`An error occurred during log in: ${error}`);
+        await insertInTable(tableNameErrorLogs, {
+          appName: appName,
+          error: error,
+          date: new Date().toLocaleString(),
+          component: `./Login/loggingIn() if (success && token && data) catch (error) => An error occurred during log in: ${error}`,
+        });
       }
     } else if (error && error == "UserOrPasswordWrong") {
       setTitle(translations.error);
@@ -92,7 +113,6 @@ const Login = ({ navigation }) => {
       setOkText(translations.retry);
       setVisible(true);
       setBoolLoggingIn(false);
-      console.log("User");
     } else if (error == "restaurantDoesNotExist") {
       setTitle(translations.error);
       setMessage(translations.restaurantNameWrong);
@@ -100,7 +120,6 @@ const Login = ({ navigation }) => {
       setBoolLoggingIn(false);
       setOkText(translations.retry);
       setVisible(true);
-      console.log("restaurant");
     }
 
     setBoolLoggingIn(false);
@@ -122,6 +141,22 @@ const Login = ({ navigation }) => {
       const dataRestaurantName = await loadData(RESTAURANT_NAME_KEY_STORAGE);
 
       if (dataToken && dataRestaurantName) {
+        const { dateToken } = await getDateToken(dataRestaurantName, dataToken);
+        const dateOfToken = new Date(dateToken);
+        const currentDate = new Date();
+        const timeDifference = currentDate - dateOfToken;
+        const daysDifference = timeDifference / (1000 * 3600 * 24);
+
+        if (!dateToken || daysDifference > 30) {
+          await removeData(TOKEN_KEY_STORAGE);
+          setTitle(translations.error);
+          setMessage(translations.tokenExpired);
+          setOnOk(() => () => setVisible(false));
+          setOkText(translations.ok);
+          setVisible(true);
+          setThingsLoaded((prev) => prev + 1);
+          return;
+        }
         const { name } = await getName(dataRestaurantName, dataToken);
         const { role, error } = await getRole(dataRestaurantName, dataToken);
         if (role) {
@@ -135,6 +170,12 @@ const Login = ({ navigation }) => {
         } else {
           setError(true);
           setErrorText(`An error occurred during log in: ${error}`);
+          await insertInTable(tableNameErrorLogs, {
+            appName: appName,
+            error: error,
+            date: new Date().toLocaleString(),
+            component: `./Login/useEffect() if (role) {} else {} => An error occurred during log in: ${error}`,
+          });
         }
       } else setThingsLoaded((prevThingsLoaded) => prevThingsLoaded + 1);
     };
@@ -189,7 +230,6 @@ const Login = ({ navigation }) => {
           cancelText={cancelText}
         />
         <Loading
-          loadingText={loadingText}
           progress={
             thingsLoaded / thingsToLoad > 1 ? 1 : thingsLoaded / thingsToLoad
           }
@@ -201,6 +241,7 @@ const Login = ({ navigation }) => {
     return (
       <Error
         navigation={navigation}
+        component="Login"
         error={
           errorText ? errorText : languages[language].errorText + "Uknown error"
         }

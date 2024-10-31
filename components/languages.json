@@ -26,14 +26,14 @@
     "userOrPasswordWrong": "User or password incorrect",
     "userAlreadyExists": "User already exists",
     "retry": "Retry",
-    "rememberMe": "Remember me",
-    "restaurantNameWrong": "The restaurant does not exist, please verify the name.",
-    "restaurantAlreadyExists": "The restaurant already exists, please add a small variant.",
-    "signInSuccess": "Successful registration",
+    "rememberMe": "Remember me for 30 days",
+    "restaurantNameWrong": "The restaurant does not exist; please verify the name.",
+    "restaurantAlreadyExists": "The restaurant already exists; please add a small variant.",
+    "signInSuccess": "Registration successful",
     "welcome": "Welcome ${0}!",
-    "logInSuccess": "Successful login",
+    "logInSuccess": "Login successful",
     "logOut": "Log out",
-    "logOutSuccess": "Successful logout",
+    "logOutSuccess": "Logout successful",
     "askLogOut": "Are you sure you want to log out?",
     "exitAppConfirmation": "Are you sure you want to exit the application?",
     "exitText": "Exit",
@@ -56,8 +56,9 @@
     "delete": "Delete",
     "deletedConfirmed": "Deleted successfully",
     "deletedConfirmedText": "Deleted permanently. See you soon!",
-    "deleteRestaurantText": "The restaurant will desapear for ever if you click \"Delete\"",
-    "noOrdersLeft": "There is no more orders in the moment, you can get a rest!"
+    "deleteRestaurantText": "The restaurant will disappear forever if you click \"Delete\".",
+    "noOrdersLeft": "There are no more orders at the moment; you can take a rest!",
+    "tokenExpired": "The token has expired; please log in again."
   },
   "es": {
     "TextUser": "Usuario",
@@ -80,8 +81,8 @@
     "userAlreadyExists": "El usuario ya existe",
     "retry": "Reintentar",
     "rememberMe": "Recuérdame",
-    "restaurantNameWrong": "El restaurante no existe, por favor verifica el nombre.",
-    "restaurantAlreadyExists": "El restaurante ya existe, agrega una pequeña variante.",
+    "restaurantNameWrong": "El restaurante no existe; por favor verifica el nombre.",
+    "restaurantAlreadyExists": "El restaurante ya existe; agrega una pequeña variante.",
     "signInSuccess": "Registro exitoso",
     "welcome": "¡Bienvenido ${0}!",
     "logInSuccess": "Inicio de sesión exitoso",
@@ -109,8 +110,9 @@
     "delete": "Eliminar",
     "deletedConfirmed": "Se eliminó correctamente",
     "deletedConfirmedText": "Se eliminó permanentemente. ¡Nos vemos pronto!",
-    "deleteRestaurantText": "El restaurante desaparecerá para siempre si haces clic en \"Eliminar\"",
-    "noOrdersLeft": "No hay más pedidos en el momento, ¡puedes descansar!"
+    "deleteRestaurantText": "El restaurante desaparecerá para siempre si haces clic en \"Eliminar\".",
+    "noOrdersLeft": "No hay más pedidos en este momento; ¡puedes descansar!",
+    "tokenExpired": "El token ha expirado; por favor inicia sesión nuevamente."
   },
   "fr": {
     "TextUser": "Utilisateur",
@@ -133,8 +135,8 @@
     "userAlreadyExists": "L'utilisateur existe déjà",
     "retry": "Réessayer",
     "rememberMe": "Souviens-toi de moi",
-    "restaurantNameWrong": "Le restaurant n'existe pas, veuillez vérifier le nom.",
-    "restaurantAlreadyExists": "Le restaurant existe déjà, ajoutez une petite variante.",
+    "restaurantNameWrong": "Le restaurant n'existe pas; veuillez vérifier le nom.",
+    "restaurantAlreadyExists": "Le restaurant existe déjà; ajoutez une petite variante.",
     "signInSuccess": "Inscription réussie",
     "welcome": "Bienvenue ${0}!",
     "logInSuccess": "Connexion réussie",
@@ -162,8 +164,9 @@
     "delete": "Supprimer",
     "deletedConfirmed": "Supprimé avec succès",
     "deletedConfirmedText": "Supprimé définitivement. À bientôt !",
-    "deleteRestaurantText": "Le restaurant disparaîtra pour toujours si vous cliquez sur \"Supprimer\"",
-    "noOrdersLeft": "Il n'y a plus de commandes pour le moment, vous pouvez vous reposer !"
+    "deleteRestaurantText": "Le restaurant disparaîtra pour toujours si vous cliquez sur \"Supprimer\".",
+    "noOrdersLeft": "Il n'y a plus de commandes pour le moment; vous pouvez vous reposer !",
+    "tokenExpired": "Le jeton a expiré; veuillez vous reconnecter."
   },
   "ja": {
     "TextUser": "ユーザー",
@@ -186,10 +189,10 @@
     "userAlreadyExists": "ユーザーはすでに存在します",
     "retry": "再試行",
     "rememberMe": "私を覚えてますか",
-    "restaurantNameWrong": "レストランが存在しません、名前を確認してください。",
-    "restaurantAlreadyExists": "レストランはすでに存在します、少し変更してください。",
+    "restaurantNameWrong": "レストランが存在しません; 名前を確認してください。",
+    "restaurantAlreadyExists": "レストランはすでに存在します; 少し変更してください。",
     "signInSuccess": "登録成功",
-    "welcome": "${0} さん、ようこそ！",
+    "welcome": "${0}さん、ようこそ！",
     "logInSuccess": "ログイン成功",
     "logOut": "ログアウト",
     "logOutSuccess": "ログアウト成功",
@@ -215,7 +218,8 @@
     "delete": "削除",
     "deletedConfirmed": "正常に削除されました",
     "deletedConfirmedText": "完全に削除されました。またお会いしましょう！",
-    "deleteRestaurantText": "「削除」をクリックすると、レストランが永久に消えます",
-    "noOrdersLeft": "現在、注文はありません。休憩してください！"
+    "deleteRestaurantText": "「削除」をクリックすると、レストランが永久に消えます。",
+    "noOrdersLeft": "現在、注文はありません。休憩してください！",
+    "tokenExpired": "トークンが期限切れになりました。もう一度ログインしてください。"
   }
 }

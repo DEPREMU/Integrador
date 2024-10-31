@@ -126,7 +126,6 @@ const Cook = ({ navigation }) => {
   if (loading)
     return (
       <Loading
-        loadingText={loadingText}
         progress={
           thingsLoaded / thingsToLoad > 1 ? 1 : thingsLoaded / thingsToLoad
         }

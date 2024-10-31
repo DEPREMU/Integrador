@@ -6,14 +6,41 @@ import Owner from "./Screens/Owner";
 import Cook from "./Screens/Cook";
 import Waiter from "./Screens/Waiter";
 import Settings from "./Screens/Settings";
+import Welcome from "./Screens/Welcome";
+import { useEffect, useState } from "react";
+import {
+  FIRST_TIME_LOADING_APP,
+  loadData,
+  Loading,
+} from "./components/globalVariables";
 
-const App = () => {
+export default App = () => {
   const Stack = createNativeStackNavigator();
+  const [isFirstTime, setIsFirstTime] = useState(true);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkFirstTimeLoading = async () => {
+      const firstTime = await loadData(FIRST_TIME_LOADING_APP);
+      if (firstTime == null) {
+        setIsFirstTime(true);
+        setLoading(false);
+      } else setLoading(false);
+    };
+    checkFirstTimeLoading();
+  }, []);
+
+  if (loading) return <Loading boolActivityIndicator={true} />;
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Signin">
+      <Stack.Navigator initialRouteName={isFirstTime ? "Welcome" : "Login"}>
         {/* Para cada vista se tiene que agregar aqui para mostrarse mediante un boton */}
+        <Stack.Screen
+          name="Welcome"
+          component={Welcome}
+          options={{ headerShown: false }}
+        />
         <Stack.Screen
           name="Login"
           component={Login}
@@ -48,5 +75,3 @@ const App = () => {
     </NavigationContainer>
   );
 };
-
-export default App;

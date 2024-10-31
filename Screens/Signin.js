@@ -13,13 +13,17 @@ import stylesHS from "../styles/stylesHomeScreen";
 import { Picker } from "@react-native-picker/picker";
 import React, { useEffect, useState, useCallback } from "react";
 import {
+  appName,
   checkLanguage,
   Error,
   hashPassword,
   interpolateMessage,
+  LANGUAGE_KEY_STORAGE,
   loadData,
   Loading,
+  removeData,
   RESTAURANT_NAME_KEY_STORAGE,
+  tableNameErrorLogs,
   TOKEN_KEY_STORAGE,
   userImage,
 } from "../components/globalVariables";
@@ -27,36 +31,39 @@ import languages from "../components/languages.json";
 import {
   boolIsRestaurant,
   boolUserExist,
+  getDateToken,
   getName,
   getRole,
+  insertInTable,
   signIn,
+  updateTableByDict,
 } from "../components/DataBaseConnection";
 import { useFocusEffect } from "@react-navigation/native";
 import AlertModel from "../components/AlertModel";
 
 const Signin = ({ navigation }) => {
   const thingsToLoad = 3;
-  const [thingsLoaded, setThingsLoaded] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [loadingText, setLoadingText] = useState("Loading.");
-  const [error, setError] = useState(false);
-  const [errorText, setErrorText] = useState("");
-  const [language, setLanguage] = useState(null);
-  const [restaurantName, setRestaurantName] = useState("");
   const [name, setName] = useState("");
-  const [user, setUser] = useState("");
-  const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
+  const [user, setUser] = useState("");
+  const [error, setError] = useState(false);
+  const [title, setTitle] = React.useState("Titulo");
+  const [OkText, setOkText] = React.useState("Ok");
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = React.useState("Mensaje");
   const [options, setOptions] = useState(null);
+  const [visible, setVisible] = React.useState(false);
+  const [language, setLanguage] = useState(null);
+  const [password, setPassword] = useState("");
+  const [errorText, setErrorText] = useState("");
+  const [cancelText, setCancelText] = React.useState(null);
+  const [loadingText, setLoadingText] = useState("Loading.");
+  const [thingsLoaded, setThingsLoaded] = useState(0);
   const [boolSigningIn, setBoolSigningIn] = useState(false);
+  const [restaurantName, setRestaurantName] = useState("");
   const getTranslations = () => languages[language] || languages.en;
   const checkRestaurantName = (value) =>
     value.indexOf(" ") === -1 ? setRestaurantName(value) : null;
-  const [visible, setVisible] = React.useState(false);
-  const [title, setTitle] = React.useState("Titulo");
-  const [message, setMessage] = React.useState("Mensaje");
-  const [OkText, setOkText] = React.useState("Ok");
-  const [cancelText, setCancelText] = React.useState(null);
   const [onOk, setOnOk] = useState(() => () => {
     console.log("Modificar!!");
     setVisible(false);
@@ -90,12 +97,24 @@ const Signin = ({ navigation }) => {
       } else {
         setError(true);
         setErrorText(error);
-        console.error("Error during sign in:", error);
+        console.error(`Error during sign in: ${error}`);
+        await insertInTable(tableNameErrorLogs, {
+          appName: appName,
+          error: error,
+          date: new Date().toLocaleString(),
+          component: `./Screens/Signin/signingIn() else {} => Error during sign in: ${error}`,
+        });
       }
     } catch (error) {
       setError(true);
       setErrorText(`An error occurred during sign in. ${error}`);
       console.error("Error during sign in:", error);
+      await insertInTable(tableNameErrorLogs, {
+        appName: appName,
+        error: `An error occurred during sign in. ${error}`,
+        date: new Date().toLocaleString(),
+        component: `./Screens/Signin/signingIn() catch (error) => Error during sign in: ${error}`,
+      });
     }
   };
 
@@ -192,7 +211,8 @@ const Signin = ({ navigation }) => {
 
     const loadOptions = async () => {
       try {
-        const opts = getTranslations().options;
+        const lang = await loadData(LANGUAGE_KEY_STORAGE);
+        const opts = languages[lang].options;
         if (opts && opts.length > 0) {
           setOptions(opts);
           setRole(opts[0]);
@@ -200,19 +220,50 @@ const Signin = ({ navigation }) => {
         } else {
           setError(true);
           setErrorText("No options available.");
+          await insertInTable(tableNameErrorLogs, {
+            appName: appName,
+            error: `No options available: Options: {${options}}, lang {${lang}}`,
+            date: new Date().toLocaleString(),
+            component:
+              "./Screens/Signin/loadOptions() else {} => No options available.",
+          });
         }
       } catch (error) {
         setError(true);
         setErrorText(error.message || "An error occurred.");
+        console.error("Error loading options:", error);
+        await insertInTable(tableNameErrorLogs, {
+          appName: appName,
+          error: error.message,
+          date: new Date().toLocaleString(),
+          component: `./Screens/Signin/loadOptions() catch (error) => Error loading options: ${error}`,
+        });
       }
     };
 
     const loadTokenAndRestaurantName = async () => {
-      const translations = getTranslations();
+      const lang = await loadData(LANGUAGE_KEY_STORAGE);
+      const translations = languages[lang];
       const dataToken = await loadData(TOKEN_KEY_STORAGE);
       const dataRestaurantName = await loadData(RESTAURANT_NAME_KEY_STORAGE);
 
       if (dataToken && dataRestaurantName) {
+        const { dateToken } = await getDateToken(dataRestaurantName, dataToken);
+        const dateOfToken = new Date(dateToken);
+        const currentDate = new Date();
+        const timeDifference = currentDate - dateOfToken;
+        const daysDifference = timeDifference / (1000 * 3600 * 24);
+
+        if (!dateToken || daysDifference > 30) {
+          await removeData(TOKEN_KEY_STORAGE);
+          setTitle(translations.error);
+          setMessage(translations.tokenExpired);
+          setOnOk(() => () => navigation.replace("Login"));
+          setOkText(translations.ok);
+          setVisible(true);
+          return;
+        }
+
         const { name } = await getName(dataRestaurantName, dataToken);
         const { role, error } = await getRole(dataRestaurantName, dataToken);
         if (role) {
@@ -226,6 +277,13 @@ const Signin = ({ navigation }) => {
         } else {
           setError(true);
           setErrorText(`An error occurred during log in: ${error}`);
+          console.error("Error during log in:", error);
+          await insertInTable(tableNameErrorLogs, {
+            appName: appName,
+            error: `An error occurred during log in: ${error}`,
+            date: new Date().toLocaleString(),
+            component: `./Screens/Signin/loadTokenAndRestaurantName() else {} => Error during log in: ${error}`,
+          });
         }
       } else setThingsLoaded((prevThingsLoaded) => prevThingsLoaded + 1);
     };
@@ -286,7 +344,6 @@ const Signin = ({ navigation }) => {
         />
 
         <Loading
-          loadingText={loadingText}
           progress={
             thingsLoaded / thingsToLoad > 1 ? 1 : thingsLoaded / thingsToLoad
           }

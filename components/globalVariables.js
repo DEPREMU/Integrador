@@ -12,13 +12,18 @@ import uuid from "react-native-uuid";
 import { Bar } from "react-native-progress";
 import { useEffect, useState } from "react";
 import bcrypt from "react-native-bcrypt";
+import { insertInTable } from "./DataBaseConnection";
 
+const appName = "RestaurantApp";
 const userImage = require("../assets/userImage.png");
 const BOOL_LOG_OUT = "@boolLogOut";
 const USER_KEY_STORAGE = "@userName";
 const TOKEN_KEY_STORAGE = "@tokenUser";
+const tableNameErrorLogs = "ErrorLogs";
 const LANGUAGE_KEY_STORAGE = "@language";
+const FIRST_TIME_LOADING_APP = "@firstTimeLoadingApp";
 const RESTAURANT_NAME_KEY_STORAGE = "@restaurantName";
+
 const { width, height } = Dimensions.get("window");
 const generateToken = () => uuid.v4();
 const widthDivided = (num) => width / num;
@@ -42,7 +47,13 @@ const checkLanguage = async () => {
       return language;
     }
   } catch (error) {
-    console.error("Language: " + error);
+    console.error(`./globalVariables/checkLanguage() => ${error}`);
+    await insertInTable(tableNameErrorLogs, {
+      appName: appName,
+      error: `./globalVariables/checkLanguage() => ${error}`,
+      date: new Date().toLocaleString(),
+      component: `./globalVariables/checkLanguage() catch (error) => Language: ${error}`,
+    });
   }
   return "en";
 };
@@ -60,46 +71,20 @@ const loadDataInDict = async (keys) => {
   return data;
 };
 
-const saveData = async (key, value) => {
-  try {
-    await AsyncStorage.setItem(key, value);
-    return true;
-  } catch (error) {
-    return false;
-  }
-};
-
-const saveDataFromArray = async (keys, values) => {
-  try {
-    const savePromises = Object.entries(keys).map(async (key, index) => {
-      await AsyncStorage.setItem(key, values[index]);
-    });
-    await Promise.all(savePromises);
-    return true;
-  } catch (error) {
-    console.error(error);
-  }
-  return false;
-};
-
-const saveDataFromDict = async (data) => {
-  try {
-    const savePromises = Object.keys(data).map(async ([key, value]) => {
-      await AsyncStorage.setItem(key, value);
-    });
-    await Promise.all(savePromises);
-    return true;
-  } catch (error) {
-    console.error(error);
-  }
-  return false;
-};
+const saveData = async (key, value) => await AsyncStorage.setItem(key, value);
 
 const saveDataJSON = async (key, value) => {
   try {
     await AsyncStorage.setItem(key, JSON.stringify(value));
     return true;
-  } catch (error) {}
+  } catch (error) {
+    await insertInTable(tableNameErrorLogs, {
+      appName: appName,
+      error: `SaveDataJSON: ${error}`,
+      date: new Date().toLocaleString(),
+      component: `./globalVariables/saveDataJSON() catch (error) => SaveDataJSON: ${error}`,
+    });
+  }
   return false;
 };
 
@@ -107,15 +92,35 @@ const saveDataJSON = async (key, value) => {
  * Renders a loading component with optional loading text and progress.
  *
  * @param {Object} props - The component props.
- * @param {string} props.loadingText - The text to display while loading. Null won't show the text
- * @param {number} props.progress - The progress value (between 0 and 1). Null won't show the Bar
- * @param {boolean} props.boolActivityIndicator - The boolean to show ActivityIndicator. Default false
- * @returns {JSX.Element} The rendered loading component.
+ * @param {boolean} [props.boolLoadingText=true] - The bool to show the text "Loading.". Default: true
+ * @param {number} [props.progress=null] - The progress value (between 0 and 1). Null won't show the Bar
+ * @param {boolean} [props.boolActivityIndicator=false] - The boolean to show ActivityIndicator. Default: false
+ * @returns {JSX.Element} The rendered loading component in order of {loadingText, boolActivityIndicator, progress}.
  */
-const Loading = ({ loadingText, progress, boolActivityIndicator = false }) => {
+const Loading = ({
+  boolLoadingText = true,
+  progress = null,
+  boolActivityIndicator = false,
+}) => {
+  const [loadingText, setLoadingText] = useState("Loading.");
+
+  useEffect(() => {
+    let timer;
+    if (boolLoadingText)
+      timer = setInterval(() => {
+        setLoadingText((prev) => {
+          if (prev === "Loading.") return "Loading..";
+          if (prev === "Loading..") return "Loading...";
+          return "Loading.";
+        });
+      }, 750);
+    else return;
+    return () => clearInterval(timer);
+  }, [loadingText]);
+
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      {loadingText != null && (
+      {boolLoadingText && (
         <Text style={{ fontSize: 18, textAlign: "center", marginVertical: 5 }}>
           {loadingText}
         </Text>
@@ -222,30 +227,31 @@ const calculateTime = (orderTime) => {
 };
 
 export {
-  BOOL_LOG_OUT,
-  USER_KEY_STORAGE,
-  TOKEN_KEY_STORAGE,
-  LANGUAGE_KEY_STORAGE,
-  RESTAURANT_NAME_KEY_STORAGE,
+  Error,
   width,
   height,
-  widthDivided,
-  heightDivided,
+  appName,
   Loading,
-  Error,
   loadData,
   saveData,
-  saveDataJSON,
-  removeData,
   userImage,
-  checkLanguage,
-  generateToken,
-  interpolateMessage,
-  saveDataFromArray,
-  saveDataFromDict,
-  loadDataInDict,
-  calculateTime,
+  removeData,
+  BOOL_LOG_OUT,
   hashPassword,
+  saveDataJSON,
+  widthDivided,
+  checkLanguage,
+  calculateTime,
+  generateToken,
+  heightDivided,
+  loadDataInDict,
   verifyPassword,
   saltHashPassword,
+  USER_KEY_STORAGE,
+  TOKEN_KEY_STORAGE,
+  interpolateMessage,
+  tableNameErrorLogs,
+  LANGUAGE_KEY_STORAGE,
+  FIRST_TIME_LOADING_APP,
+  RESTAURANT_NAME_KEY_STORAGE,
 };

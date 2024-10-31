@@ -1,15 +1,7 @@
-import {
-  View,
-  Text,
-  Modal,
-  ScrollView,
-  Alert,
-  Pressable,
-} from "react-native";
+import { View, Text, Modal, ScrollView, Alert, Pressable } from "react-native";
 import React, { useEffect, useState } from "react";
 import languages from "../components/languages.json";
 import {
-  USER_KEY_STORAGE,
   TOKEN_KEY_STORAGE,
   LANGUAGE_KEY_STORAGE,
   Error,
@@ -17,10 +9,14 @@ import {
   loadData,
   saveData,
   RESTAURANT_NAME_KEY_STORAGE,
+  checkLanguage,
+  tableNameErrorLogs,
+  appName,
 } from "../components/globalVariables";
-import { getRole } from "../components/DataBaseConnection";
+import { getRole, insertInTable } from "../components/DataBaseConnection";
 import { Picker } from "@react-native-picker/picker";
 import stylesSettings from "../styles/stylesSettings";
+import AlertModel from "../components/AlertModel";
 
 const Settings = ({ navigation }) => {
   const thingsToLoad = 3;
@@ -29,34 +25,50 @@ const Settings = ({ navigation }) => {
   const [languageBeforeChange, setLanguageBeforeChange] = useState("en");
   const [languageCache, setLanguageCache] = useState("en");
   const [loading, setLoading] = useState(true);
-  const [loadingText, setLoadingText] = useState("Loading.");
   const [error, setError] = useState(false);
   const [errorText, setErrorText] = useState(null);
   const [seconds, setSeconds] = useState(8);
-  const [modalVisible, setModalVisible] = useState(false);
   const [token, setToken] = useState(null);
   const [restaurantName, setRestaurantName] = useState(null);
   const [role, setRole] = useState(null);
+  const [titleAlert, setTitleAlert] = useState(null);
+  const [bodyAlert, setBodyAlert] = useState(null);
+  const [visibleAlert, setVisibleAlert] = useState(false);
+  const [okText, setOkText] = useState("Ok");
+  const [cancelText, setCancelText] = useState(null);
+  const [onOkAlert, setOnOkAlert] = useState(() => () => {
+    console.log("Change onOkAlert function  ./Settings");
+  });
+  const [onCancelAlert, setOnCancelAlert] = useState(() => () => {});
+
   const getTranslations = () => languages[language] || languages.en;
+
   useEffect(() => {
     const loadLanguage = async () => {
-      const language = await loadData(LANGUAGE_KEY_STORAGE);
+      const language = await checkLanguage();
       setLanguage(language);
       setLanguageBeforeChange(language);
       setLanguageCache(language);
       setThingsLoaded((prev) => (prev < thingsToLoad ? prev + 1 : prev));
     };
+
     const loadTokenAndRestaurantName = async () => {
       try {
         const token = await loadData(TOKEN_KEY_STORAGE);
         const restaurantName = await loadData(RESTAURANT_NAME_KEY_STORAGE);
-        if (token && restaurantName) {
+        setRestaurantName(restaurantName);
+        if (token) {
           const { role } = await getRole(restaurantName, token);
           setToken(token);
-          setRestaurantName(restaurantName);
           setRole(role);
         }
       } catch (error) {
+        await insertInTable(tableNameErrorLogs, {
+          appName: appName,
+          error: error,
+          date: new Date().toLocaleString(),
+          component: `./Settings/useEffect/loadTokenAndRestaurantName() catch (error) => ${error}`,
+        });
       } finally {
         setThingsLoaded((prev) => (prev < thingsToLoad ? prev + 2 : prev));
       }
@@ -67,16 +79,8 @@ const Settings = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    if (!loading || thingsLoaded >= thingsToLoad) setLoading(false);
-
-    setTimeout(() => {
-      setLoadingText((prev) => {
-        if (prev === "Loading.") return "Loading..";
-        if (prev === "Loading..") return "Loading...";
-        return "Loading.";
-      });
-    }, 750);
-  }, [loadingText, loading]);
+    if (thingsLoaded >= thingsToLoad) setLoading(false);
+  }, [thingsLoaded]);
 
   useEffect(() => {
     let timer;
@@ -85,39 +89,45 @@ const Settings = ({ navigation }) => {
         setSeconds((prev) => (prev > 0 ? prev - 1 : prev));
       }, 1000);
     } else if (seconds == 0) {
-      setModalVisible(false);
+      setVisibleAlert(false);
       setLanguage(languageCache);
     }
     return () => clearTimeout(timer);
   }, [seconds]);
 
   const saveSettings = () => {
+    const translations = getTranslations();
     setLanguage(languageBeforeChange);
     setSeconds(8);
-    setModalVisible(true);
+    setTitleAlert(translations.save);
+    setBodyAlert(translations.saveSettingsConfirm);
+    setCancelText(translations.cancel);
+    setOnCancelAlert(() => () => {
+      setVisibleAlert(false);
+      setLanguage(languageCache);
+    });
+    setOkText(translations.ok);
+    setOnOkAlert(() => () => {
+      confirm();
+    });
+    setVisibleAlert(true);
   };
 
   const confirm = async () => {
     if (languageBeforeChange != languageCache) {
-      await saveData(LANGUAGE_KEY_STORAGE, language);
-      Alert.alert(
-        languages[languageBeforeChange].confirmed,
-        languages[languageBeforeChange].recommendRestart,
-        [
-          {
-            text: languages[languageBeforeChange].ok,
-            onPress: () => navigation.replace("Login"),
-          },
-        ]
-      );
+      await saveData(LANGUAGE_KEY_STORAGE, languageBeforeChange);
+      setTitleAlert(languages[languageBeforeChange].confirmed);
+      setBodyAlert(languages[languageBeforeChange].recommendRestart);
+      setOkText(languages[languageBeforeChange].ok);
+      setOnOkAlert(() => () => navigation.replace("Login"));
+      setVisibleAlert(true);
     }
-    setModalVisible(false);
+    setVisibleAlert(false);
   };
 
   if (loading)
     return (
       <Loading
-        loadingText={loadingText}
         progress={
           thingsLoaded / thingsToLoad > 1 ? 1 : thingsLoaded / thingsToLoad
         }
@@ -126,7 +136,8 @@ const Settings = ({ navigation }) => {
   if (error)
     return (
       <Error
-        component={"Settings"}
+        component="Settings"
+        navigation={navigation}
         error={errorText ? errorText : "Uknown error"}
       />
     );
@@ -135,12 +146,21 @@ const Settings = ({ navigation }) => {
 
   return (
     <View style={stylesSettings.container}>
+      <AlertModel
+        visible={visibleAlert}
+        title={titleAlert}
+        message={bodyAlert}
+        OkText={okText}
+        onOk={onOkAlert}
+        cancelText={`${cancelText} ${visibleAlert ? seconds : ""}`}
+        onCancel={onCancelAlert}
+      />
       <View style={stylesSettings.settingsView}>
         <Text style={stylesSettings.texts}>{translations.settingsText}</Text>
       </View>
-      {role && (
+      {role != null && (
         <Pressable
-          onPress={() => navigation.navigate(role)}
+          onPress={() => navigation.replace(role)}
           style={({ pressed }) => [
             stylesSettings.buttonBack,
             { opacity: pressed ? 0.5 : 1 },
@@ -149,48 +169,6 @@ const Settings = ({ navigation }) => {
           <Text style={stylesSettings.settings}>{translations.back}</Text>
         </Pressable>
       )}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={stylesSettings.viewModalContainer}>
-          <View style={stylesSettings.viewModal}>
-            <Text style={stylesSettings.saveText}>{translations.save}</Text>
-            <Text style={stylesSettings.saveConfirm}>
-              {translations.saveSettingsConfirm}
-            </Text>
-            <View style={stylesSettings.buttonsSaveData}>
-              <Pressable
-                onPress={() => {
-                  setModalVisible(false);
-                  setLanguage(languageCache);
-                }}
-                style={({ pressed }) => [
-                  stylesSettings.buttonCancel,
-                  { opacity: pressed ? 0.5 : 1 },
-                ]}
-              >
-                <Text>
-                  {translations.cancel} {seconds}
-                </Text>
-              </Pressable>
-              <Pressable
-                onPress={() => {
-                  confirm();
-                }}
-                style={({ pressed }) => [
-                  stylesSettings.buttonConfirm,
-                  { opacity: pressed ? 0.5 : 1 },
-                ]}
-              >
-                <Text>{translations.ok}</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
       <ScrollView>
         <View style={stylesSettings.viewPicker}>
           <Text style={[stylesSettings.texts, { textAlign: "center" }]}>

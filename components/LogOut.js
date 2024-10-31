@@ -1,10 +1,10 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Text, StyleSheet, Alert, Platform, Pressable } from "react-native";
 import {
   RESTAURANT_NAME_KEY_STORAGE,
   TOKEN_KEY_STORAGE,
   BOOL_LOG_OUT,
   saveData,
+  removeData,
 } from "./globalVariables";
 
 /**
@@ -25,10 +25,13 @@ export default LogOut = ({
   translations,
 }) => {
   const logOut = async () => {
-    await AsyncStorage.removeItem(RESTAURANT_NAME_KEY_STORAGE);
-    await AsyncStorage.removeItem(TOKEN_KEY_STORAGE);
+    await removeData(RESTAURANT_NAME_KEY_STORAGE);
+    await removeData(TOKEN_KEY_STORAGE);
     await saveData(BOOL_LOG_OUT, "1");
-    if (Platform.OS == "web") navigation.replace("Login");
+    if (Platform.OS == "web") {
+      alert(translations.logOutSuccess);
+      navigation.replace("Login");
+    }
     Alert.alert(translations.logOut, translations.logOutSuccess, [
       {
         text: translations.ok,
@@ -42,6 +45,14 @@ export default LogOut = ({
     return (
       <Text style={styles.button}>
         Translations not loaded, please load it to show the button
+      </Text>
+    );
+  }
+  if (navigation == null) {
+    console.warn("Navigation not loaded, please load it to show the button");
+    return (
+      <Text style={styles.button}>
+        Navigation not loaded, please load it to show the button
       </Text>
     );
   }
