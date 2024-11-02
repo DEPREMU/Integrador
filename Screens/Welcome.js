@@ -1,16 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  StyleSheet,
-  View,
-  Text,
-  Pressable,
-  ActivityIndicator,
-  PanResponder,
-} from "react-native";
+import { StyleSheet, View, Text, Pressable, PanResponder } from "react-native";
 import Animated, { useSharedValue, withSpring } from "react-native-reanimated";
-import { width, height, Loading } from "../components/globalVariables";
+import {
+  width,
+  height,
+  Loading,
+  checkLanguage,
+} from "../components/globalVariables";
+import languages from "../components/languages.json";
 
 const PointsIndicator = ({ focusAnimation, maxPages, styles, page }) => {
+  if (!focusAnimation || !maxPages || !styles || !page)
+    return <Text>Error with arguments</Text>;
+
   return (
     <View style={styles.indicatorContainer}>
       {[...Array(maxPages)].map((_, index) => (
@@ -37,6 +39,15 @@ const Welcome = () => {
   const maxPages = 4;
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [lang, setLang] = useState("en");
+
+  const getTranslations = () => languages[lang];
+
+  useEffect(() => {
+    const loadLanguage = async () => setLang(await checkLanguage());
+
+    loadLanguage();
+  }, []);
 
   const animationsPages = [
     useSharedValue(height * 2),
@@ -123,7 +134,10 @@ const Welcome = () => {
     </Pressable>
   );
 
-  const Page1 = ({ animationsPages }) => {
+  const Page1 = ({ animationsPages, translations }) => {
+    if (!translations || !animationsPages)
+      return <Text>Error with arguments</Text>;
+
     return (
       <Animated.View
         {...panResponder.panHandlers}
@@ -134,13 +148,16 @@ const Welcome = () => {
           },
         ]}
       >
-        <SkipButton text="Skip" />
+        <SkipButton text={translations.skipText} />
         <Text style={styles.textPoint}>Page 1</Text>
       </Animated.View>
     );
   };
 
-  const Page2 = ({ animationsPages }) => {
+  const Page2 = ({ animationsPages, translations }) => {
+    if (!translations || !animationsPages)
+      return <Text>Error with arguments</Text>;
+
     return (
       <Animated.View
         {...panResponder.panHandlers}
@@ -151,51 +168,67 @@ const Welcome = () => {
           },
         ]}
       >
-        <SkipButton text="Skip" />
+        <SkipButton text={translations.skipText} />
         <Text style={styles.textPoint}>Page 2</Text>
       </Animated.View>
     );
   };
 
-  const Page3 = ({ animationsPages }) => (
-    <Animated.View
-      {...panResponder.panHandlers}
-      style={[
-        styles.animationView,
-        {
-          transform: [{ translateX: animationsPages[2] }],
-        },
-      ]}
-    >
-      <SkipButton text="Skip" />
-      <Text style={styles.textPoint}>Page 3</Text>
-    </Animated.View>
-  );
+  const Page3 = ({ animationsPages, translations }) => {
+    if (!translations || !animationsPages)
+      return <Text>Error with arguments</Text>;
 
-  const Page4 = ({ animationsPages }) => (
-    <Animated.View
-      {...panResponder.panHandlers}
-      style={[
-        styles.animationView,
-        {
-          transform: [{ translateY: animationsPages[3] }],
-        },
-      ]}
-    >
-      <ContinueButton text="Continue" func={() => console.log("Continue")} />
+    return (
+      <Animated.View
+        {...panResponder.panHandlers}
+        style={[
+          styles.animationView,
+          {
+            transform: [{ translateX: animationsPages[2] }],
+          },
+        ]}
+      >
+        <SkipButton text={traslations.skipText} />
+        <Text style={styles.textPoint}>Page 3</Text>
+      </Animated.View>
+    );
+  };
 
-      <Text style={styles.textPoint}>Page 4</Text>
-    </Animated.View>
-  );
+  const Page4 = ({ animationsPages, translations }) => {
+    if (!translations || !animationsPages)
+      return <Text>Error with arguments</Text>;
 
-  if (loading) return <Loading boolActivityIndicator={true} />;
+    return (
+      <Animated.View
+        {...panResponder.panHandlers}
+        style={[
+          styles.animationView,
+          {
+            transform: [{ translateY: animationsPages[3] }],
+          },
+        ]}
+      >
+        <ContinueButton
+          text={translations.continue}
+          func={() => console.log("Continue")}
+        />
+
+        <Text style={styles.textPoint}>Page 4</Text>
+      </Animated.View>
+    );
+  };
+
+  if (loading)
+    return <Loading boolActivityIndicator={true} boolLoadingText={false} />;
+
+  const tranlations = getTranslations();
 
   return (
     <View style={styles.container}>
-      <Page1 animationsPages={animationsPages} />
-      <Page2 animationsPages={animationsPages} />
-      <Page3 animationsPages={animationsPages} />
-      <Page4 animationsPages={animationsPages} />
+      <Page1 animationsPages={animationsPages} translations={tranlations} />
+      <Page2 animationsPages={animationsPages} translations={tranlations} />
+      <Page3 animationsPages={animationsPages} translations={tranlations} />
+      <Page4 animationsPages={animationsPages} translations={tranlations} />
 
       {/* Indicadores de página */}
       <PointsIndicator

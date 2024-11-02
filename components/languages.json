@@ -58,7 +58,9 @@
     "deletedConfirmedText": "Deleted permanently. See you soon!",
     "deleteRestaurantText": "The restaurant will disappear forever if you click \"Delete\".",
     "noOrdersLeft": "There are no more orders at the moment; you can take a rest!",
-    "tokenExpired": "The token has expired; please log in again."
+    "tokenExpired": "The token has expired; please log in again.",
+    "continue": "Continue",
+    "skip": "Skip"
   },
   "es": {
     "TextUser": "Usuario",
@@ -112,8 +114,11 @@
     "deletedConfirmedText": "Se eliminó permanentemente. ¡Nos vemos pronto!",
     "deleteRestaurantText": "El restaurante desaparecerá para siempre si haces clic en \"Eliminar\".",
     "noOrdersLeft": "No hay más pedidos en este momento; ¡puedes descansar!",
-    "tokenExpired": "El token ha expirado; por favor inicia sesión nuevamente."
+    "tokenExpired": "El token ha expirado; por favor inicia sesión nuevamente.",
+    "continue": "Continuar",
+    "skip": "Saltar"
   },
+
   "fr": {
     "TextUser": "Utilisateur",
     "TextPassword": "Mot de passe",
@@ -166,7 +171,9 @@
     "deletedConfirmedText": "Supprimé définitivement. À bientôt !",
     "deleteRestaurantText": "Le restaurant disparaîtra pour toujours si vous cliquez sur \"Supprimer\".",
     "noOrdersLeft": "Il n'y a plus de commandes pour le moment; vous pouvez vous reposer !",
-    "tokenExpired": "Le jeton a expiré; veuillez vous reconnecter."
+    "tokenExpired": "Le jeton a expiré; veuillez vous reconnecter.",
+    "continue": "Continuer",
+    "skip": "Sauter"
   },
   "ja": {
     "TextUser": "ユーザー",
@@ -220,6 +227,8 @@
     "deletedConfirmedText": "完全に削除されました。またお会いしましょう！",
     "deleteRestaurantText": "「削除」をクリックすると、レストランが永久に消えます。",
     "noOrdersLeft": "現在、注文はありません。休憩してください！",
-    "tokenExpired": "トークンが期限切れになりました。もう一度ログインしてください。"
+    "tokenExpired": "トークンが期限切れになりました。もう一度ログインしてください。",
+    "continue": "続行",
+    "skip": "スキップ"
   }
 }
