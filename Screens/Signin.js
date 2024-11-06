@@ -1,45 +1,44 @@
 import {
+  signIn,
+  getName,
+  getRole,
+  getDateToken,
+  boolUserExist,
+  insertInTable,
+  boolIsRestaurant,
+} from "../components/DataBaseConnection";
+import {
   View,
   Text,
-  Pressable,
+  Alert,
   Image,
+  Pressable,
   TextInput,
   ScrollView,
   BackHandler,
   ActivityIndicator,
-  Alert,
 } from "react-native";
-import stylesHS from "../styles/stylesHomeScreen";
-import { Picker } from "@react-native-picker/picker";
-import React, { useEffect, useState, useCallback } from "react";
 import {
   appName,
-  checkLanguage,
-  Error,
-  hashPassword,
-  interpolateMessage,
-  LANGUAGE_KEY_STORAGE,
   loadData,
-  Loading,
-  removeData,
-  RESTAURANT_NAME_KEY_STORAGE,
-  tableNameErrorLogs,
-  TOKEN_KEY_STORAGE,
   userImage,
+  removeData,
+  hashPassword,
+  checkLanguage,
+  TOKEN_KEY_STORAGE,
+  interpolateMessage,
+  tableNameErrorLogs,
+  LANGUAGE_KEY_STORAGE,
+  RESTAURANT_NAME_KEY_STORAGE,
 } from "../components/globalVariables";
+import Error from "../components/Error";
+import Loading from "../components/Loading";
+import stylesMC from "../styles/stylesMainComponents";
 import languages from "../components/languages.json";
-import {
-  boolIsRestaurant,
-  boolUserExist,
-  getDateToken,
-  getName,
-  getRole,
-  insertInTable,
-  signIn,
-  updateTableByDict,
-} from "../components/DataBaseConnection";
-import { useFocusEffect } from "@react-navigation/native";
 import AlertModel from "../components/AlertModel";
+import { Picker } from "@react-native-picker/picker";
+import { useFocusEffect } from "@react-navigation/native";
+import React, { useEffect, useState, useCallback } from "react";
 
 const Signin = ({ navigation }) => {
   const thingsToLoad = 3;
@@ -358,7 +357,7 @@ const Signin = ({ navigation }) => {
   const translations = getTranslations();
 
   return (
-    <ScrollView style={stylesHS.scrollView}>
+    <ScrollView style={stylesMC.scrollView}>
       <AlertModel
         visible={visible}
         title={title}
@@ -368,14 +367,14 @@ const Signin = ({ navigation }) => {
         OkText={OkText}
         cancelText={cancelText}
       />
-      <View style={stylesHS.container}>
-        <Image source={userImage} style={stylesHS.imageUser} />
+      <View style={stylesMC.container}>
+        <Image source={userImage} style={stylesMC.imageUser} />
 
-        <Text style={stylesHS.text}>{translations.signIn}</Text>
+        <Text style={stylesMC.text}>{translations.signIn}</Text>
 
-        <View style={stylesHS.formLogin}>
-          <View style={stylesHS.user}>
-            <Text style={stylesHS.textUser}>
+        <View style={stylesMC.formLogin}>
+          <View style={stylesMC.user}>
+            <Text style={stylesMC.textUser}>
               {translations.TextRestaurantName}
             </Text>
 
@@ -383,50 +382,50 @@ const Signin = ({ navigation }) => {
               placeholder={translations.TextRestaurantName}
               value={restaurantName}
               onChangeText={(value) => checkRestaurantName(value)}
-              style={stylesHS.textInputUser}
+              style={stylesMC.textInputUser}
               maxLength={100}
             />
           </View>
 
-          <View style={stylesHS.user}>
-            <Text style={stylesHS.textUser}>{translations.TextName}</Text>
+          <View style={stylesMC.user}>
+            <Text style={stylesMC.textUser}>{translations.TextName}</Text>
             <TextInput
               placeholder={translations.TextName}
               onChangeText={(value) => setName(value)}
-              style={stylesHS.textInputUser}
+              style={stylesMC.textInputUser}
               maxLength={100}
             />
           </View>
 
-          <View style={stylesHS.user}>
-            <Text style={stylesHS.textUser}>{translations.TextUser}</Text>
+          <View style={stylesMC.user}>
+            <Text style={stylesMC.textUser}>{translations.TextUser}</Text>
             <TextInput
               placeholder={translations.TextUser}
               onChangeText={(value) => setUser(value)}
-              style={stylesHS.textInputUser}
+              style={stylesMC.textInputUser}
               maxLength={50}
             />
           </View>
 
-          <View style={stylesHS.pass}>
-            <Text style={stylesHS.textPass}>{translations.TextPassword}</Text>
+          <View style={stylesMC.pass}>
+            <Text style={stylesMC.textPass}>{translations.TextPassword}</Text>
             <TextInput
               placeholder={translations.TextPassword}
-              style={stylesHS.textInputPass}
+              style={stylesMC.textInputPass}
               secureTextEntry={true}
               onChangeText={(value) => setPassword(value)}
               maxLength={100}
             />
           </View>
 
-          <Text style={stylesHS.roles}>{translations.TextRoles}</Text>
+          <Text style={stylesMC.roles}>{translations.TextRoles}</Text>
 
-          <View style={stylesHS.pickerContainer}>
+          <View style={stylesMC.pickerContainer}>
             {options != null && (
               <Picker
                 selectedValue={role}
                 onValueChange={(itemValue) => setRole(itemValue)}
-                style={stylesHS.picker}
+                style={stylesMC.picker}
               >
                 {options.map((option, index) => (
                   <Picker.Item key={index} label={option} value={option} />
@@ -435,8 +434,8 @@ const Signin = ({ navigation }) => {
             )}
           </View>
 
-          <View style={stylesHS.newAccountView}>
-            <Text style={stylesHS.newAccountText}>
+          <View style={stylesMC.newAccountView}>
+            <Text style={stylesMC.newAccountText}>
               {translations.SignInLogIn}
             </Text>
 
@@ -444,13 +443,13 @@ const Signin = ({ navigation }) => {
               onPress={() => navigation.replace("Login")}
               style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}
             >
-              <Text style={stylesHS.textSignin}>{translations.logIn}</Text>
+              <Text style={stylesMC.textSignin}>{translations.logIn}</Text>
             </Pressable>
           </View>
 
           <Pressable
             style={({ pressed }) => [
-              stylesHS.signInButton,
+              stylesMC.signInButton,
               { opacity: pressed ? 0.5 : 1 },
             ]}
             onPress={() => checkSignin()}
@@ -458,7 +457,7 @@ const Signin = ({ navigation }) => {
             {boolSigningIn ? (
               <ActivityIndicator size={25} />
             ) : (
-              <Text style={stylesHS.signInText}>{translations.signIn}</Text>
+              <Text style={stylesMC.signInText}>{translations.signIn}</Text>
             )}
           </Pressable>
         </View>

@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 import { widthDivided, heightDivided } from "../components/globalVariables";
 
-export default stylesHS = StyleSheet.create({
+export default stylesMC = StyleSheet.create({
   scrollView: {
     flex: 1,
     backgroundColor: "#FFFFFF",

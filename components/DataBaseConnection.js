@@ -414,18 +414,18 @@ const insertInTable = async (tableName, dict) => {
 };
 
 export {
-  createTable,
-  signIn,
   logIn,
-  getRole,
-  boolIsRestaurant,
+  signIn,
   getName,
-  deleteOrderDB,
+  getRole,
   loadOrders,
-  boolUserExist,
+  createTable,
   deleteTables,
   getDateToken,
+  boolUserExist,
+  deleteOrderDB,
+  insertInTable,
+  boolIsRestaurant,
   updateTableByDict,
   showColumnsFromTable,
-  insertInTable,
 };

@@ -1,29 +1,29 @@
-import { View, Text, ScrollView, Pressable } from "react-native";
 import {
+  loadData,
+  calculateTime,
+  checkLanguage,
   TOKEN_KEY_STORAGE,
   RESTAURANT_NAME_KEY_STORAGE,
-  Error,
-  Loading,
-  loadData,
-  checkLanguage,
-  calculateTime,
 } from "../components/globalVariables";
+import Error from "../components/Error";
+import LogOut from "../components/LogOut";
+import Loading from "../components/Loading";
+import languages from "../components/languages.json";
+import stylesCook from "../styles/stylesCook";
 import { deleteOrderDB, loadOrders } from "../components/DataBaseConnection";
 import React, { useEffect, useState } from "react";
-import LogOut from "../components/LogOut";
-import stylesCook from "../styles/stylesCook";
-import languages from "../components/languages.json";
+import { View, Text, ScrollView, Pressable } from "react-native";
 
 const Cook = ({ navigation }) => {
   const thingsToLoad = 3;
   const [lang, setLang] = useState("en");
-  const [token, setToken] = useState(null);
-  const [restaurantName, setRestaurantName] = useState(null);
-  const [loadingText, setLoadingText] = useState("Loading.");
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [errorText, setErrorText] = useState(null);
+  const [loadingText, setLoadingText] = useState("Loading.");
   const [thingsLoaded, setThingsLoaded] = useState(0);
+  const [restaurantName, setRestaurantName] = useState(null);
   const [orders, setOrders] = useState(
     JSON.stringify({
       1: {

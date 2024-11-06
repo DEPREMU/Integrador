@@ -1,63 +1,62 @@
 import {
   View,
   Text,
-  BackHandler,
   Alert,
   Animated,
-  ScrollView,
   Pressable,
+  ScrollView,
+  BackHandler,
 } from "react-native";
-import styleOwner from "../styles/stylesScreenOwner";
-import LogOut from "../components/LogOut";
-import { useFocusEffect } from "@react-navigation/native";
-import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
-  LANGUAGE_KEY_STORAGE,
+  appName,
   loadData,
-  Loading,
   widthDivided,
-  Error,
-  RESTAURANT_NAME_KEY_STORAGE,
   checkLanguage,
   tableNameErrorLogs,
-  appName,
+  RESTAURANT_NAME_KEY_STORAGE,
 } from "../components/globalVariables";
+import Error from "../components/Error";
+import LogOut from "../components/LogOut";
+import Loading from "../components/Loading";
 import languages from "../components/languages.json";
-import DeleteRestaurant from "../components/DeleteRestaurant";
+import styleOwner from "../styles/stylesScreenOwner";
 import AlertModel from "../components/AlertModel";
+import DeleteRestaurant from "../components/DeleteRestaurant";
 import { insertInTable } from "../components/DataBaseConnection";
+import { useFocusEffect } from "@react-navigation/native";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 
 const Owner = ({ navigation }) => {
-  const [options, setOptions] = useState("0");
-  const widthDividedBy2_25 = widthDivided(2.25);
-  const [boolShowLeft, setBoolShowLeft] = useState(false);
+  const thingsToLoad = 2;
   const showTextButton = ">";
+  const widthDividedBy2_25 = widthDivided(2.25);
+  const [lang, setLang] = useState("en");
+  const [onOk, setOnOk] = useState(() => () => {});
+  const [error, setError] = useState(false);
+  const [title, setTitle] = useState("Title");
+  const [OkText, setOkText] = useState("Ok");
+  const [rotate] = useState(new Animated.Value(0));
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("Message");
+  const [options, setOptions] = useState("0");
+  const [visible, setVisible] = useState(false);
+  const [onCancel, setOnCancel] = useState(() => () => {});
+  const [errorText, setErrorText] = useState(null);
+  const [cancelText, setCancelText] = useState(null);
+  const [loadingText, setLoadingText] = useState("Loading.");
+  const [boolShowLeft, setBoolShowLeft] = useState(false);
+  const [thingsLoaded, setThingsLoaded] = useState(0);
+  const [restaurantName, setRestaurantName] = useState("");
+  const [boolDeleteRestaurant, setBoolDeleteRestaurant] = useState(false);
   const showLeftAnimation = useRef(
     new Animated.Value(-widthDividedBy2_25)
   ).current;
-  const [rotate] = useState(new Animated.Value(0));
   const rotateInterpolation = rotate.interpolate({
     inputRange: [0, 180],
     outputRange: ["0deg", "180deg"],
   });
-  const [lang, setLang] = useState("en");
-  const [loading, setLoading] = useState(true);
-  const [loadingText, setLoadingText] = useState("Loading.");
-  const [thingsLoaded, setThingsLoaded] = useState(0);
-  const [error, setError] = useState(false);
-  const [errorText, setErrorText] = useState(null);
-  const [boolDeleteRestaurant, setBoolDeleteRestaurant] = useState(false);
-  const [restaurantName, setRestaurantName] = useState("");
-  const [visible, setVisible] = useState(false);
-  const [title, setTitle] = useState("Title");
-  const [message, setMessage] = useState("Message");
-  const [onOk, setOnOk] = useState(() => () => {});
-  const [onCancel, setOnCancel] = useState(() => () => {});
-  const [OkText, setOkText] = useState("Ok");
-  const [cancelText, setCancelText] = useState(null);
-
-  const thingsToLoad = 2;
   const getTranslations = () => languages[lang] || languages.en;
+
 
   const confirmDeleteRestaurant = () => {
     const translations = getTranslations();

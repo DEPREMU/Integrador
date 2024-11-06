@@ -8,11 +8,8 @@ import Waiter from "./Screens/Waiter";
 import Settings from "./Screens/Settings";
 import Welcome from "./Screens/Welcome";
 import { useEffect, useState } from "react";
-import {
-  FIRST_TIME_LOADING_APP,
-  loadData,
-  Loading,
-} from "./components/globalVariables";
+import { FIRST_TIME_LOADING_APP, loadData } from "./components/globalVariables";
+import Loading from "./components/Loading";
 
 export default App = () => {
   const Stack = createNativeStackNavigator();

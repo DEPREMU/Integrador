@@ -1,13 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
-import { StyleSheet, View, Text, Pressable, PanResponder } from "react-native";
-import Animated, { useSharedValue, withSpring } from "react-native-reanimated";
-import {
-  width,
-  height,
-  Loading,
-  checkLanguage,
-} from "../components/globalVariables";
+import Loading from "../components/Loading";
 import languages from "../components/languages.json";
+import { width, height, checkLanguage } from "../components/globalVariables";
+import React, { useEffect, useRef, useState } from "react";
+import Animated, { useSharedValue, withSpring } from "react-native-reanimated";
+import { StyleSheet, View, Text, Pressable, PanResponder } from "react-native";
 
 const PointsIndicator = ({ focusAnimation, maxPages, styles, page }) => {
   if (!focusAnimation || !maxPages || !styles || !page)
@@ -37,9 +33,9 @@ const PointsIndicator = ({ focusAnimation, maxPages, styles, page }) => {
 
 const Welcome = () => {
   const maxPages = 4;
+  const [lang, setLang] = useState("en");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [lang, setLang] = useState("en");
 
   const getTranslations = () => languages[lang];
 
@@ -210,7 +206,7 @@ const Welcome = () => {
       >
         <ContinueButton
           text={translations.continue}
-          func={() => console.log("Continue")}
+          func={() => navigation.replace("Sign in")}
         />
 
         <Text style={styles.textPoint}>Page 4</Text>

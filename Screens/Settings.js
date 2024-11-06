@@ -1,45 +1,43 @@
-import { View, Text, Modal, ScrollView, Alert, Pressable } from "react-native";
-import React, { useEffect, useState } from "react";
-import languages from "../components/languages.json";
 import {
-  TOKEN_KEY_STORAGE,
-  LANGUAGE_KEY_STORAGE,
-  Error,
-  Loading,
+  appName,
   loadData,
   saveData,
-  RESTAURANT_NAME_KEY_STORAGE,
   checkLanguage,
+  TOKEN_KEY_STORAGE,
   tableNameErrorLogs,
-  appName,
+  LANGUAGE_KEY_STORAGE,
+  RESTAURANT_NAME_KEY_STORAGE,
 } from "../components/globalVariables";
-import { getRole, insertInTable } from "../components/DataBaseConnection";
+import Error from "../components/Error";
+import Loading from "../components/Loading";
+import languages from "../components/languages.json";
+import AlertModel from "../components/AlertModel";
 import { Picker } from "@react-native-picker/picker";
 import stylesSettings from "../styles/stylesSettings";
-import AlertModel from "../components/AlertModel";
+import { getRole, insertInTable } from "../components/DataBaseConnection";
+import React, { useEffect, useState } from "react";
+import { View, Text, ScrollView, Pressable } from "react-native";
 
 const Settings = ({ navigation }) => {
   const thingsToLoad = 3;
-  const [thingsLoaded, setThingsLoaded] = useState(0);
-  const [language, setLanguage] = useState("en");
-  const [languageBeforeChange, setLanguageBeforeChange] = useState("en");
-  const [languageCache, setLanguageCache] = useState("en");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [errorText, setErrorText] = useState(null);
-  const [seconds, setSeconds] = useState(8);
-  const [token, setToken] = useState(null);
-  const [restaurantName, setRestaurantName] = useState(null);
   const [role, setRole] = useState(null);
-  const [titleAlert, setTitleAlert] = useState(null);
-  const [bodyAlert, setBodyAlert] = useState(null);
-  const [visibleAlert, setVisibleAlert] = useState(false);
+  const [error, setError] = useState(false);
+  const [token, setToken] = useState(null);
   const [okText, setOkText] = useState("Ok");
+  const [loading, setLoading] = useState(true);
+  const [seconds, setSeconds] = useState(8);
+  const [language, setLanguage] = useState("en");
+  const [bodyAlert, setBodyAlert] = useState(null);
+  const [errorText, setErrorText] = useState(null);
+  const [onOkAlert, setOnOkAlert] = useState(() => () => {});
   const [cancelText, setCancelText] = useState(null);
-  const [onOkAlert, setOnOkAlert] = useState(() => () => {
-    console.log("Change onOkAlert function  ./Settings");
-  });
+  const [titleAlert, setTitleAlert] = useState(null);
+  const [thingsLoaded, setThingsLoaded] = useState(0);
+  const [visibleAlert, setVisibleAlert] = useState(false);
   const [onCancelAlert, setOnCancelAlert] = useState(() => () => {});
+  const [languageCache, setLanguageCache] = useState("en");
+  const [restaurantName, setRestaurantName] = useState(null);
+  const [languageBeforeChange, setLanguageBeforeChange] = useState("en");
 
   const getTranslations = () => languages[language] || languages.en;
 
