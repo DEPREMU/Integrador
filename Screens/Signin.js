@@ -31,7 +31,7 @@ import {
   LANGUAGE_KEY_STORAGE,
   RESTAURANT_NAME_KEY_STORAGE,
 } from "../components/globalVariables";
-import Error from "../components/Error";
+import ErrorComponent from "../components/ErrorComponent";
 import Loading from "../components/Loading";
 import stylesMC from "../styles/stylesMainComponents";
 import languages from "../components/languages.json";
@@ -351,7 +351,11 @@ const Signin = ({ navigation }) => {
     );
   if (error)
     return (
-      <Error navigation={navigation} component="Signin" error={errorText} />
+      <ErrorComponent
+        navigation={navigation}
+        component="Signin"
+        error={errorText}
+      />
     );
 
   const translations = getTranslations();

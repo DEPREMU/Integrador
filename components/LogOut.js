@@ -1,10 +1,10 @@
 import { Text, StyleSheet, Alert, Platform, Pressable } from "react-native";
 import {
-  RESTAURANT_NAME_KEY_STORAGE,
-  TOKEN_KEY_STORAGE,
-  BOOL_LOG_OUT,
   saveData,
   removeData,
+  BOOL_LOG_OUT,
+  TOKEN_KEY_STORAGE,
+  RESTAURANT_NAME_KEY_STORAGE,
 } from "./globalVariables";
 
 /**

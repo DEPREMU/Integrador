@@ -1,15 +1,15 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Login from "./Screens/Login";
-import Signin from "./Screens/Signin";
 import Owner from "./Screens/Owner";
 import Cook from "./Screens/Cook";
+import Signin from "./Screens/Signin";
 import Waiter from "./Screens/Waiter";
-import Settings from "./Screens/Settings";
+import Loading from "./components/Loading";
 import Welcome from "./Screens/Welcome";
+import Settings from "./Screens/Settings";
 import { useEffect, useState } from "react";
 import { FIRST_TIME_LOADING_APP, loadData } from "./components/globalVariables";
-import Loading from "./components/Loading";
 
 export default App = () => {
   const Stack = createNativeStackNavigator();

@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
-import Config from "react-native-config";
+import Constants from "expo-constants";
 
+const supabaseUrl = Constants.expoConfig.extra.SUPABASE_URL;
+const supabaseKey = Constants.expoConfig.extra.SUPABASE_KEY;
 
-const supabase = createClient(Config.supabaseUrl, Config.supabaseKey);
-
-export { supabase };
+export default createClient(supabaseUrl, supabaseKey);

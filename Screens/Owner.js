@@ -15,7 +15,7 @@ import {
   tableNameErrorLogs,
   RESTAURANT_NAME_KEY_STORAGE,
 } from "../components/globalVariables";
-import Error from "../components/Error";
+import ErrorComponent from "../components/ErrorComponent";
 import LogOut from "../components/LogOut";
 import Loading from "../components/Loading";
 import languages from "../components/languages.json";
@@ -56,7 +56,6 @@ const Owner = ({ navigation }) => {
     outputRange: ["0deg", "180deg"],
   });
   const getTranslations = () => languages[lang] || languages.en;
-
 
   const confirmDeleteRestaurant = () => {
     const translations = getTranslations();
@@ -163,7 +162,7 @@ const Owner = ({ navigation }) => {
     );
   if (error)
     return (
-      <Error
+      <ErrorComponent
         error={errorText || ""}
         component="Owner"
         navigation={navigation}

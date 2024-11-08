@@ -31,7 +31,7 @@ import {
   insertInTable,
   updateTableByDict,
 } from "../components/DataBaseConnection";
-import Error from "../components/Error";
+import ErrorComponent from "../components/ErrorComponent";
 import Loading from "../components/Loading";
 import AlertModel from "../components/AlertModel";
 import { CheckBox } from "react-native-elements";
@@ -239,7 +239,7 @@ const Login = ({ navigation }) => {
 
   if (error)
     return (
-      <Error
+      <ErrorComponent
         navigation={navigation}
         component="Login"
         error={

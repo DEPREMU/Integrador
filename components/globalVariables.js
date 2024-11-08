@@ -1,18 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  Dimensions,
-  View,
-  Text,
-  ActivityIndicator,
-  Pressable,
-} from "react-native";
+import { Dimensions } from "react-native";
 import * as Localization from "expo-localization";
 import languages from "../components/languages.json";
 import uuid from "react-native-uuid";
-import { Bar } from "react-native-progress";
-import { useEffect, useState } from "react";
 import bcrypt from "react-native-bcrypt";
-import { insertInTable } from "./DataBaseConnection";
 
 const appName = "RestaurantApp";
 const userImage = require("../assets/userImage.png");
@@ -114,6 +105,15 @@ const calculateTime = (orderTime) => {
   const diff = new Date() - timeOrder;
   const minutes = Math.floor(diff / 60000);
   return minutes;
+};
+
+const insertInTable = async (tableName, dict) => {
+  try {
+    await supabase.from(tableName).insert(dict);
+  } catch (error) {
+    return error;
+  }
+  return null;
 };
 
 export {

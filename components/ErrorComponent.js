@@ -12,7 +12,7 @@ import languages from "./languages.json";
  * @param {string} [props.component="Login"] - The component name. Default: Login.
  * @returns {JSX.Element} The rendered Error component.
  */
-export default Error = ({ error, navigation, component = "Login" }) => {
+export default ErrorComponent = ({ error, navigation, component = "Login" }) => {
   const [language, setLanguage] = useState("en");
 
   useEffect(() => {

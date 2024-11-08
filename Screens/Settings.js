@@ -8,7 +8,7 @@ import {
   LANGUAGE_KEY_STORAGE,
   RESTAURANT_NAME_KEY_STORAGE,
 } from "../components/globalVariables";
-import Error from "../components/Error";
+import ErrorComponent from "../components/ErrorComponent";
 import Loading from "../components/Loading";
 import languages from "../components/languages.json";
 import AlertModel from "../components/AlertModel";
@@ -133,7 +133,7 @@ const Settings = ({ navigation }) => {
     );
   if (error)
     return (
-      <Error
+      <ErrorComponent
         component="Settings"
         navigation={navigation}
         error={errorText ? errorText : "Uknown error"}

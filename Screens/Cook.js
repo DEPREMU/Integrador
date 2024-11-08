@@ -5,7 +5,7 @@ import {
   TOKEN_KEY_STORAGE,
   RESTAURANT_NAME_KEY_STORAGE,
 } from "../components/globalVariables";
-import Error from "../components/Error";
+import ErrorComponent from "../components/ErrorComponent";
 import LogOut from "../components/LogOut";
 import Loading from "../components/Loading";
 import languages from "../components/languages.json";
@@ -133,7 +133,13 @@ const Cook = ({ navigation }) => {
     );
 
   if (error)
-    return <Error navigation={navigation} component="Cook" error={errorText} />;
+    return (
+      <ErrorComponent
+        navigation={navigation}
+        component="Cook"
+        error={errorText}
+      />
+    );
 
   const translations = getTranslations();
 

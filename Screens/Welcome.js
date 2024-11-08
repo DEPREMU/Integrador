@@ -31,7 +31,7 @@ const PointsIndicator = ({ focusAnimation, maxPages, styles, page }) => {
   );
 };
 
-const Welcome = () => {
+const Welcome = ({ navigation }) => {
   const maxPages = 4;
   const [lang, setLang] = useState("en");
   const [page, setPage] = useState(1);
@@ -114,7 +114,7 @@ const Welcome = () => {
       ]}
       onPress={() => setPage(maxPages)}
     >
-      <Text style={styles.textSkip}>{text}</Text>
+      <Text style={styles.textSkip}>{text || "Skip"}</Text>
     </Pressable>
   );
 
@@ -184,7 +184,7 @@ const Welcome = () => {
           },
         ]}
       >
-        <SkipButton text={traslations.skipText} />
+        <SkipButton text={translations.skip} />
         <Text style={styles.textPoint}>Page 3</Text>
       </Animated.View>
     );
