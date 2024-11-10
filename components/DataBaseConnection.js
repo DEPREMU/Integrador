@@ -373,6 +373,33 @@ const updateTableByDict = async (restaurantName, token, dict) => {
   }
 };
 
+const updateTableByEq = async (restaurantName, dict, value, equal) => {
+  try {
+    const { error } = await supabase
+      .from(restaurantName)
+      .update(dict)
+      .eq(equal, value);
+    if (error) {
+      await insertInTable(tableNameErrorLogs, {
+        appName: appName,
+        error: error,
+        date: new Date().toLocaleString(),
+        component: `./DataBaseConnection/updateTable() if (error) => Error updating table: ${error}`,
+      });
+      throw error;
+    }
+  } catch (error) {
+    console.error("Error updating table:", error);
+
+    await insertInTable(tableNameErrorLogs, {
+      appName: appName,
+      error: error,
+      date: new Date().toLocaleString(),
+      component: `./DataBaseConnection/updateTable() catch (error) => Error updating table: ${error}`,
+    });
+  }
+};
+
 const showColumnsFromTable = async (restaurantName) => {
   try {
     const { data, error } = await supabase
@@ -413,6 +440,30 @@ const insertInTable = async (tableName, dict) => {
   return null;
 };
 
+const getAllDataFromTable = async (tableName) => {
+  try {
+    const { data, error } = await supabase.from(tableName).select("*");
+    if (error) {
+      await insertInTable(tableNameErrorLogs, {
+        appName: appName,
+        error: error,
+        date: new Date().toLocaleString(),
+        component: `./DataBaseConnection/getAllDataFromTable() if (error) => Error fetching data: ${error}`,
+      });
+    }
+    if (data) return data;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    await insertInTable(tableNameErrorLogs, {
+      appName: appName,
+      error: error,
+      date: new Date().toLocaleString(),
+      component: `./DataBaseConnection/getAllDataFromTable() catch (error) => Error fetching data: ${error}`,
+    });
+  }
+  return null;
+};
+
 export {
   logIn,
   signIn,
@@ -420,6 +471,7 @@ export {
   getRole,
   loadOrders,
   createTable,
+  updateTableByEq,
   deleteTables,
   getDateToken,
   boolUserExist,
@@ -427,5 +479,6 @@ export {
   insertInTable,
   boolIsRestaurant,
   updateTableByDict,
+  getAllDataFromTable,
   showColumnsFromTable,
 };

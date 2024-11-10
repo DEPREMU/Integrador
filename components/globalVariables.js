@@ -1,15 +1,16 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Dimensions } from "react-native";
-import * as Localization from "expo-localization";
-import languages from "../components/languages.json";
 import uuid from "react-native-uuid";
 import bcrypt from "react-native-bcrypt";
+import languages from "../components/languages.json";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Dimensions } from "react-native";
+import * as SecureStore from "expo-secure-store";
+import * as Localization from "expo-localization";
 
 const appName = "RestaurantApp";
 const userImage = require("../assets/userImage.png");
 const BOOL_LOG_OUT = "@boolLogOut";
 const USER_KEY_STORAGE = "@userName";
-const TOKEN_KEY_STORAGE = "@tokenUser";
+const TOKEN_KEY_STORAGE = "_tokenUser";
 const tableNameErrorLogs = "ErrorLogs";
 const LANGUAGE_KEY_STORAGE = "@language";
 const FIRST_TIME_LOADING_APP = "@firstTimeLoadingApp";
@@ -51,13 +52,35 @@ const checkLanguage = async () => {
 
 const removeData = async (key) => await AsyncStorage.removeItem(key);
 
+const removeDataSecure = async (key) => await SecureStore.deleteItemAsync(key);
+
 const loadData = async (key) => await AsyncStorage.getItem(key);
 
+const loadDataSecure = async (key) => await SecureStore.getItemAsync(key);
+
 const saveData = async (key, value) => await AsyncStorage.setItem(key, value);
+
+const saveDataSecure = async (key, value) =>
+  await SecureStore.setItemAsync(key, value);
 
 const saveDataJSON = async (key, value) => {
   try {
     await AsyncStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch (error) {
+    await insertInTable(tableNameErrorLogs, {
+      appName: appName,
+      error: `SaveDataJSON: ${error}`,
+      date: new Date().toLocaleString(),
+      component: `./globalVariables/saveDataJSON() catch (error) => SaveDataJSON: ${error}`,
+    });
+  }
+  return false;
+};
+
+const saveDataSecureJSON = async (key, value) => {
+  try {
+    await SecureStore.setItemAsync(key, JSON.stringify(value));
     return true;
   } catch (error) {
     await insertInTable(tableNameErrorLogs, {
@@ -133,10 +156,14 @@ export {
   generateToken,
   heightDivided,
   verifyPassword,
+  saveDataSecure,
+  loadDataSecure,
   saltHashPassword,
+  removeDataSecure,
   USER_KEY_STORAGE,
   TOKEN_KEY_STORAGE,
   interpolateMessage,
+  saveDataSecureJSON,
   tableNameErrorLogs,
   LANGUAGE_KEY_STORAGE,
   FIRST_TIME_LOADING_APP,

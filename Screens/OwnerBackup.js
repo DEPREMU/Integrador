@@ -6,7 +6,6 @@ import {
   Pressable,
   ScrollView,
   BackHandler,
-  Image,
 } from "react-native";
 import {
   appName,
@@ -20,40 +19,42 @@ import ErrorComponent from "../components/ErrorComponent";
 import LogOut from "../components/LogOut";
 import Loading from "../components/Loading";
 import languages from "../components/languages.json";
-import { styleOwner as styles } from "../styles/stylesScreenOwner";
+import styleOwner from "../styles/stylesScreenOwner";
 import AlertModel from "../components/AlertModel";
 import DeleteRestaurant from "../components/DeleteRestaurant";
 import { insertInTable } from "../components/DataBaseConnection";
 import { useFocusEffect } from "@react-navigation/native";
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import EachCuadro from "../components/EachCuadro";
-import EmployesManagement from "../components/EmployesManagement";
-import Sales from "../components/Sales";
 
 const Owner = ({ navigation }) => {
-  const [rotate] = useState(new Animated.Value(0));
   const thingsToLoad = 2;
+  const showTextButton = ">";
   const widthDividedBy2_25 = widthDivided(2.25);
   const [lang, setLang] = useState("en");
   const [onOk, setOnOk] = useState(() => () => {});
   const [error, setError] = useState(false);
   const [title, setTitle] = useState("Title");
   const [OkText, setOkText] = useState("Ok");
+  const [rotate] = useState(new Animated.Value(0));
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("Message");
+  const [options, setOptions] = useState("0");
   const [visible, setVisible] = useState(false);
   const [onCancel, setOnCancel] = useState(() => () => {});
   const [errorText, setErrorText] = useState(null);
-  const [showPage, setShowPage] = useState("MP");
   const [cancelText, setCancelText] = useState(null);
   const [loadingText, setLoadingText] = useState("Loading.");
   const [boolShowLeft, setBoolShowLeft] = useState(false);
   const [thingsLoaded, setThingsLoaded] = useState(0);
-  const [restaurantName, setRestaurantName] = useState();
+  const [restaurantName, setRestaurantName] = useState("");
   const [boolDeleteRestaurant, setBoolDeleteRestaurant] = useState(false);
   const showLeftAnimation = useRef(
     new Animated.Value(-widthDividedBy2_25)
   ).current;
+  const rotateInterpolation = rotate.interpolate({
+    inputRange: [0, 180],
+    outputRange: ["0deg", "180deg"],
+  });
   const getTranslations = () => languages[lang] || languages.en;
 
   const confirmDeleteRestaurant = () => {
@@ -83,7 +84,7 @@ const Owner = ({ navigation }) => {
     const loadRestaurantName = async () => {
       try {
         const data = await loadData(RESTAURANT_NAME_KEY_STORAGE);
-        setRestaurantName(data || "Prueba");
+        setRestaurantName(data);
       } catch (error) {
         setError(true);
         setErrorText(`Error loading restaurant name ${error}`);
@@ -151,8 +152,6 @@ const Owner = ({ navigation }) => {
     }, [lang])
   );
 
-  const changePage = (page) => setShowPage(page);
-
   if (loading)
     return (
       <Loading
@@ -182,25 +181,8 @@ const Owner = ({ navigation }) => {
       />
     );
 
-  if (showPage == "EM")
-    return (
-      <EmployesManagement
-        returnToMP={() => changePage("MP")}
-        translations={translations}
-        restaurantName={restaurantName}
-      />
-    );
-  if (showPage == "WS")
-    return (
-      <Sales
-        translations={translations}
-        returnToBackPage={() => changePage("MP")}
-        restaurantName={restaurantName}
-      />
-    );
-
   return (
-    <View style={styles.container}>
+    <View style={styleOwner.container}>
       <AlertModel
         visible={visible}
         title={title}
@@ -210,25 +192,78 @@ const Owner = ({ navigation }) => {
         OkText={OkText}
         cancelText={cancelText}
       />
-      <ScrollView style={styles.scrollView}>
-        <EachCuadro
-          texts={[restaurantName, translations.ownerText]}
-          onPress={() => setRestaurantName((prev) => prev + "1")}
+
+      <View style={styleOwner.header}>
+        <Pressable
+          style={({ pressed }) => [
+            styleOwner.buttonShow,
+            { opacity: pressed ? 0.5 : 1 },
+          ]}
+          onPress={() => {
+            setBoolShowLeft(!boolShowLeft);
+          }}
+        >
+          <Animated.Text
+            style={{
+              textAlign: "center",
+              fontSize: 20,
+              transform: [{ rotate: rotateInterpolation }],
+            }}
+          >
+            {showTextButton}
+          </Animated.Text>
+        </Pressable>
+        <Text style={[styleOwner.texts]}>{translations.ownerText}</Text>
+      </View>
+
+      <Animated.View
+        style={[styleOwner.animatedView, { left: showLeftAnimation }]}
+      >
+        <ScrollView style={{ flex: 1 }}>
+          <Pressable
+            style={({ pressed }) => [
+              styleOwner.options,
+              { opacity: pressed ? 0.5 : 1 },
+            ]}
+            onPress={() => navigation.navigate("Settings")}
+          >
+            <Text style={styleOwner.textOptions}>
+              {translations.settingsText}
+            </Text>
+            <Text style={[styleOwner.textOptions]}>{">"}</Text>
+          </Pressable>
+
+          <Pressable
+            style={({ pressed }) => [
+              styleOwner.options,
+              { opacity: pressed ? 0.5 : 1 },
+            ]}
+            onPress={() => setOptions("2")}
+          >
+            <Text style={styleOwner.textOptions}>Option 2</Text>
+            <Text style={[styleOwner.textOptions]}>{">"}</Text>
+          </Pressable>
+
+          <Pressable
+            style={({ pressed }) => [
+              styleOwner.buttonDeleteRestaurant,
+              { opacity: pressed ? 0.5 : 1 },
+            ]}
+            onPress={() => confirmDeleteRestaurant()}
+          >
+            <Text style={[styleOwner.textOptions, { color: "white" }]}>
+              {translations.deleteRestaurant}
+            </Text>
+            <Text style={[styleOwner.textOptions]}>{">"}</Text>
+          </Pressable>
+        </ScrollView>
+
+        <LogOut
+          navigation={navigation}
+          bottom={100}
+          translations={translations}
         />
-        <EachCuadro
-          texts={[translations.weeklySales]}
-          onPress={() => changePage("WS")}
-        />
-        <EachCuadro
-          texts={[translations.employesManagement]}
-          onPress={() => changePage("EM")}
-        />
-        <EachCuadro texts={[translations.restaurantManagement]} />
-        <EachCuadro
-          texts={[translations.extraOptions]}
-          onPress={() => navigation.navigate("Settings")}
-        />
-      </ScrollView>
+      </Animated.View>
     </View>
   );
 };

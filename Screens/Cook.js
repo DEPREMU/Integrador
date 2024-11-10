@@ -4,6 +4,7 @@ import {
   checkLanguage,
   TOKEN_KEY_STORAGE,
   RESTAURANT_NAME_KEY_STORAGE,
+  loadDataSecure,
 } from "../components/globalVariables";
 import ErrorComponent from "../components/ErrorComponent";
 import LogOut from "../components/LogOut";
@@ -86,7 +87,7 @@ const Cook = ({ navigation }) => {
       setThingsLoaded((prev) => prev + 1);
     };
     const loadToken = async () => {
-      setToken(await loadData(TOKEN_KEY_STORAGE));
+      setToken(await loadDataSecure(TOKEN_KEY_STORAGE));
       setThingsLoaded((prev) => prev + 1);
     };
     const loadRestaurantName = async () => {

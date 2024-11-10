@@ -21,6 +21,9 @@ import {
   interpolateMessage,
   tableNameErrorLogs,
   RESTAURANT_NAME_KEY_STORAGE,
+  saveDataSecure,
+  loadDataSecure,
+  removeDataSecure,
 } from "../components/globalVariables";
 import languages from "../components/languages.json";
 import {
@@ -81,7 +84,7 @@ const Login = ({ navigation }) => {
       setBoolLoggingIn(false);
       try {
         if (rememberMe) {
-          await saveData(TOKEN_KEY_STORAGE, token);
+          await saveDataSecure(TOKEN_KEY_STORAGE, token);
           await updateTableByDict(restaurantName, token, {
             tokenTime: new Date().toString(),
           });
@@ -137,7 +140,7 @@ const Login = ({ navigation }) => {
     const translations = getTranslations();
 
     const loadTokenAndRestaurantName = async () => {
-      const dataToken = await loadData(TOKEN_KEY_STORAGE);
+      const dataToken = await loadDataSecure(TOKEN_KEY_STORAGE);
       const dataRestaurantName = await loadData(RESTAURANT_NAME_KEY_STORAGE);
 
       if (dataToken && dataRestaurantName) {
@@ -148,7 +151,7 @@ const Login = ({ navigation }) => {
         const daysDifference = timeDifference / (1000 * 3600 * 24);
 
         if (!dateToken || daysDifference > 30) {
-          await removeData(TOKEN_KEY_STORAGE);
+          await removeDataSecure(TOKEN_KEY_STORAGE);
           setTitle(translations.error);
           setMessage(translations.tokenExpired);
           setOnOk(() => () => setVisible(false));

@@ -5,6 +5,7 @@ import {
   BOOL_LOG_OUT,
   TOKEN_KEY_STORAGE,
   RESTAURANT_NAME_KEY_STORAGE,
+  removeDataSecure,
 } from "./globalVariables";
 
 /**
@@ -26,7 +27,7 @@ export default LogOut = ({
 }) => {
   const logOut = async () => {
     await removeData(RESTAURANT_NAME_KEY_STORAGE);
-    await removeData(TOKEN_KEY_STORAGE);
+    await removeDataSecure(TOKEN_KEY_STORAGE);
     await saveData(BOOL_LOG_OUT, "1");
     if (Platform.OS == "web") {
       alert(translations.logOutSuccess);

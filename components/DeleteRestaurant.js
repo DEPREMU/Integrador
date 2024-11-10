@@ -11,6 +11,7 @@ import {
   BOOL_LOG_OUT,
   heightDivided,
   removeData,
+  removeDataSecure,
   RESTAURANT_NAME_KEY_STORAGE,
   TOKEN_KEY_STORAGE,
   widthDivided,
@@ -37,7 +38,7 @@ export default DeleteRestaurant = ({
   const deleting = async () => {
     await deleteTables(restaurantName);
     await removeData(RESTAURANT_NAME_KEY_STORAGE);
-    await removeData(TOKEN_KEY_STORAGE);
+    await removeDataSecure(TOKEN_KEY_STORAGE);
     await removeData(BOOL_LOG_OUT);
     setTitle(translations.deletedConfirmed);
     setMessage(translations.deletedConfirmedText);

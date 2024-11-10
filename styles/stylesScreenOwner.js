@@ -74,77 +74,35 @@ export default styleOwner = StyleSheet.create({
   },
 });
 */
-export default styleOwner = StyleSheet.create({
+export const styleOwner = StyleSheet.create({
   container: {
     backgroundColor: Colors.backgroundLight,
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
   },
-  texts: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: Colors.textPrimary,
-  },
-  animatedView: {
-    backgroundColor: Colors.backgroundMedium,
-    position: "absolute",
-    width: width / 2.25,
-    top: 85,
-    zIndex: 1,
-    height: "100%",
-  },
-  buttonShow: {
-    backgroundColor: Colors.backgroundLight,
-    borderRadius: 10,
-    shadowColor: Colors.shadowColor,
-    shadowOffset: { width: 3, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    elevation: 5,
-    height: 40,
-    width: 40,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  header: {
-    backgroundColor: Colors.headerBackground,
-    borderColor: Colors.borderColor,
-    flexDirection: "row",
-    padding: 7,
-    position: "absolute",
-    top: 0,
-    height: 85,
-    width: width,
-    justifyContent: "space-between",
-    alignItems: "flex-end",
-    borderBottomWidth: 2,
-  },
-  options: {
-    backgroundColor: Colors.cardBackground,
-    borderColor: Colors.borderColor,
-    justifyContent: "space-around",
-    flexDirection: "row",
-    padding: 8,
-    borderWidth: 2,
-    margin: 5,
-    alignItems: "center",
+  containerEach: {
     flex: 1,
   },
-  textOptions: {
-    fontSize: 17,
+  row: {
+    backgroundColor: Colors.backgroundMedium,
+    marginVertical: 10,
+    marginHorizontal: 15,
+    borderRadius: 40,
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    paddingVertical: 20,
+    paddingHorizontal:5,
+  },
+  textBefore: {
+    fontSize: 20,
     fontWeight: "bold",
     color: Colors.textPrimary,
   },
-  buttonDeleteRestaurant: {
-    backgroundColor: "rgb(210,0,0)",
-    borderColor: Colors.borderColor,
-    justifyContent: "space-around",
-    flexDirection: "row",
-    padding: 8,
-    borderWidth: 2,
-    margin: 5,
-    alignItems: "center",
+  containerOfLeftSide: {
+    flex: 2 / 3,
+    padding: 5,
+  },
+  scrollView: {
     flex: 1,
   },
 });

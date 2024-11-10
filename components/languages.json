@@ -60,7 +60,36 @@
     "noOrdersLeft": "There are no more orders at the moment; you can take a rest!",
     "tokenExpired": "The token has expired; please log in again.",
     "continue": "Continue",
-    "skip": "Skip"
+    "skip": "Skip",
+    "weeklySales": "Weekly sales",
+    "employesManagement": "Employes management",
+    "restaurantManagement": "Restaurant management",
+    "extraOptions": "Extra options",
+    "tableOfEmployes": "Table of employes",
+    "addEmploye": "Add employe",
+    "name": "Name",
+    "registerDate": "Register date",
+    "role": "Role",
+    "addNewEmploye": "Add new employe",
+    "askAddNewEmploye": "Are you sure you want to add this employe?",
+    "yes": "Yes",
+    "added": "Added",
+    "addedSuccess": "Added successfully",
+    "TextConfirmPassword": "Confirm password",
+    "headerSales": "Sales Management",
+    "totalAmountPlaceholder": "Total Amount",
+    "productsPlaceholder": "Products (JSON)",
+    "paymentMethodPlaceholder": "Payment Method",
+    "saleStatusPlaceholder": "Sale Status",
+    "notesPlaceholder": "Notes",
+    "createSaleButton": "Create Sale",
+    "checkCompleted": "Mark as Completed",
+    "saleIdLabel": "Sale ID:",
+    "totalAmountLabel": "Total Amount: $",
+    "saleStatusLabel": "Status:",
+    "notesLabel": "Notes:",
+    "completed": "Completed",
+    "pending": "Pending"
   },
   "es": {
     "TextUser": "Usuario",
@@ -116,7 +145,9 @@
     "noOrdersLeft": "No hay más pedidos en este momento; ¡puedes descansar!",
     "tokenExpired": "El token ha expirado; por favor inicia sesión nuevamente.",
     "continue": "Continuar",
-    "skip": "Saltar"
+    "skip": "Saltar",
+    "weeklySales": "Ventas semanales",
+    "employesManagement": "Gestión de empleados"
   },
 
   "fr": {
@@ -173,7 +204,9 @@
     "noOrdersLeft": "Il n'y a plus de commandes pour le moment; vous pouvez vous reposer !",
     "tokenExpired": "Le jeton a expiré; veuillez vous reconnecter.",
     "continue": "Continuer",
-    "skip": "Sauter"
+    "skip": "Sauter",
+    "weeklySales": "Ventes hebdomadaires",
+    "employesManagement": "Gestion des employés"
   },
   "ja": {
     "TextUser": "ユーザー",
@@ -229,6 +262,8 @@
     "noOrdersLeft": "現在、注文はありません。休憩してください！",
     "tokenExpired": "トークンが期限切れになりました。もう一度ログインしてください。",
     "continue": "続行",
-    "skip": "スキップ"
+    "skip": "スキップ",
+    "weeklySales": "週間売上",
+    "employesManagement": "従業員管理"
   }
 }

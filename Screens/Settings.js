@@ -7,6 +7,7 @@ import {
   tableNameErrorLogs,
   LANGUAGE_KEY_STORAGE,
   RESTAURANT_NAME_KEY_STORAGE,
+  loadDataSecure,
 } from "../components/globalVariables";
 import ErrorComponent from "../components/ErrorComponent";
 import Loading from "../components/Loading";
@@ -52,7 +53,7 @@ const Settings = ({ navigation }) => {
 
     const loadTokenAndRestaurantName = async () => {
       try {
-        const token = await loadData(TOKEN_KEY_STORAGE);
+        const token = await loadDataSecure(TOKEN_KEY_STORAGE);
         const restaurantName = await loadData(RESTAURANT_NAME_KEY_STORAGE);
         setRestaurantName(restaurantName);
         if (token) {

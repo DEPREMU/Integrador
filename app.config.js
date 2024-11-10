@@ -32,6 +32,6 @@ export default {
       SUPABASE_URL: process.env.SUPABASE_URL,
       SUPABASE_KEY: process.env.SUPABASE_KEY,
     },
-    plugins: ["expo-localization"],
+    plugins: ["expo-localization", "expo-secure-store"],
   },
 };
