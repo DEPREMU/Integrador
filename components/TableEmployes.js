@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ScrollView, View, Text } from "react-native";
-import SkeletonPlaceholder from "react-native-skeleton-placeholder";
+import Loading from "./Loading";
 
 const TableOfEmployes = ({ employes, translations }) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -11,15 +11,17 @@ const TableOfEmployes = ({ employes, translations }) => {
     }
   }, [employes]);
 
+  if (isLoading)
+    return <Loading boolActivityIndicator={true} boolLoadingText={true} />;
+
   return (
     <ScrollView>
-      {/* Si está cargando, mostrar el Skeleton Loader */}
       {employes != null &&
         JSON.parse(employes).map((employe, index) => {
           if (employe.role !== "Owner") {
             return (
               <View
-                key={index}
+                key={employe.id}
                 style={{
                   padding: 10,
                   borderBottomWidth: 1,

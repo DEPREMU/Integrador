@@ -1,8 +1,8 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import Cook from "./Screens/Cook";
 import Login from "./Screens/Login";
 import Owner from "./Screens/Owner";
-import Cook from "./Screens/Cook";
 import Signin from "./Screens/Signin";
 import Waiter from "./Screens/Waiter";
 import Loading from "./components/Loading";
@@ -32,7 +32,7 @@ export default App = () => {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName={isFirstTime ? "Owner" : "Login"}>
+      <Stack.Navigator initialRouteName={isFirstTime ? "Sales" : "Login"}>
         {/* Para cada vista se tiene que agregar aqui para mostrarse mediante un boton */}
         <Stack.Screen
           name="Welcome"

@@ -3,52 +3,62 @@ import {
   View,
   Text,
   TextInput,
-  Button,
   FlatList,
-  Alert,
   StyleSheet,
   Pressable,
   BackHandler,
+  ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import AlertModel from "./AlertModel";
 import {
+  deleteFromTable,
   getAllDataFromTable,
   insertInTable,
   updateTableByEq,
 } from "./DataBaseConnection";
-import { appName, tableNameErrorLogs } from "./globalVariables";
-import { useFocusEffect } from "@react-navigation/native";
 import EachCuadro from "./EachCuadro";
 import { Switch } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { useFocusEffect } from "@react-navigation/native";
+import { appName, getStartOfWeek, tableNameErrorLogs } from "./globalVariables";
+import languages from "./languages.json";
+import styles from "../styles/stylesSales";
 
-export default Sales = ({ translations, returnToBackPage, restaurantName }) => {
+export default Sales = ({
+  translations = languages.en,
+  returnToBackPage = () => {},
+  restaurantName = "Test",
+}) => {
   const tableNameSales = `${restaurantName}_sales`;
   const [sales, setSales] = useState(null);
-  const [customerId, setCustomerId] = useState("");
-  const [totalAmount, setTotalAmount] = useState("");
-  const [products, setProducts] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("");
-  const [saleStatus, setSaleStatus] = useState("pending");
-  const [notes, setNotes] = useState("");
-  const [visible, setVisible] = useState(false);
   const [title, setTitle] = useState("Title");
-  const [message, setMessage] = useState("Message");
+  const [onOk, setOnOk] = useState(() => () => setVisible(false));
   const [OkText, setOkText] = useState("Ok");
+  const [idSales, setIdSales] = useState([]);
+  const [visible, setVisible] = useState(false);
+  const [message, setMessage] = useState("Message");
+  const [allSales, setAllSales] = useState(null);
+  const [onCancel, setOnCancel] = useState(() => () => setVisible(false));
   const [cancelText, setCancelText] = useState(null);
-  const [onOk, setOnOk] = useState(() => () => {
-    setVisible(false);
-  });
-  const [onCancel, setOnCancel] = useState(() => () => {
-    setVisible(false);
-  });
+  const [boolAllSales, setBoolAllSales] = useState(false);
+  const [idSalesNotPayed, setIdSalesNotPayed] = useState([]);
+  const [totalSalesByDate, setTotalSalesByDate] = useState(0);
+  const [totalAmountByDate, setTotalAmountByDate] = useState(0);
+  const [boolFetchingSales, setBoolFetchingSales] = useState(false);
+  const [boolPickFirstDate, setBoolPickFirstDate] = useState(false);
+  const [boolPickSecondDate, setBoolPickSecondDate] = useState(false);
+  const [secondDateForSales, setSecondDateForSales] = useState(new Date());
+  const [firstDateForSales, setFirstDateForSales] = useState(
+    getStartOfWeek(new Date())
+  );
 
   useFocusEffect(
     useCallback(() => {
-      const onBackPress = () => {
-        if (returnToBackPage && typeof returnToBackPage == "function")
-          returnToBackPage();
-        return true;
-      };
+      const onBackPress = () =>
+        returnToBackPage && typeof returnToBackPage == "function"
+          ? returnToBackPage()
+          : null;
 
       BackHandler.addEventListener("hardwareBackPress", onBackPress);
       return () =>
@@ -56,16 +66,41 @@ export default Sales = ({ translations, returnToBackPage, restaurantName }) => {
     }, [])
   );
 
-  // Obtener las ventas desde Supabase
-  useEffect(() => {
-    fetchSales();
-  }, []);
-
-  // Función para obtener todas las ventas
+  //? Función para obtener todas las ventas
   const fetchSales = async () => {
     try {
       const data = await getAllDataFromTable(tableNameSales);
-      if (data) setSales(JSON.stringify(data));
+      setTotalAmountByDate(0);
+      setTotalSalesByDate(0);
+
+      let sales = [];
+      if (data) {
+        data.forEach((sale) => {
+          const saleDate = new Date(sale.saleDate);
+
+          if (
+            sale.saleStatus &&
+            saleDate >= firstDateForSales &&
+            saleDate <= secondDateForSales
+          ) {
+            setTotalAmountByDate((prev) => prev + sale.totalAmount);
+            setIdSales((prev) => [...prev, sale.id]);
+            setTotalSalesByDate((prev) => prev + 1);
+            sales.push(sale);
+          } else if (!sale.saleStatus)
+            setIdSalesNotPayed((prev) => [...prev, sale.id]);
+          else console.log(`Sale not evaluable:`, sale);
+        });
+        if (!sales.length > 0) {
+          setTitle(translations.noSales);
+          setMessage(translations.noSalesBetweenDates);
+          setOnOk(() => () => setVisible(false));
+          setOkText(translations.ok);
+          setVisible(true);
+        }
+        setSales(JSON.stringify(sales));
+        if (boolAllSales) setAllSales(data);
+      }
     } catch (error) {
       console.error("Error fetching sales:", error);
       await insertInTable(tableNameErrorLogs, {
@@ -75,176 +110,183 @@ export default Sales = ({ translations, returnToBackPage, restaurantName }) => {
         component: `./Sales/useEffect/fetchSales() catch (error) => Error fetching sales: ${error}`,
       });
     }
+
+    setTimeout(() => setBoolFetchingSales(false), 500);
   };
 
-  // Función para agregar una nueva venta
-  const createSale = async () => {
+  const askDeleteSale = (idSale) => {
+    setTitle(translations.deleteSale);
+    setMessage(translations.askAboutAnAction);
+    setOnOk(() => () => deleteSale(idSale));
+    setOkText(translations.delete);
+    setOnCancel(() => () => setVisible(false));
+    setCancelText(translations.cancel);
+    setVisible(true);
+  };
+
+  //? Función para borrar una venta
+  const deleteSale = async (idSale) => {
     try {
-      // Asegúrate de que los campos necesarios no estén vacíos
-      if (!totalAmount || !products) {
-        setTitle(translations.error);
-        setMessage(translations.pleaseFillFields);
-        setCancelText(null);
-        setOkText(translations.ok);
-        setOnOk(() => () => {
-          setVisible(false);
-        });
-        setVisible(true);
-        return;
-      }
-
-      const dict = {
-        totalAmount: parseFloat(totalAmount),
-        products: JSON.stringify(products),
-        paymentMethod: paymentMethod,
-        saleStatus: saleStatus,
-        notes: notes,
-      };
-      await insertInTable(tableNameSales, dict);
-
-      fetchSales();
-      resetForm();
+      await updateTableByEq(tableNameSales, { removed: true }, "id", idSale);
+      await fetchSales();
     } catch (error) {
       console.error("Error creating sale:", error);
       await insertInTable(tableNameErrorLogs, {
         appName: appName,
-        error: `An error occurred during create sale: ${error}`,
+        error: `An error occurred during deleting sale: ${error}`,
         date: new Date().toLocaleString(),
-        component: `./Sales/useEffect/fetchSales() catch (error) => Error creating sale
-            : ${error}`,
+        component: `./Sales/useEffect/fetchSales() catch (error) => Error deleting sale: ${error}`,
       });
     }
   };
 
-  // Función para actualizar el estado de una venta
-  const updateSaleStatus = async (saleId, newStatus) => {
-    try {
-      await updateTableByEq(
-        tableNameSales,
-        {
-          saleStatus: newStatus,
-        },
-        "id",
-        saleId
-      );
-
-      fetchSales(); // Refrescar la lista de ventas
-    } catch (error) {
-      console.error("Error updating sale status:", error);
-      Alert.alert("Error", "No se pudo actualizar el estado de la venta.");
-    }
-  };
-
-  // Función para limpiar los campos del formulario
-  const resetForm = () => {
-    setCustomerId("");
-    setTotalAmount("");
-    setProducts("");
-    setPaymentMethod("");
-    setSaleStatus("pending");
-    setNotes("");
-  };
-
   return (
     <View style={styles.container}>
-      {/* Alert modal */}
+      {/* DatePickers */}
+      {boolPickFirstDate && (
+        <DateTimePicker
+          value={firstDateForSales}
+          mode="date"
+          display="calendar"
+          onChange={(event, selectedDate) => {
+            if (!selectedDate) return;
+            if (!(selectedDate < secondDateForSales)) {
+              setTitle(translations.error);
+              setMessage(translations.errorDates);
+              setOnOk(() => () => setVisible(false));
+              setOkText(translations.ok);
+              setVisible(true);
+              return;
+            }
+            const currentDate = new Date(selectedDate);
+            currentDate.setHours(0, 0, 0, 0);
+
+            setFirstDateForSales(currentDate);
+            setBoolPickFirstDate(false);
+          }}
+        />
+      )}
+      {boolPickSecondDate && (
+        <DateTimePicker
+          value={secondDateForSales}
+          mode="date"
+          display="calendar"
+          onChange={(event, selectedDate) => {
+            if (!selectedDate) return;
+            const currentDate =
+              selectedDate > firstDateForSales
+                ? selectedDate
+                : secondDateForSales;
+            currentDate.setHours(23, 59, 59, 999);
+            setSecondDateForSales(currentDate);
+            setBoolPickSecondDate(false);
+          }}
+        />
+      )}
+
+      {/*//? Para alertas */}
       <AlertModel
-        visible={visible}
-        title={title}
-        message={message}
         onOk={onOk}
-        onCancel={onCancel}
+        title={title}
         OkText={OkText}
+        visible={visible}
+        message={message}
+        onCancel={onCancel}
         cancelText={cancelText}
       />
-      {/* Each Cuadro */}
+
+      {/*//? Header */}
       <EachCuadro
         texts={[restaurantName, translations.ownerText]}
         onPress={() => returnToBackPage()}
       />
-      <View style={styles.containerSales}>
-        <View style={styles.formContainer}>
-          {/* Header */}
-          <Text style={styles.header}>{translations.headerSales}</Text>
 
-          {/* Form Fields */}
-          <TextInput
-            style={styles.input}
-            placeholder={translations.totalAmountPlaceholder}
-            value={totalAmount}
-            onChangeText={setTotalAmount}
-            keyboardType="decimal-pad"
-          />
-          <TextInput
-            style={styles.input}
-            placeholder={translations.productsPlaceholder}
-            value={products}
-            onChangeText={setProducts}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder={translations.paymentMethodPlaceholder}
-            value={paymentMethod}
-            onChangeText={setPaymentMethod}
-          />
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>
-              {translations.saleStatusPlaceholder}
-            </Text>
-            <Switch
-              value={saleStatus}
-              onValueChange={(newValue) => setSaleStatus(newValue)}
-              trackColor={{ false: "#767577", true: "#81b0ff" }}
-              thumbColor={saleStatus ? "#f5dd4b" : "#f4f3f4"}
-            />
-            <Text style={styles.statusText}>
-              {saleStatus ? translations.completed : translations.pending}
-            </Text>
-          </View>
-          <TextInput
-            style={styles.input}
-            placeholder={translations.notesPlaceholder}
-            value={notes}
-            onChangeText={setNotes}
-          />
+      {/*//? Main*/}
+      <View style={styles.mainContainer}>
+        <Text style={styles.header}>{translations.headerSales}</Text>
 
-          {/* Create Sale Button */}
-          <Pressable onPress={createSale} style={styles.buttonContainer}>
-            <Text style={styles.buttonText}>
-              {translations.createSaleButton}
-            </Text>
-          </Pressable>
-
-          {/* Sales List */}
-        </View>
-        {sales != null && JSON.parse(sales).length > 0 && (
-          <FlatList
-            data={JSON.parse(sales)}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <View style={styles.saleItem}>
-                <Text style={styles.saleText}>
-                  {translations.saleIdLabel} {item.id}
-                </Text>
-                <Text style={styles.saleText}>
-                  {translations.totalAmountLabel} {item.totalAmount}
-                </Text>
-                <Text style={styles.saleText}>
-                  {translations.saleStatusLabel} {item.saleStatus}
-                </Text>
-                <Text style={styles.saleText}>
-                  {translations.notesLabel} {item.notes}
-                </Text>
-                <Pressable
-                  onPress={() => updateSaleStatus(item.id, "completed")}
-                  style={styles.completeButton}
-                >
-                  <Text style={styles.completeButtonText}>
-                    {translations.checkCompleted}
-                  </Text>
-                </Pressable>
-              </View>
+        <View style={styles.reviewTexts}>
+          <Text style={styles.textsH2}>
+            {translations.totalAmountLabel}:{" "}
+            {boolFetchingSales ? (
+              <ActivityIndicator size="small" color="#000" />
+            ) : (
+              <Text style={styles.bold}>${totalAmountByDate}</Text>
             )}
+          </Text>
+
+          <Text style={styles.textsH2}>
+            {translations.totalSales}:{" "}
+            {boolFetchingSales ? (
+              <ActivityIndicator size="small" color="#000" />
+            ) : (
+              <Text style={styles.bold}>{totalSalesByDate}</Text>
+            )}
+          </Text>
+        </View>
+
+        <Text style={styles.label}>{translations.pickDates}</Text>
+        <View style={styles.datesContainer}>
+          <View style={styles.datePickers}>
+            <Text style={styles.label}>{translations.fromText} </Text>
+            <Pressable
+              style={({ pressed }) => [
+                styles.buttonPickDate,
+                { opacity: pressed ? 0.5 : 1 },
+              ]}
+              onPress={() => setBoolPickFirstDate(true)}
+            >
+              <Text style={styles.dateText}>
+                {new Date(firstDateForSales)
+                  .toLocaleString()
+                  .replace(", ", "\n")}
+              </Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.datePickers}>
+            <Text style={styles.label}>{translations.toText}</Text>
+            <Pressable
+              style={({ pressed }) => [
+                styles.buttonPickDate,
+                { opacity: pressed ? 0.5 : 1 },
+              ]}
+              onPress={() => setBoolPickSecondDate(true)}
+            >
+              <Text style={styles.dateText}>
+                {new Date(secondDateForSales)
+                  .toLocaleString()
+                  .replace(", ", "\n")}
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+
+        <Pressable
+          onPress={() => {
+            if (firstDateForSales < secondDateForSales) {
+              fetchSales();
+              setBoolFetchingSales(true);
+            }
+          }}
+          style={({ pressed }) => [
+            styles.buttonContainer,
+            { opacity: pressed ? 0.5 : 1 },
+          ]}
+        >
+          {boolFetchingSales ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>{translations.fetchSales}</Text>
+          )}
+        </Pressable>
+
+        {/*//? Sales List */}
+        {sales != null && JSON.parse(sales).length > 0 && (
+          <EachSale
+            sales={sales}
+            translations={translations}
+            askDeleteSale={askDeleteSale}
           />
         )}
       </View>
@@ -252,71 +294,64 @@ export default Sales = ({ translations, returnToBackPage, restaurantName }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: "#f7f7f7",
-  },
-  containerSales: {
-    flex: 1,
-    padding: 20,
-  },
-  formContainer: {
-    marginTop: 20,
-    padding: 20,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  input: {
-    height: 40,
-    borderColor: "#ddd",
-    borderWidth: 1,
-    borderRadius: 8,
-    marginBottom: 15,
-    paddingLeft: 10,
-    fontSize: 16,
-    backgroundColor: "#fff",
-  },
-  buttonContainer: {
-    backgroundColor: "#007BFF",
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 20,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  saleItem: {
-    backgroundColor: "#fff",
-    padding: 15,
-    marginBottom: 15,
-    borderRadius: 8,
-    borderColor: "#ddd",
-    borderWidth: 1,
-  },
-  saleText: {
-    fontSize: 16,
-    color: "#333",
-    marginBottom: 5,
-  },
-  completeButton: {
-    marginTop: 10,
-    backgroundColor: "#28a745",
-    paddingVertical: 10,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  completeButtonText: {
-    color: "#fff",
-    fontSize: 16,
-  },
-});
+const EachSale = ({ sales, translations, askDeleteSale }) => {
+  return (
+    <FlatList
+      data={JSON.parse(sales)}
+      keyExtractor={(item) => item.id.toString()}
+      renderItem={({ item }) => (
+        <View style={styles.saleItem}>
+          <Text style={styles.saleText}>
+            {translations.saleIdLabel}
+            {": "}
+            <Text style={styles.bold}>{item.id}</Text>
+          </Text>
+
+          <Text style={styles.saleText}>
+            {translations.totalAmountLabel}
+            {": "}
+            <Text style={styles.bold}>{item.totalAmount}</Text>
+          </Text>
+
+          <Text style={styles.saleText}>
+            {translations.saleStatusLabel}
+            {": "}
+            <Text style={styles.bold}>
+              {item.saleStatus ? translations.completed : translations.pending}
+            </Text>
+          </Text>
+
+          <Text style={styles.saleText}>
+            {translations.date}
+            {": "}
+            <Text style={styles.bold}>
+              {new Date(item.saleDate).toLocaleString()}
+            </Text>
+          </Text>
+
+          <Text style={styles.saleText}>
+            {translations.products}
+            {": "}
+            <Text style={styles.bold}>{item.products}</Text>
+          </Text>
+
+          <Text style={styles.saleText}>
+            {translations.notesLabel}
+            {": "}
+            <Text style={styles.bold}>{item.notes}</Text>
+          </Text>
+
+          <Pressable
+            onPress={() => askDeleteSale(item.id)}
+            style={({ pressed }) => [
+              styles.deleteOrder,
+              { opacity: pressed ? 0.5 : 1 },
+            ]}
+          >
+            <Text style={styles.textsDelete}>{translations.delete}</Text>
+          </Pressable>
+        </View>
+      )}
+    />
+  );
+};

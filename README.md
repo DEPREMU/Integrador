@@ -107,3 +107,18 @@ Para ver la aplicación en funcionamiento, instala Expo Go en tu dispositivo (An
 
 - `supabaseUrl`: La URL de tu proyecto de Supabase.
 - `supabaseKey`: La clave pública (anon) de tu proyecto de Supabase.
+
+# Extensiones que recomiendo para trabajar en este proyecto:
+
+1. Auto Rename Tag
+2. Better Comments
+3. Error Lens
+4. Prettier - Code formatter
+5. ES7+ React...
+6. Image preview
+7. Path Intellisense
+8. React Native Tools
+9. Indent-rainbow
+10. Javascript Auto Backticks
+11. npm Insellisense
+12. Version Lens

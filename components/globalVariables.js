@@ -139,6 +139,16 @@ const insertInTable = async (tableName, dict) => {
   return null;
 };
 
+const getStartOfWeek = (date) => {
+  if (!date) return null;
+  date = new Date(date);
+  const dayOfWeek = date.getDay(); // 0 = domingo, 1 = lunes, ..., 6 = sábado
+  const diff = date.getDate() - dayOfWeek + (dayOfWeek == 0 ? -6 : 1); // Si es domingo, restamos 6 días
+  const startOfWeek = new Date(date.setDate(diff));
+  startOfWeek.setHours(0, 0, 0, 0); // Aseguramos que la hora sea las 00:00
+  return startOfWeek;
+};
+
 export {
   width,
   height,
@@ -155,6 +165,7 @@ export {
   calculateTime,
   generateToken,
   heightDivided,
+  getStartOfWeek,
   verifyPassword,
   saveDataSecure,
   loadDataSecure,

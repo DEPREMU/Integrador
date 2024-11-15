@@ -311,6 +311,15 @@ const deleteOrderDB = async (restaurantName, orderID) => {
   }
 };
 
+const deleteFromTable = async (
+  tableName,
+  count = "*",
+  columnEqual,
+  valueEqual
+) => {
+  if (!count) count = "*";
+  await supabase.from(tableName).delete(count).eq(columnEqual, valueEqual);
+};
 const loadOrders = async (restaurantName) => {
   const { data, error } = await supabase
     .from(`${restaurantName}_orders`)
@@ -477,6 +486,7 @@ export {
   boolUserExist,
   deleteOrderDB,
   insertInTable,
+  deleteFromTable,
   boolIsRestaurant,
   updateTableByDict,
   getAllDataFromTable,
