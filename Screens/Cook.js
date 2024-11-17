@@ -91,7 +91,7 @@ const Cook = ({ navigation }) => {
       setThingsLoaded((prev) => prev + 1);
     };
     const loadRestaurantName = async () => {
-      setRestaurantName(await loadData(RESTAURANT_NAME_KEY_STORAGE));
+      setRestaurantName(await loadDataSecure(RESTAURANT_NAME_KEY_STORAGE));
       setThingsLoaded((prev) => prev + 1);
     };
 

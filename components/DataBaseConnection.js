@@ -117,13 +117,26 @@ const logIn = async (restaurantName, user, password) => {
 
     if (data) {
       const boolCorrectPassword = verifyPassword(data.password, password);
-      if (boolCorrectPassword)
+      if (boolCorrectPassword) {
+        const newToken = generateToken();
+        const newDate = new Date().toString();
+        await updateTableByEq(
+          restaurantName,
+          { token: newToken, tokenTime: newDate },
+          user,
+          "username"
+        );
+        const newData = data;
+        newData.token = newToken;
+        newData.tokenTime = newDate;
+
         return {
           success: true,
-          token: data.token,
-          data: data,
+          token: newToken,
+          data: newData,
           error: null,
         };
+      }
     } else if (error && String(error.message).indexOf("does not exist") > 0)
       return {
         success: false,
@@ -191,17 +204,18 @@ const getDateToken = async (restaurantName, token) => {
     .select("tokenTime")
     .eq("token", token)
     .single();
+
   if (error) {
-    console.error("Error getting name:", error.message);
+    console.error("Error getting date token:", error.message);
     await insertInTable(tableNameErrorLogs, {
       appName: appName,
       error: error.message,
       date: new Date().toLocaleString(),
       component: `./DataBaseConnection/getDateToken() if (error) => Error getting name: ${error}`,
     });
-    return { success: false, name: null, error: error.message };
+    return { success: false, dateToken: null, error: error.message };
   }
-  return { success: true, name: data.tokenTime, error: null };
+  return { success: true, dateToken: data.tokenTime, error: null };
 };
 
 const boolIsRestaurant = async (restaurantName) => {
@@ -320,6 +334,7 @@ const deleteFromTable = async (
   if (!count) count = "*";
   await supabase.from(tableName).delete(count).eq(columnEqual, valueEqual);
 };
+
 const loadOrders = async (restaurantName) => {
   const { data, error } = await supabase
     .from(`${restaurantName}_orders`)

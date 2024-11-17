@@ -14,6 +14,7 @@ import {
   checkLanguage,
   tableNameErrorLogs,
   RESTAURANT_NAME_KEY_STORAGE,
+  loadDataSecure,
 } from "../components/globalVariables";
 import ErrorComponent from "../components/ErrorComponent";
 import LogOut from "../components/LogOut";
@@ -83,7 +84,7 @@ const Owner = ({ navigation }) => {
     };
     const loadRestaurantName = async () => {
       try {
-        const data = await loadData(RESTAURANT_NAME_KEY_STORAGE);
+        const data = await loadDataSecure(RESTAURANT_NAME_KEY_STORAGE);
         setRestaurantName(data);
       } catch (error) {
         setError(true);

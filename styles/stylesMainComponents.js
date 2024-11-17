@@ -99,6 +99,7 @@ export default stylesMC = StyleSheet.create({
   ViewRemeberMe: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-evenly",
     marginVertical: -10,
   },
   rememberMeText: {

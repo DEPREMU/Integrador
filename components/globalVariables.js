@@ -9,12 +9,13 @@ import * as Localization from "expo-localization";
 const appName = "RestaurantApp";
 const userImage = require("../assets/userImage.png");
 const BOOL_LOG_OUT = "@boolLogOut";
+const ROLE_STORAGE_KEY = "_role";
 const USER_KEY_STORAGE = "@userName";
 const TOKEN_KEY_STORAGE = "_tokenUser";
 const tableNameErrorLogs = "ErrorLogs";
 const LANGUAGE_KEY_STORAGE = "@language";
 const FIRST_TIME_LOADING_APP = "@firstTimeLoadingApp";
-const RESTAURANT_NAME_KEY_STORAGE = "@restaurantName";
+const RESTAURANT_NAME_KEY_STORAGE = "_restaurantName";
 
 const { width, height } = Dimensions.get("window");
 const generateToken = () => uuid.v4();
@@ -171,6 +172,7 @@ export {
   loadDataSecure,
   saltHashPassword,
   removeDataSecure,
+  ROLE_STORAGE_KEY,
   USER_KEY_STORAGE,
   TOKEN_KEY_STORAGE,
   interpolateMessage,

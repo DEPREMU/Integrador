@@ -54,7 +54,7 @@ const Settings = ({ navigation }) => {
     const loadTokenAndRestaurantName = async () => {
       try {
         const token = await loadDataSecure(TOKEN_KEY_STORAGE);
-        const restaurantName = await loadData(RESTAURANT_NAME_KEY_STORAGE);
+        const restaurantName = await loadDataSecure(RESTAURANT_NAME_KEY_STORAGE);
         setRestaurantName(restaurantName);
         if (token) {
           const { role } = await getRole(restaurantName, token);

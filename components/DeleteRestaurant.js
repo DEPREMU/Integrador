@@ -37,7 +37,7 @@ export default DeleteRestaurant = ({
 
   const deleting = async () => {
     await deleteTables(restaurantName);
-    await removeData(RESTAURANT_NAME_KEY_STORAGE);
+    await removeDataSecure(RESTAURANT_NAME_KEY_STORAGE);
     await removeDataSecure(TOKEN_KEY_STORAGE);
     await removeData(BOOL_LOG_OUT);
     setTitle(translations.deletedConfirmed);

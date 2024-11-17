@@ -102,7 +102,20 @@
     "products": "Products",
     "errorDates": "The first date must be before the second date.",
     "noSales": "No sales available",
-    "noSalesBetweenDates": "No sales between the selected dates"
+    "noSalesBetweenDates": "No sales between the selected dates",
+    "ingredients": "Ingredients",
+    "price": "Price",
+    "menu": "Menu",
+    "newDish": "New Dish",
+    "dishName": "Dish Name",
+    "dishPrice": "Dish Price",
+    "dishImageLink": "Dish Image Link (if you have)",
+    "addDish": "Add Dish",
+    "noInventoryAdded": "No inventory added, please add an inventory first.",
+    "addImageLink": "Add Image Link",
+    "quantity": "Quantity",
+    "addDishConfirmation": "Are you sure you want to add this dish?",
+    "dishAdded": "Dish added"
   },
   "es": {
     "TextUser": "Usuario",

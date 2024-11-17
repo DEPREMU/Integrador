@@ -26,7 +26,7 @@ export default LogOut = ({
   translations,
 }) => {
   const logOut = async () => {
-    await removeData(RESTAURANT_NAME_KEY_STORAGE);
+    await removeDataSecure(RESTAURANT_NAME_KEY_STORAGE);
     await removeDataSecure(TOKEN_KEY_STORAGE);
     await saveData(BOOL_LOG_OUT, "1");
     if (Platform.OS == "web") {

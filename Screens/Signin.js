@@ -246,7 +246,7 @@ const Signin = ({ navigation }) => {
       const lang = await checkLanguage();
       const translations = languages[lang];
       const dataToken = await loadDataSecure(TOKEN_KEY_STORAGE);
-      const dataRestaurantName = await loadData(RESTAURANT_NAME_KEY_STORAGE);
+      const dataRestaurantName = await loadDataSecure(RESTAURANT_NAME_KEY_STORAGE);
 
       if (dataToken && dataRestaurantName) {
         const { dateToken } = await getDateToken(dataRestaurantName, dataToken);

@@ -13,43 +13,66 @@ SQL Editor  (https://supabase.com/dashboard/project/{key/tokenByUser}/sql/new)  
 * IMPORTANT: Change columns and values in name_inventory* 
 
 CREATE OR REPLACE FUNCTION create_table(name TEXT)
-  RETURNS void LANGUAGE plpgsql AS $$
-  BEGIN
-    -- Crear la tabla principal
-    EXECUTE format('
-      CREATE TABLE IF NOT EXISTS %I (
-        id bigint primary key generated always as identity,
-        username varchar(50) unique not null,
-        password varchar(100) not null,
-        name VARCHAR(100) NOT NULL,
-        token text,
-        role varchar(100),
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT current_timestamp
-      )
-    ', name);
+RETURNS void LANGUAGE plpgsql AS $$
+BEGIN
+  -- Crear la tabla principal
+  EXECUTE format('
+    CREATE TABLE IF NOT EXISTS %I (
+      id bigint primary key generated always as identity,
+      username varchar(50) unique not null,
+      password varchar(100) not null,
+      name VARCHAR(100) NOT NULL,
+      token text,
+      "tokenTime" text,
+      role varchar(50),
+      "registerTime" text
+    )
+  ', name);
 
-    -- Crear la tabla de inventario *Cambiar columnas*
-    EXECUTE format('
-      CREATE TABLE IF NOT EXISTS %I (
-        id bigint primary key generated always as identity,
-        quantity int not null,
-        productName varchar(50) unique not null,
-        description VARCHAR(100) NOT NULL,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT current_timestamp
-      )
-    ', name || '_inventory');
+  -- Crear la tabla de inventario
+  EXECUTE format('
+    CREATE TABLE IF NOT EXISTS %I (
+      id bigint primary key generated always as identity,
+      stocks bigint NOT NULL DEFAULT 0,
+      "productName" text NOT NULL,
+      "productDescription" text NOT NULL,
+    )
+  ', name || '_inventory');
 
-    -- Crear la tabla de ordenes *POR VERIFICAR*
-    EXECUTE format('
-      CREATE TABLE IF NOT EXISTS %I (
-        id bigint primary key generated always as identity,
-        order text,
-        characteristics text,
-        orderTime varchar(50)
-      )
-    ', name || '_orders');
-  END;
+  -- Crear la tabla de ordenes *POR VERIFICAR*
+  EXECUTE format('
+    CREATE TABLE IF NOT EXISTS %I (
+      id bigint primary key generated always as identity,
+      order_detail text,
+      characteristics text,
+      "orderTime" varchar(50)
+    )
+  ', name || '_orders');
+
+  EXECUTE format('
+    CREATE TABLE IF NOT EXISTS %I (
+      id bigint primary key generated always as identity,
+      name text,
+      ingredients text,
+      price bigint default 0,
+      "imageLink" text
+    )
+  ', name || '_MENU');
+
+  EXECUTE format('
+    CREATE TABLE IF NOT EXISTS %I (
+      id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+      "saleDate" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+      totalAmount DECIMAL(10, 2) NOT NULL,
+      products JSONB NOT NULL,
+      "paymentMethod" VARCHAR(50),
+      "saleStatus" BOOL DEFAULT FALSE,
+      notes TEXT
+    )
+  ', name || '_sales');
+END;
 $$;
+
 
 
 CREATE OR REPLACE FUNCTION delete_tables(name TEXT)

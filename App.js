@@ -11,6 +11,7 @@ import Settings from "./Screens/Settings";
 import { useEffect, useState } from "react";
 import { FIRST_TIME_LOADING_APP, loadData } from "./components/globalVariables";
 import Sales from "./components/Sales";
+import Menu from "./Screens/Menu";
 
 export default App = () => {
   const Stack = createNativeStackNavigator();
@@ -32,7 +33,7 @@ export default App = () => {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName={isFirstTime ? "Sales" : "Login"}>
+      <Stack.Navigator initialRouteName={isFirstTime ? "Login" : "Login"}>
         {/* Para cada vista se tiene que agregar aqui para mostrarse mediante un boton */}
         <Stack.Screen
           name="Welcome"
@@ -72,6 +73,11 @@ export default App = () => {
         <Stack.Screen
           name="Sales"
           component={Sales}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Menu"
+          component={Menu}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

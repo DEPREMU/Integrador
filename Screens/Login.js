@@ -3,6 +3,7 @@ import {
   Text,
   Alert,
   Image,
+  Switch,
   TextInput,
   Pressable,
   BackHandler,
@@ -17,13 +18,14 @@ import {
   userImage,
   removeData,
   checkLanguage,
+  saveDataSecure,
+  loadDataSecure,
+  removeDataSecure,
+  ROLE_STORAGE_KEY,
   TOKEN_KEY_STORAGE,
   interpolateMessage,
   tableNameErrorLogs,
   RESTAURANT_NAME_KEY_STORAGE,
-  saveDataSecure,
-  loadDataSecure,
-  removeDataSecure,
 } from "../components/globalVariables";
 import languages from "../components/languages.json";
 import {
@@ -37,7 +39,6 @@ import {
 import ErrorComponent from "../components/ErrorComponent";
 import Loading from "../components/Loading";
 import AlertModel from "../components/AlertModel";
-import { CheckBox } from "react-native-elements";
 import { useFocusEffect } from "@react-navigation/native";
 
 const Login = ({ navigation }) => {
@@ -56,7 +57,6 @@ const Login = ({ navigation }) => {
   const [errorText, setErrorText] = useState(null);
   const [cancelText, setCancelText] = useState(null);
   const [rememberMe, setRememberMe] = useState(false);
-  const [loadingText, setLoadingText] = useState("Loading.");
   const [thingsLoaded, setThingsLoaded] = useState(0);
   const [boolLogginIn, setBoolLoggingIn] = useState(false);
   const [restaurantName, setRestaurantName] = useState("");
@@ -83,13 +83,10 @@ const Login = ({ navigation }) => {
     if (success && token && data) {
       setBoolLoggingIn(false);
       try {
-        if (rememberMe) {
-          await saveDataSecure(TOKEN_KEY_STORAGE, token);
-          await updateTableByDict(restaurantName, token, {
-            tokenTime: new Date().toString(),
-          });
-        }
-        await saveData(RESTAURANT_NAME_KEY_STORAGE, restaurantName);
+        if (rememberMe) await saveDataSecure(TOKEN_KEY_STORAGE, token);
+
+        await saveDataSecure(RESTAURANT_NAME_KEY_STORAGE, restaurantName);
+        await saveDataSecure(ROLE_STORAGE_KEY, data.role);
 
         setTitle(interpolateMessage(translations.welcome, [data.name]));
         setMessage(translations.logInSuccess);
@@ -129,74 +126,64 @@ const Login = ({ navigation }) => {
   };
 
   useEffect(() => {
-    const loadLanguage = async () => {
-      setLanguage(await checkLanguage());
-      setThingsLoaded((prevThingsLoaded) => prevThingsLoaded + 1);
-    };
-    loadLanguage();
-  }, []);
-
-  useEffect(() => {
     const translations = getTranslations();
 
+    const loadLanguage = async () => {
+      setLanguage(await checkLanguage());
+      setThingsLoaded((prev) => prev + 1);
+    };
     const loadTokenAndRestaurantName = async () => {
       const dataToken = await loadDataSecure(TOKEN_KEY_STORAGE);
-      const dataRestaurantName = await loadData(RESTAURANT_NAME_KEY_STORAGE);
+      const dataRestaurantName = await loadDataSecure(
+        RESTAURANT_NAME_KEY_STORAGE
+      );
 
-      if (dataToken && dataRestaurantName) {
-        const { dateToken } = await getDateToken(dataRestaurantName, dataToken);
-        const dateOfToken = new Date(dateToken);
-        const currentDate = new Date();
-        const timeDifference = currentDate - dateOfToken;
-        const daysDifference = timeDifference / (1000 * 3600 * 24);
+      if (!(dataToken && dataRestaurantName))
+        return setThingsLoaded((prev) => prev + 1);
 
-        if (!dateToken || daysDifference > 30) {
-          await removeDataSecure(TOKEN_KEY_STORAGE);
-          setTitle(translations.error);
-          setMessage(translations.tokenExpired);
-          setOnOk(() => () => setVisible(false));
-          setOkText(translations.ok);
-          setVisible(true);
-          setThingsLoaded((prev) => prev + 1);
-          return;
-        }
-        const { name } = await getName(dataRestaurantName, dataToken);
-        const { role, error } = await getRole(dataRestaurantName, dataToken);
-        if (role) {
-          setTitle(
-            interpolateMessage(translations.welcome, [name ? name : ""])
-          );
-          setMessage(translations.logInSuccess);
-          setOnOk(() => () => navigation.replace(role));
-          setOkText(translations.ok);
-          setVisible(true);
-        } else {
-          setError(true);
-          setErrorText(`An error occurred during log in: ${error}`);
-          await insertInTable(tableNameErrorLogs, {
-            appName: appName,
-            error: error,
-            date: new Date().toLocaleString(),
-            component: `./Login/useEffect() if (role) {} else {} => An error occurred during log in: ${error}`,
-          });
-        }
-      } else setThingsLoaded((prevThingsLoaded) => prevThingsLoaded + 1);
+      const { dateToken } = await getDateToken(dataRestaurantName, dataToken);
+      const dateOfToken = new Date(dateToken);
+      const timeDifference = new Date() - dateOfToken;
+      const daysDifference = timeDifference / (1000 * 3600 * 24); //? ms, s, h => days
+
+      if (!dateToken || daysDifference > 30) {
+        await removeDataSecure(TOKEN_KEY_STORAGE);
+        setTitle(translations.error);
+        setMessage(translations.tokenExpired);
+        setOnOk(() => () => setVisible(false));
+        setOkText(translations.ok);
+        setVisible(true);
+        setThingsLoaded((prev) => prev + 1);
+        return;
+      }
+
+      const { name } = await getName(dataRestaurantName, dataToken);
+      const role = await loadDataSecure(ROLE_STORAGE_KEY);
+      if (role) {
+        setTitle(interpolateMessage(translations.welcome, [name ? name : ""]));
+        setMessage(translations.logInSuccess);
+        setOnOk(() => () => navigation.replace(role));
+        setOkText(translations.ok);
+        setVisible(true);
+      } else {
+        setError(true);
+        setErrorText(`An error occurred during log in: ${error}`);
+        await insertInTable(tableNameErrorLogs, {
+          appName: appName,
+          error: error,
+          date: new Date().toLocaleString(),
+          component: `./Login/useEffect() if (role) {} else {} => An error occurred during log in: ${error}`,
+        });
+      }
     };
+
+    loadLanguage();
     loadTokenAndRestaurantName();
   }, []);
 
   useEffect(() => {
-    if (!loading || thingsLoaded >= thingsToLoad) setLoading(false);
-    let timer;
-    timer = setTimeout(() => {
-      setLoadingText(() => {
-        if (loadingText == "Loading.") return "Loading..";
-        else if (loadingText == "Loading..") return "Loading...";
-        return "Loading.";
-      });
-    }, 750);
-    return () => clearTimeout(timer);
-  }, [loadingText, loading]);
+    if (thingsLoaded >= thingsToLoad) setLoading(false);
+  }, [thingsLoaded, loading]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -306,15 +293,14 @@ const Login = ({ navigation }) => {
             stylesMC.ViewRemeberMe,
             { opacity: pressed ? 0.5 : 1 },
           ]}
-          onPress={() => setRememberMe(!rememberMe)}
+          onPress={() => setRememberMe((prev) => !prev)}
         >
-          <CheckBox
-            checked={rememberMe}
-            onPress={() => setRememberMe(!rememberMe)}
-            style={stylesMC.checkRemeberMe}
-          />
-
           <Text style={stylesMC.rememberMeText}>{translations.rememberMe}</Text>
+
+          <Switch
+            value={rememberMe}
+            onChange={() => setRememberMe((prev) => !prev)}
+          />
         </Pressable>
 
         <View style={stylesMC.newAccountView}>

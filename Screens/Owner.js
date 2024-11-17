@@ -15,6 +15,7 @@ import {
   checkLanguage,
   tableNameErrorLogs,
   RESTAURANT_NAME_KEY_STORAGE,
+  loadDataSecure,
 } from "../components/globalVariables";
 import ErrorComponent from "../components/ErrorComponent";
 import LogOut from "../components/LogOut";
@@ -29,6 +30,7 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import EachCuadro from "../components/EachCuadro";
 import EmployesManagement from "../components/EmployesManagement";
 import Sales from "../components/Sales";
+import Menu from "./Menu";
 
 const Owner = ({ navigation }) => {
   const [rotate] = useState(new Animated.Value(0));
@@ -82,7 +84,7 @@ const Owner = ({ navigation }) => {
     };
     const loadRestaurantName = async () => {
       try {
-        const data = await loadData(RESTAURANT_NAME_KEY_STORAGE);
+        const data = await loadDataSecure(RESTAURANT_NAME_KEY_STORAGE);
         setRestaurantName(data || "Prueba");
       } catch (error) {
         setError(true);
@@ -190,12 +192,19 @@ const Owner = ({ navigation }) => {
         restaurantName={restaurantName}
       />
     );
-  if (showPage == "WS")
+  else if (showPage == "WS")
     return (
       <Sales
         translations={translations}
         returnToBackPage={() => changePage("MP")}
         restaurantName={restaurantName}
+      />
+    );
+  else if (showPage == "RM")
+    return (
+      <Menu
+        translations={translations}
+        onPressToReturn={() => changePage("MP")}
       />
     );
 
@@ -223,7 +232,10 @@ const Owner = ({ navigation }) => {
           texts={[translations.employesManagement]}
           onPress={() => changePage("EM")}
         />
-        <EachCuadro texts={[translations.restaurantManagement]} />
+        <EachCuadro
+          texts={[translations.restaurantManagement]}
+          onPress={() => changePage("RM")}
+        />
         <EachCuadro
           texts={[translations.extraOptions]}
           onPress={() => navigation.navigate("Settings")}
