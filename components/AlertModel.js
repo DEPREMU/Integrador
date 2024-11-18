@@ -24,41 +24,43 @@ export default AlertModel = ({
   cancelText = null,
 }) => {
   return (
-    <Modal
-      transparent={true}
-      visible={visible}
-      animationType="slide"
-      onRequestClose={onCancel}
-    >
-      <View style={styles.modalBackground}>
-        <View style={styles.modalContainer}>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.message}>{message}</Text>
-          <View style={styles.buttonContainer}>
-            {cancelText != null && (
+    <View style={{ position: "absolute", left: 0, top: 0 }}>
+      <Modal
+        transparent={true}
+        visible={visible}
+        animationType="slide"
+        onRequestClose={onCancel}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.title}>{title}</Text>
+            <Text style={styles.message}>{message}</Text>
+            <View style={styles.buttonContainer}>
+              {cancelText != null && (
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.cancelButton,
+                    { opacity: pressed ? 0.5 : 1 },
+                  ]}
+                  onPress={onCancel}
+                >
+                  <Text style={styles.buttonText}>{cancelText}</Text>
+                </Pressable>
+              )}
               <Pressable
                 style={({ pressed }) => [
-                  styles.cancelButton,
+                  styles.okButton,
                   { opacity: pressed ? 0.5 : 1 },
                 ]}
-                onPress={onCancel}
+                onPress={onOk}
               >
-                <Text style={styles.buttonText}>{cancelText}</Text>
+                <Text style={styles.buttonText}>{OkText}</Text>
               </Pressable>
-            )}
-            <Pressable
-              style={({ pressed }) => [
-                styles.okButton,
-                { opacity: pressed ? 0.5 : 1 },
-              ]}
-              onPress={onOk}
-            >
-              <Text style={styles.buttonText}>{OkText}</Text>
-            </Pressable>
+            </View>
           </View>
         </View>
-      </View>
-    </Modal>
+      </Modal>
+    </View>
   );
 };
 

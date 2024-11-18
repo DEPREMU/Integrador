@@ -1,41 +1,43 @@
+import Animated, {
+  runOnJS,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import {
   View,
   Text,
   Alert,
-  Animated,
   Pressable,
   ScrollView,
   BackHandler,
-  Image,
 } from "react-native";
 import {
+  width,
   appName,
-  loadData,
-  widthDivided,
   checkLanguage,
+  loadDataSecure,
   tableNameErrorLogs,
   RESTAURANT_NAME_KEY_STORAGE,
-  loadDataSecure,
 } from "../components/globalVariables";
-import ErrorComponent from "../components/ErrorComponent";
+import Menu from "./Menu";
+import Sales from "../components/Sales";
 import LogOut from "../components/LogOut";
 import Loading from "../components/Loading";
 import languages from "../components/languages.json";
-import { styleOwner as styles } from "../styles/stylesScreenOwner";
 import AlertModel from "../components/AlertModel";
+import EachCuadro from "../components/EachCuadro";
+import ErrorComponent from "../components/ErrorComponent";
 import DeleteRestaurant from "../components/DeleteRestaurant";
 import { insertInTable } from "../components/DataBaseConnection";
 import { useFocusEffect } from "@react-navigation/native";
-import React, { useEffect, useState, useRef, useCallback } from "react";
-import EachCuadro from "../components/EachCuadro";
 import EmployesManagement from "../components/EmployesManagement";
-import Sales from "../components/Sales";
-import Menu from "./Menu";
+import { styleOwner as styles } from "../styles/stylesScreenOwner";
+import React, { useEffect, useState, useCallback } from "react";
 
 const Owner = ({ navigation }) => {
-  const [rotate] = useState(new Animated.Value(0));
   const thingsToLoad = 2;
-  const widthDividedBy2_25 = widthDivided(2.25);
+  const animatedValue = useSharedValue(-width);
+  const animatedValueMP = useSharedValue(0);
   const [lang, setLang] = useState("en");
   const [onOk, setOnOk] = useState(() => () => {});
   const [error, setError] = useState(false);
@@ -45,18 +47,16 @@ const Owner = ({ navigation }) => {
   const [message, setMessage] = useState("Message");
   const [visible, setVisible] = useState(false);
   const [onCancel, setOnCancel] = useState(() => () => {});
-  const [errorText, setErrorText] = useState(null);
   const [showPage, setShowPage] = useState("MP");
+  const [easterEgg, setEasterEgg] = useState(0);
+  const [errorText, setErrorText] = useState(null);
   const [cancelText, setCancelText] = useState(null);
-  const [loadingText, setLoadingText] = useState("Loading.");
-  const [boolShowLeft, setBoolShowLeft] = useState(false);
   const [thingsLoaded, setThingsLoaded] = useState(0);
   const [restaurantName, setRestaurantName] = useState();
   const [boolDeleteRestaurant, setBoolDeleteRestaurant] = useState(false);
-  const showLeftAnimation = useRef(
-    new Animated.Value(-widthDividedBy2_25)
-  ).current;
+
   const getTranslations = () => languages[lang] || languages.en;
+  const onCancelDeleteRestaurant = () => setBoolDeleteRestaurant(false);
 
   const confirmDeleteRestaurant = () => {
     const translations = getTranslations();
@@ -64,8 +64,8 @@ const Owner = ({ navigation }) => {
     setTitle(translations.deleteRestaurant);
     setMessage(translations.deleteRestaurantConfirmation);
     setOnOk(() => () => {
-      setBoolDeleteRestaurant(true);
       setVisible(false);
+      setBoolDeleteRestaurant(true);
     });
     setOnCancel(() => () => setVisible(false));
     setOkText(translations.deleteRestaurant);
@@ -75,7 +75,16 @@ const Owner = ({ navigation }) => {
     });
   };
 
-  const onCancelDeleteRestaurant = () => setBoolDeleteRestaurant(false);
+  const animateValueTo = (page) => {
+    if (page == "MP")
+      animatedValue.value = withTiming(-width, { duration: 300 }, () =>
+        runOnJS(setShowPage)(page)
+      );
+    else
+      animatedValueMP.value = withTiming(width * 2, { duration: 300 }, () => {
+        runOnJS(setShowPage)(page);
+      });
+  };
 
   useEffect(() => {
     const loadLanguage = async () => {
@@ -85,7 +94,7 @@ const Owner = ({ navigation }) => {
     const loadRestaurantName = async () => {
       try {
         const data = await loadDataSecure(RESTAURANT_NAME_KEY_STORAGE);
-        setRestaurantName(data || "Prueba");
+        setRestaurantName(data);
       } catch (error) {
         setError(true);
         setErrorText(`Error loading restaurant name ${error}`);
@@ -105,30 +114,95 @@ const Owner = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    if (!loading || thingsLoaded >= thingsToLoad) setLoading(false);
-
-    let timer = setTimeout(() => {
-      setLoadingText((prev) => {
-        if (prev === "Loading.") return "Loading..";
-        if (prev === "Loading..") return "Loading...";
-        return "Loading.";
-      });
-    }, 750);
-    return () => clearTimeout(timer);
-  }, [loadingText]);
+    if (thingsLoaded >= thingsToLoad) setLoading(false);
+  }, [thingsLoaded]);
 
   useEffect(() => {
-    Animated.timing(showLeftAnimation, {
-      toValue: boolShowLeft ? 0 : -widthDividedBy2_25,
-      duration: 500,
-      useNativeDriver: false,
-    }).start();
-    Animated.timing(rotate, {
-      toValue: !boolShowLeft ? 0 : 180, //Colocar 180 o 540
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
-  }, [boolShowLeft]);
+    if (showPage == "MP")
+      animatedValueMP.value = withTiming(0, { duration: 300 });
+    else animatedValue.value = withTiming(0, { duration: 300 });
+  }, [showPage]);
+
+  useEffect(() => {
+    let timer;
+    const multiplier = 5;
+    const firstEGG = easterEgg == multiplier;
+    const secondEGG = easterEgg == multiplier * 2;
+    const thirdEGG = easterEgg == multiplier * 3;
+    const fouthEGG = easterEgg == multiplier * 4;
+    const fifthEGG = easterEgg == multiplier * 5;
+    const sixthEGG = easterEgg == multiplier * 6;
+
+    if (firstEGG) {
+      const translations = getTranslations();
+      setTitle(translations.easterEgg);
+      setMessage(translations.easterEggMessage1);
+      setOkText(translations.ok);
+      setOnOk(() => () => setVisible(false));
+      setVisible(true);
+      timer = setTimeout(() => {
+        setEasterEgg(0);
+      }, 6000);
+    } else if (secondEGG) {
+      const translations = getTranslations();
+      setTitle(translations.easterEgg);
+      setMessage(translations.easterEggMessage2);
+      setOkText(translations.ok);
+      setOnOk(() => () => setVisible(false));
+      setVisible(true);
+      timer = setTimeout(() => {
+        setEasterEgg(0);
+      }, 6000);
+    } else if (thirdEGG) {
+      const translations = getTranslations();
+      setTitle(translations.easterEgg);
+      setMessage(translations.easterEggMessage3);
+      setOkText(translations.ok);
+      setOnOk(() => () => setVisible(false));
+      setVisible(true);
+      timer = setTimeout(() => {
+        setEasterEgg(0);
+      }, 6000);
+    } else if (fouthEGG) {
+      const translations = getTranslations();
+      setTitle(translations.easterEgg);
+      setMessage(translations.easterEggMessage4);
+      setOkText(translations.ok);
+      setOnOk(() => () => setVisible(false));
+      setVisible(true);
+      timer = setTimeout(() => {
+        setEasterEgg(0);
+      }, 6000);
+    } else if (fifthEGG) {
+      const translations = getTranslations();
+      setTitle(translations.easterEgg);
+      setMessage(translations.easterEggMessage5);
+      setOkText(translations.ok);
+      setOnOk(() => () => setVisible(false));
+      setVisible(true);
+      timer = setTimeout(() => {
+        setEasterEgg(0);
+      }, 6000);
+    } else if (sixthEGG) {
+      const translations = getTranslations();
+      setTitle(translations.easterEgg);
+      setMessage(translations.easterEggMessage6);
+      setOkText(translations.ok);
+
+      setOnOk(() => () => setVisible(false));
+      setVisible(true);
+      timer = setTimeout(() => {
+        setEasterEgg(0);
+      }, 6000);
+    }
+
+    if (easterEgg > 0 && !firstEGG)
+      timer = setTimeout(() => {
+        setEasterEgg(0);
+      }, 2000);
+
+    return () => clearInterval(timer);
+  }, [easterEgg]);
 
   useFocusEffect(
     useCallback(() => {
@@ -153,63 +227,72 @@ const Owner = ({ navigation }) => {
     }, [lang])
   );
 
-  const changePage = (page) => setShowPage(page);
-
-  if (loading)
+  if (loading) {
     return (
-      <Loading
-        progress={
-          thingsLoaded / thingsToLoad > 1 ? 1 : thingsLoaded / thingsToLoad
-        }
-      />
+      <Loading progress={thingsLoaded / thingsToLoad} boolLoadingText={true} />
     );
-  if (error)
+  }
+  if (error) {
     return (
       <ErrorComponent
-        error={errorText || ""}
+        error={errorText}
         component="Owner"
         navigation={navigation}
       />
     );
+  }
 
   const translations = getTranslations();
 
-  if (boolDeleteRestaurant)
+  if (boolDeleteRestaurant) {
     return (
-      <DeleteRestaurant
-        translations={translations}
-        navigation={navigation}
-        onCancel={onCancelDeleteRestaurant}
-        restaurantName={restaurantName}
-      />
+      <Animated.View style={{ flex: 1, left: animatedValue }}>
+        <DeleteRestaurant
+          translations={translations}
+          navigation={navigation}
+          onCancel={onCancelDeleteRestaurant}
+          restaurantName={restaurantName}
+        />
+      </Animated.View>
     );
-
-  if (showPage == "EM")
+  }
+  if (showPage == "EM") {
     return (
-      <EmployesManagement
-        returnToMP={() => changePage("MP")}
-        translations={translations}
-        restaurantName={restaurantName}
-      />
+      <Animated.View style={{ flex: 1, left: animatedValue }}>
+        <EmployesManagement
+          returnToMP={() => animateValueTo("MP")}
+          translations={translations}
+          restaurantName={restaurantName}
+        />
+      </Animated.View>
     );
-  else if (showPage == "WS")
+  }
+  if (showPage == "WS") {
     return (
-      <Sales
-        translations={translations}
-        returnToBackPage={() => changePage("MP")}
-        restaurantName={restaurantName}
-      />
+      <Animated.View style={{ flex: 1, left: animatedValue }}>
+        <Sales
+          translations={translations}
+          returnToBackPage={() => animateValueTo("MP")}
+          restaurantName={restaurantName}
+        />
+      </Animated.View>
     );
-  else if (showPage == "RM")
+  }
+  if (showPage == "RM") {
     return (
-      <Menu
-        translations={translations}
-        onPressToReturn={() => changePage("MP")}
-      />
+      <Animated.View style={{ flex: 1, left: animatedValue }}>
+        <Menu
+          translations={translations}
+          onPressToReturn={() => animateValueTo("MP")}
+        />
+      </Animated.View>
     );
+  }
 
   return (
-    <View style={styles.container}>
+    <Animated.View
+      style={[styles.container, { flex: 1, left: animatedValueMP }]}
+    >
       <AlertModel
         visible={visible}
         title={title}
@@ -221,27 +304,44 @@ const Owner = ({ navigation }) => {
       />
       <ScrollView style={styles.scrollView}>
         <EachCuadro
-          texts={[restaurantName, translations.ownerText]}
-          onPress={() => setRestaurantName((prev) => prev + "1")}
+          texts={[restaurantName, translations.ownerText, easterEgg]}
+          onPress={() => setEasterEgg((prev) => prev + 1)}
         />
         <EachCuadro
           texts={[translations.weeklySales]}
-          onPress={() => changePage("WS")}
+          onPress={() => animateValueTo("WS")}
         />
         <EachCuadro
           texts={[translations.employesManagement]}
-          onPress={() => changePage("EM")}
+          onPress={() => animateValueTo("EM")}
         />
         <EachCuadro
           texts={[translations.restaurantManagement]}
-          onPress={() => changePage("RM")}
+          onPress={() => animateValueTo("RM")}
         />
         <EachCuadro
           texts={[translations.extraOptions]}
           onPress={() => navigation.navigate("Settings")}
         />
+        <Pressable
+          style={styles.containerEach}
+          onPress={confirmDeleteRestaurant}
+        >
+          <View style={[styles.row, { backgroundColor: "red" }]}>
+            <View style={styles.containerOfLeftSide}>
+              <Text style={styles.textBefore}>
+                {translations.deleteRestaurant}
+              </Text>
+            </View>
+          </View>
+        </Pressable>
+        <LogOut
+          navigation={navigation}
+          bottom={30}
+          translations={translations}
+        />
       </ScrollView>
-    </View>
+    </Animated.View>
   );
 };
 
