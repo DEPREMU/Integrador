@@ -122,7 +122,10 @@
     "easterEggMessage3": "Don't do it!",
     "easterEggMEssage4": "I'm serious, stop touching there!",
     "easterEggMessage5": "I'm getting mad, stop... touching... there!!!",
-    "easterEggMessage6": "I'm done, your stronger than me, keep touching wherever you want :'("
+    "easterEggMessage6": "I'm done, your stronger than me, keep touching wherever you want :'(",
+    "animations": "Animations",
+    "showAnimations": "Show Animations",
+    "notes": "Notes:"
   },
   "es": {
     "TextUser": "Usuario",

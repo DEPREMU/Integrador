@@ -365,7 +365,7 @@ const loadOrders = async (restaurantName) => {
     return { success: false, orders: null, error: error.message };
   } else
     return {
-      success: true,
+      success: false,
       orders: null,
       error: null,
     };

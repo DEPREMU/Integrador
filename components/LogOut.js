@@ -1,7 +1,6 @@
 import { Text, StyleSheet, Alert, Platform, Pressable } from "react-native";
 import {
   saveData,
-  removeData,
   BOOL_LOG_OUT,
   TOKEN_KEY_STORAGE,
   RESTAURANT_NAME_KEY_STORAGE,
@@ -28,7 +27,7 @@ export default LogOut = ({
   const logOut = async () => {
     await removeDataSecure(RESTAURANT_NAME_KEY_STORAGE);
     await removeDataSecure(TOKEN_KEY_STORAGE);
-    await saveData(BOOL_LOG_OUT, "1");
+    await saveData(BOOL_LOG_OUT, JSON.stringify(true));
     if (Platform.OS == "web") {
       alert(translations.logOutSuccess);
       navigation.replace("Login");
@@ -40,6 +39,17 @@ export default LogOut = ({
       },
     ]);
   };
+  const askLogOut = async () =>
+    Alert.alert(translations.logOut, translations.askLogOut, [
+      {
+        text: translations.ok,
+        onPress: logOut,
+      },
+      {
+        text: translations.cancel,
+        onPress: null,
+      },
+    ]);
 
   if (translations == null) {
     console.warn("Translations not loaded, please load it to show the button");
@@ -58,6 +68,8 @@ export default LogOut = ({
     );
   }
 
+  if (Platform.OS != "ios" || Platform.OS != "android") return null;
+
   return (
     <Pressable
       style={({ pressed }) => [
@@ -68,7 +80,7 @@ export default LogOut = ({
           opacity: pressed ? 0.5 : 1,
         },
       ]}
-      onPress={() => logOut()}
+      onPress={() => askLogOut()}
     >
       <Text style={styles.texts}>{translations.logOut}</Text>
     </Pressable>

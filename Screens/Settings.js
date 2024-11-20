@@ -8,6 +8,8 @@ import {
   LANGUAGE_KEY_STORAGE,
   RESTAURANT_NAME_KEY_STORAGE,
   loadDataSecure,
+  ROLE_STORAGE_KEY,
+  BOOL_ANIMATIONS,
 } from "../components/globalVariables";
 import ErrorComponent from "../components/ErrorComponent";
 import Loading from "../components/Loading";
@@ -18,6 +20,7 @@ import stylesSettings from "../styles/stylesSettings";
 import { getRole, insertInTable } from "../components/DataBaseConnection";
 import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, Pressable } from "react-native";
+import { Switch } from "react-native";
 
 const Settings = ({ navigation }) => {
   const thingsToLoad = 3;
@@ -38,6 +41,7 @@ const Settings = ({ navigation }) => {
   const [onCancelAlert, setOnCancelAlert] = useState(() => () => {});
   const [languageCache, setLanguageCache] = useState("en");
   const [restaurantName, setRestaurantName] = useState(null);
+  const [boolAnimations, setBoolAnimations] = useState(null);
   const [languageBeforeChange, setLanguageBeforeChange] = useState("en");
 
   const getTranslations = () => languages[language] || languages.en;
@@ -51,16 +55,14 @@ const Settings = ({ navigation }) => {
       setThingsLoaded((prev) => (prev < thingsToLoad ? prev + 1 : prev));
     };
 
+    const loadBoolAnimations = async () =>
+      setBoolAnimations(JSON.parse(await loadData(BOOL_ANIMATIONS)));
+
     const loadTokenAndRestaurantName = async () => {
       try {
-        const token = await loadDataSecure(TOKEN_KEY_STORAGE);
-        const restaurantName = await loadDataSecure(RESTAURANT_NAME_KEY_STORAGE);
-        setRestaurantName(restaurantName);
-        if (token) {
-          const { role } = await getRole(restaurantName, token);
-          setToken(token);
-          setRole(role);
-        }
+        setRestaurantName(await loadDataSecure(RESTAURANT_NAME_KEY_STORAGE));
+        setToken(await loadDataSecure(TOKEN_KEY_STORAGE));
+        setRole(await loadDataSecure(ROLE_STORAGE_KEY));
       } catch (error) {
         await insertInTable(tableNameErrorLogs, {
           appName: appName,
@@ -74,6 +76,7 @@ const Settings = ({ navigation }) => {
     };
 
     loadLanguage();
+    loadBoolAnimations();
     loadTokenAndRestaurantName();
   }, []);
 
@@ -118,26 +121,20 @@ const Settings = ({ navigation }) => {
       setTitleAlert(languages[languageBeforeChange].confirmed);
       setBodyAlert(languages[languageBeforeChange].recommendRestart);
       setOkText(languages[languageBeforeChange].ok);
-      setOnOkAlert(() => () => navigation.replace("Login"));
+      setOnOkAlert(() => () => navigation.replace(role || "Login"));
       setVisibleAlert(true);
     }
+    await saveData(BOOL_ANIMATIONS, JSON.stringify(boolAnimations));
     setVisibleAlert(false);
   };
 
-  if (loading)
-    return (
-      <Loading
-        progress={
-          thingsLoaded / thingsToLoad > 1 ? 1 : thingsLoaded / thingsToLoad
-        }
-      />
-    );
+  if (loading) return <Loading progress={thingsLoaded / thingsToLoad} />;
   if (error)
     return (
       <ErrorComponent
         component="Settings"
         navigation={navigation}
-        error={errorText ? errorText : "Uknown error"}
+        error={errorText || "Uknown error"}
       />
     );
 
@@ -154,9 +151,13 @@ const Settings = ({ navigation }) => {
         cancelText={`${cancelText} ${visibleAlert ? seconds : ""}`}
         onCancel={onCancelAlert}
       />
+
       <View style={stylesSettings.settingsView}>
-        <Text style={stylesSettings.texts}>{translations.settingsText}</Text>
+        <Text style={stylesSettings.textsTitles}>
+          {translations.settingsText}
+        </Text>
       </View>
+
       {role != null && (
         <Pressable
           onPress={() => navigation.replace(role)}
@@ -168,7 +169,8 @@ const Settings = ({ navigation }) => {
           <Text style={stylesSettings.settings}>{translations.back}</Text>
         </Pressable>
       )}
-      <ScrollView>
+
+      <ScrollView style={stylesSettings.scrollView}>
         <View style={stylesSettings.viewPicker}>
           <Text style={[stylesSettings.texts, { textAlign: "center" }]}>
             {translations.selectLanguage}
@@ -183,7 +185,23 @@ const Settings = ({ navigation }) => {
             ))}
           </Picker>
         </View>
+        <View style={stylesSettings.animations}>
+          <Text style={stylesSettings.textsTitles}>
+            {translations.animations}
+          </Text>
+          <View style={stylesSettings.row}>
+            <Text style={stylesSettings.texts}>
+              {translations.showAnimations}
+            </Text>
+
+            <Switch
+              value={boolAnimations}
+              onValueChange={() => setBoolAnimations((prev) => !prev)}
+            />
+          </View>
+        </View>
       </ScrollView>
+
       <Pressable
         onPress={saveSettings}
         style={({ pressed }) => [

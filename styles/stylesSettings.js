@@ -1,121 +1,107 @@
 import { StyleSheet } from "react-native";
 import { width, widthDivided } from "../components/globalVariables";
 
-export default stylesSettings = StyleSheet.create({
+const stylesSettings = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
-    paddingTop: 20,
-  },
-  texts: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  buttonBack: {
-    position: "absolute",
-    left: 5,
-    backgroundColor: "gray",
-    padding: 10,
-    top: 35,
-    borderRadius: 5,
-  },
-  settings: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "white",
-    textAlign: "center",
+    padding: 25,
+    backgroundColor: "#f7f8fa", // Fondo de color claro
   },
   settingsView: {
+    marginBottom: 30,
     justifyContent: "center",
     alignItems: "center",
-    marginVertical: 30,
   },
-  languagesView: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginVertical: 10,
-  },
-  languagesButton: {
-    backgroundColor: "#0000FF",
-    borderRadius: 5,
-  },
-  textLanguages: {
-    color: "#FFFFFF",
-    fontSize: 18,
-    fontWeight: "bold",
-    padding: 10,
-  },
-  languages: {
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "black",
-    height: 100,
-  },
-  saveText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginVertical: 5,
-  },
-  saveConfirm: {
+  texts: {
     fontSize: 16,
+    color: "#4a4a4a", // Gris oscuro para texto
     textAlign: "center",
-    marginVertical: 10,
+    fontFamily: "Roboto-Regular", // Fuentes modernas
   },
-  buttonsSaveData: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginVertical: 10,
+  textsTitles: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#333", // Gris más oscuro para títulos
+    marginBottom: 15,
+    fontFamily: "Roboto-Medium", // Negrita para títulos
   },
-  viewModalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  viewModal: {
-    backgroundColor: "#FFFFFF",
-    padding: 20,
+  buttonBack: {
+    marginTop: 20,
+    paddingVertical: 14,
+    paddingHorizontal: 25,
+    backgroundColor: "#1E88E5", // Azul vibrante para el botón de "Back"
     borderRadius: 10,
-    width: widthDivided(1.3),
-    borderWidth: 1,
-    borderStyle: "solid",
-  },
-  buttonCancel: {
-    flex: 1,
-    backgroundColor: "#FF0000",
-    padding: 10,
-    borderRadius: 5,
-    margin: 5,
-    justifyContent: "center",
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 4,
+    position: "absolute",
+    left: 10,
   },
-  buttonConfirm: {
-    flex: 1,
-    backgroundColor: "#00FF00",
-    padding: 10,
-    borderRadius: 5,
-    margin: 5,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  picker: {
-    width: 150,
-    height: 50,
+  settings: {
+    fontSize: 16,
+    color: "#fff", // Blanco para el texto
+    fontWeight: "bold",
+    fontFamily: "Roboto-Bold",
   },
   viewPicker: {
-    marginVertical: 10,
-    borderRadius: 5,
-    backgroundColor: "#DDDDDD",
-    padding: 10,
-    borderRadius: 10,
+    marginBottom: 25,
+    padding: 15,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  picker: {
+    backgroundColor: "#f2f2f2",
+    marginTop: 12,
+    paddingHorizontal: 15,
+    fontFamily: "Roboto-Regular",
+  },
+  animations: {
+    marginTop: 20,
+    marginBottom: 40,
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 12,
   },
   buttonSave: {
-    padding: 10,
-    width: width,
-    justifyContent: "center",
+    paddingVertical: 14,
+    paddingHorizontal: 25,
+    backgroundColor: "#28a745", // Verde para el botón de "Guardar"
+    borderRadius: 10,
     alignItems: "center",
-    backgroundColor: "gray",
+    marginTop: 30,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  switch: {
+    transform: [{ scaleX: 1.1 }, { scaleY: 1.1 }], // Agrandar el switch un poco para hacerlo más visible
+  },
+  scrollView: {
+    marginBottom: 20,
+    padding: 10,
+    backgroundColor: "#f7f8fa",
   },
 });
+
+export default stylesSettings;

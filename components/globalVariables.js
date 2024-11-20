@@ -1,14 +1,20 @@
 import uuid from "react-native-uuid";
 import bcrypt from "react-native-bcrypt";
+import CryptoJS from "crypto-js";
 import languages from "../components/languages.json";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Dimensions } from "react-native";
+import { supabase } from "./supabaseClient";
+import { Dimensions, Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import * as Localization from "expo-localization";
+import Constants from "expo-constants";
 
-const appName = "RestaurantApp";
+const appName = "Order.by";
 const userImage = require("../assets/userImage.png");
+const appLogoImage = require("../assets/appLogoImage.png");
+const nameAppImage = require("../assets/appNameImage.png");
 const BOOL_LOG_OUT = "@boolLogOut";
+const BOOL_ANIMATIONS = "@boolAnimations";
 const ROLE_STORAGE_KEY = "_role";
 const USER_KEY_STORAGE = "@userName";
 const TOKEN_KEY_STORAGE = "_tokenUser";
@@ -53,16 +59,46 @@ const checkLanguage = async () => {
 
 const removeData = async (key) => await AsyncStorage.removeItem(key);
 
-const removeDataSecure = async (key) => await SecureStore.deleteItemAsync(key);
-
+const removeDataSecure = async (key) => {
+  if (Platform.OS == "web") localStorage.removeItem(key);
+  else await SecureStore.deleteItemAsync(key);
+};
 const loadData = async (key) => await AsyncStorage.getItem(key);
 
-const loadDataSecure = async (key) => await SecureStore.getItemAsync(key);
+const loadDataSecure = async (key) => {
+  if (Platform.OS == "web") {
+    const value = localStorage.getItem(key);
+    if (!value) return null;
+    const uncryptedValue = CryptoJS.AES.decrypt(
+      value,
+      Constants.expoConfig.extra.SECRET_KEY_TO_ENCRYPT
+    ).toString(CryptoJS.enc.Utf8);
+    return uncryptedValue;
+  }
+  await SecureStore.getItemAsync(key);
+};
 
 const saveData = async (key, value) => await AsyncStorage.setItem(key, value);
 
-const saveDataSecure = async (key, value) =>
-  await SecureStore.setItemAsync(key, value);
+const saveDataSecure = async (key, value) => {
+  try {
+    if (Platform.OS == "web") {
+      const secretKey = Constants.expoConfig.extra.SECRET_KEY_TO_ENCRYPT;
+      const encryptedValue = CryptoJS.AES.encrypt(value, secretKey);
+      localStorage.setItem(key, encryptedValue.toString());
+    } else {
+      await SecureStore.setItemAsync(key, value);
+    }
+  } catch (error) {
+    console.error(`./globalVariables/saveDataSecure() => ${error}`);
+    await insertInTable(tableNameErrorLogs, {
+      appName: appName,
+      error: `./globalVariables/saveDataSecure() => ${error}`,
+      date: new Date().toLocaleString(),
+      component: `./globalVariables/saveDataSecure() catch (error) => SaveDataSecure: ${error}`,
+    });
+  }
+};
 
 const saveDataJSON = async (key, value) => {
   try {
@@ -81,6 +117,16 @@ const saveDataJSON = async (key, value) => {
 
 const saveDataSecureJSON = async (key, value) => {
   try {
+    if (Platform.OS == "web") {
+      const encryptedValue = CryptoJS.AES.encrypt(
+        JSON.stringify(value),
+        Constants.expoConfig.extra.SECRET_KEY_TO_ENCRYPT
+      );
+      return localStorage.setItem(
+        key,
+        encryptedValue.toString(CryptoJS.enc.Utf8)
+      );
+    }
     await SecureStore.setItemAsync(key, JSON.stringify(value));
     return true;
   } catch (error) {
@@ -97,21 +143,19 @@ const saveDataSecureJSON = async (key, value) => {
 /**
  * Interpolates a message string with variables.
  *
- * @param {string} message - The message string to interpolate.
- * @param {Array} variables - The variables to replace in the message string.
+ * @param {string} message - The message string to interpolate, must contain ${n} where n is the index inside arrTexts.
+ * @param {Array} arrTexts - The variables to replace in the message string.
  * @returns {string} - The interpolated message string.
  * @example
  * const message = `Hello ${0}` welcome to ${1}!";
  * const variables = ["Tester", "our app"];
- * const interpolatedMessage = interpolateMessage(message, variables);
- * console.log(interpolatedMessage); // Output: "Hello Teste, welcome to our app!"
+ * const interpolatedMessage = interpolateMessage(message, arrTexts);
+ * console.log(interpolatedMessage); // Output: "Hello Tester, welcome to our app!"
  */
-const interpolateMessage = (message, variables) => {
-  return String(message).replace(/\$\{(\d+)\}/g, (match, key) => {
-    const index = parseInt(key, 10);
-    return variables[index] !== undefined ? variables[index] : match;
-  });
-};
+const interpolateMessage = (message, arrTexts) =>
+  String(message).replace(/\$\{(\d+)\}/g, (match, key) =>
+    arrTexts[key] ? arrTexts[key] : match
+  );
 
 /**
  * Calculates the time difference in minutes from the given order time to the current time.
@@ -158,7 +202,9 @@ export {
   saveData,
   userImage,
   removeData,
+  appLogoImage,
   BOOL_LOG_OUT,
+  nameAppImage,
   hashPassword,
   saveDataJSON,
   widthDivided,
@@ -170,6 +216,7 @@ export {
   verifyPassword,
   saveDataSecure,
   loadDataSecure,
+  BOOL_ANIMATIONS,
   saltHashPassword,
   removeDataSecure,
   ROLE_STORAGE_KEY,

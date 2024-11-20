@@ -82,6 +82,21 @@ export const styleOwner = StyleSheet.create({
   containerEach: {
     flex: 1,
   },
+  header: {
+    backgroundColor: "#f4b000",
+    padding: 20,
+    alignItems: "center",
+  },
+  headerTitle: {
+    fontSize: 55,
+    fontWeight: "bold",
+    color: "#000",
+  },
+  sectionTitle: {
+    fontSize: 30,
+    textAlign: "center",
+    marginVertical: 10,
+  },
   row: {
     backgroundColor: Colors.backgroundMedium,
     marginVertical: 10,
@@ -91,7 +106,7 @@ export const styleOwner = StyleSheet.create({
     justifyContent: "space-evenly",
     alignItems: "center",
     paddingVertical: 20,
-    paddingHorizontal:5,
+    paddingHorizontal: 5,
   },
   textBefore: {
     fontSize: 20,
@@ -104,5 +119,24 @@ export const styleOwner = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+  },
+  buttonDeleteRestaurant: {
+    backgroundColor: "red",
+    padding: 10,
+    borderRadius: 10,
+    width: "90%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  textDeleteRestaurant: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  viewDeleteRestaurant: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 10,
   },
 });

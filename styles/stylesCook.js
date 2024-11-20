@@ -6,10 +6,27 @@ export default stylesCook = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FFFFFF",
     alignItems: "center",
-    paddingTop: 20,
+  },
+  header: {
+    backgroundColor: "#f4b000",
+    padding: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    top: 0,
+  },
+  headerTitle: {
+    fontSize: 55,
+    fontWeight: "bold",
+    color: "#000",
+  },
+  sectionTitle: {
+    fontSize: 30,
+    textAlign: "center",
+    marginVertical: 10,
   },
   scrollViewOrders: {
-    width: width,
+    width: "100%",
     padding: 20,
   },
   texts: {

@@ -3,11 +3,11 @@ import "dotenv/config"; // Esta línea carga el archivo .env en Node.js, pero so
 
 export default {
   expo: {
-    name: "Restaurant",
-    slug: "Restaurant",
+    name: "Order.by",
+    slug: "Order.by",
     version: "0.0.2",
     orientation: "portrait",
-    icon: "./assets/icon.png",
+    icon: "./assets/appLogoImage.png",
     userInterfaceStyle: "light",
     newArchEnabled: true,
     splash: {
@@ -20,18 +20,19 @@ export default {
     },
     android: {
       adaptiveIcon: {
-        foregroundImage: "./assets/adaptive-icon.png",
+        foregroundImage: "./assets/appLogoImage.png",
         backgroundColor: "#ffffff",
       },
-      package: "com.depremu.Restaurant",
+      package: "com.order.by",
     },
     web: {
-      favicon: "./assets/favicon.png",
+      favicon: "./assets/appLogoImage.png",
     },
     owner: "depremu",
     extra: {
       SUPABASE_URL: process.env.SUPABASE_URL,
       SUPABASE_KEY: process.env.SUPABASE_KEY,
+      SECRET_KEY_TO_ENCRYPT: process.env.SECRET_KEY_TO_ENCRYPT,
     },
     plugins: ["expo-localization", "expo-secure-store"],
   },
