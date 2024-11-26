@@ -206,7 +206,7 @@ const getDateToken = async (restaurantName, token) => {
     .single();
 
   if (error) {
-    console.error("Error getting date token:", error.message);
+    console.error("Error getting date token:", error);
     await insertInTable(tableNameErrorLogs, {
       appName: appName,
       error: error.message,
@@ -397,12 +397,17 @@ const updateTableByDict = async (restaurantName, token, dict) => {
   }
 };
 
-const updateTableByEq = async (restaurantName, dict, value, equal) => {
+const updateTableByEq = async (
+  restaurantName,
+  dict,
+  valueEqual,
+  equalColumn
+) => {
   try {
     const { error } = await supabase
       .from(restaurantName)
       .update(dict)
-      .eq(equal, value);
+      .eq(equalColumn, valueEqual);
     if (error) {
       await insertInTable(tableNameErrorLogs, {
         appName: appName,

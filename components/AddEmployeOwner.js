@@ -2,18 +2,17 @@ import {
   signIn,
   boolUserExist,
   insertInTable,
-  boolIsRestaurant,
 } from "../components/DataBaseConnection";
 import {
   View,
   Text,
-  Alert,
   Image,
   Pressable,
   TextInput,
   ScrollView,
   BackHandler,
   ActivityIndicator,
+  Platform,
 } from "react-native";
 import {
   appName,
@@ -21,14 +20,18 @@ import {
   hashPassword,
   checkLanguage,
   tableNameErrorLogs,
+  eyeNotLooking,
+  eyeLooking,
 } from "../components/globalVariables";
-import ErrorComponent from "../components/ErrorComponent";
 import Loading from "../components/Loading";
-import stylesMC from "../styles/stylesMainComponents";
+import { Video } from "expo-av";
 import languages from "../components/languages.json";
 import AlertModel from "../components/AlertModel";
-import { Picker } from "@react-native-picker/picker";
+import EachRectangle from "./EachRectangle";
+import ErrorComponent from "../components/ErrorComponent";
 import { useFocusEffect } from "@react-navigation/native";
+import { Picker, PickerIOS } from "@react-native-picker/picker";
+import { stylesSignUp as styles } from "../styles/stylesSignUp";
 import React, { useEffect, useState, useCallback } from "react";
 
 export default AddEmployeOwner = ({
@@ -40,6 +43,7 @@ export default AddEmployeOwner = ({
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
   const [user, setUser] = useState("");
+  const [onOk, setOnOk] = useState(() => () => setVisible(false));
   const [error, setError] = useState(false);
   const [title, setTitle] = React.useState("Titulo");
   const [OkText, setOkText] = React.useState("Ok");
@@ -47,21 +51,16 @@ export default AddEmployeOwner = ({
   const [message, setMessage] = React.useState("Mensaje");
   const [options, setOptions] = useState(null);
   const [visible, setVisible] = React.useState(false);
+  const [onCancel, setOnCancel] = useState(() => () => setVisible(false));
   const [password, setPassword] = useState("");
   const [errorText, setErrorText] = useState("");
   const [cancelText, setCancelText] = React.useState(null);
   const [thingsLoaded, setThingsLoaded] = useState(0);
   const [boolSigningIn, setBoolSigningIn] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [onOk, setOnOk] = useState(() => () => {
-    console.log("Modificar!!");
-    setVisible(false);
-  });
-  const [onCancel, setOnCancel] = useState(() => () => {
-    console.log("Modificar!!");
-    setVisible(false);
-  });
-  const passwordConfirmed = () => password == confirmPassword && password;
+  const [boolShowFirstPassword, setBoolShowFirstPassword] = useState(false);
+  const [boolShowSecondPassword, setBoolShowSecondPassword] = useState(false);
+  const passwordConfirmed = () => password == confirmPassword;
 
   const signingIn = async () => {
     try {
@@ -206,13 +205,19 @@ export default AddEmployeOwner = ({
         return true;
       };
 
-      BackHandler.addEventListener("hardwareBackPress", onBackPress);
+      BackHandler.addEventListener(
+        "hardwareBackPressAddEmployeOwner",
+        onBackPress
+      );
       return () =>
-        BackHandler.removeEventListener("hardwareBackPress", onBackPress);
-    }, [])
+        BackHandler.removeEventListener(
+          "hardwareBackPressAddEmployeOwner",
+          onBackPress
+        );
+    }, [loading])
   );
 
-  if (loading)
+  if (loading) {
     return (
       <View style={{ flex: 1 }}>
         <AlertModel
@@ -228,7 +233,9 @@ export default AddEmployeOwner = ({
         <Loading boolLoadingText={true} boolActivityIndicator={true} />
       </View>
     );
-  if (error)
+  }
+
+  if (error) {
     return (
       <ErrorComponent
         navigation={navigation}
@@ -236,93 +243,177 @@ export default AddEmployeOwner = ({
         error={errorText}
       />
     );
+  }
 
   return (
-    <ScrollView style={stylesMC.scrollView}>
+    <ScrollView
+      style={styles.scrollView}
+      contentContainerStyle={{ flexGrow: 1 }}
+    >
+      {/* style={styles.scrollView} */}
       <AlertModel
-        visible={visible}
-        title={title}
-        message={message}
         onOk={onOk}
-        onCancel={onCancel}
+        title={title}
         OkText={OkText}
+        visible={visible}
+        message={message}
+        onCancel={onCancel}
         cancelText={cancelText}
       />
-      <View style={stylesMC.container}>
-        <Image source={userImage} style={stylesMC.imageUser} />
+      <View style={styles.container}>
+        <EachRectangle
+          texts={[restaurantName, role]}
+          onPress={returnToBackPage}
+          imageVariable={userImage}
+        />
 
-        <Text style={stylesMC.text}>{translations.addNewEmploye}</Text>
+        <Text style={styles.text}>{translations.addNewEmploye}</Text>
 
-        <View style={stylesMC.formLogin}>
-          <View style={stylesMC.user}>
-            <Text style={stylesMC.textUser}>{translations.TextName}</Text>
+        <View style={styles.formLogin}>
+          <View style={styles.user}>
+            <Text style={styles.textUser}>{translations.TextName}</Text>
             <TextInput
               placeholder={translations.TextName}
               onChangeText={(value) => setName(value)}
-              style={stylesMC.textInputUser}
+              style={styles.textInputUser}
               maxLength={100}
             />
           </View>
 
-          <View style={stylesMC.user}>
-            <Text style={stylesMC.textUser}>{translations.TextUser}</Text>
+          <View style={styles.user}>
+            <Text style={styles.textUser}>{translations.TextUser}</Text>
             <TextInput
               placeholder={translations.TextUser}
               onChangeText={(value) => setUser(value)}
-              style={stylesMC.textInputUser}
+              style={styles.textInputUser}
               maxLength={50}
             />
           </View>
 
-          <View style={stylesMC.pass}>
-            <Text style={stylesMC.textPass}>{translations.TextPassword}</Text>
-            <TextInput
-              placeholder={translations.TextPassword}
-              style={stylesMC.textInputPass}
-              secureTextEntry={true}
-              onChangeText={(value) => setPassword(value)}
-              maxLength={100}
-            />
+          <View style={styles.pass}>
+            <Text style={styles.textPass}>{translations.TextPassword}</Text>
+            <View style={{ flexDirection: "row" }}>
+              <TextInput
+                placeholder={translations.examplePassword}
+                style={styles.textInputPass}
+                secureTextEntry={!boolShowFirstPassword}
+                onChangeText={(value) => setPassword(value)}
+                maxLength={100}
+              />
+              <Pressable
+                style={styles.buttonShowPassword}
+                onPress={() => setBoolShowFirstPassword((prev) => !prev)}
+              >
+                {!boolShowFirstPassword ? (
+                  <Image
+                    source={eyeNotLooking}
+                    style={styles.imageShowPassword}
+                  />
+                ) : (
+                  <Video
+                    source={eyeLooking}
+                    style={{
+                      width: 40,
+                      height: 40,
+                      right: -5,
+                    }}
+                    shouldPlay
+                    isLooping
+                    resizeMode="cover"
+                    rate={0.8}
+                  />
+                )}
+              </Pressable>
+            </View>
           </View>
 
-          <View style={stylesMC.pass}>
-            <Text style={stylesMC.textPass}>
+          <View style={styles.pass}>
+            <Text style={styles.textPass}>
               {translations.TextConfirmPassword}
             </Text>
-            <TextInput
-              placeholder={translations.TextConfirmPassword}
-              style={stylesMC.textInputPass}
-              secureTextEntry={true}
-              onChangeText={(value) => setConfirmPassword(value)}
-              maxLength={100}
-            />
-          </View>
-
-          <Text style={stylesMC.roles}>{translations.TextRoles}</Text>
-
-          <View style={stylesMC.pickerContainer}>
-            {options != null && (
-              <Picker
-                selectedValue={role}
-                onValueChange={(itemValue) => setRole(itemValue)}
-                style={stylesMC.picker}
+            <View style={{ flexDirection: "row" }}>
+              <TextInput
+                placeholder={translations.examplePassword}
+                style={styles.textInputPass}
+                secureTextEntry={!boolShowSecondPassword}
+                onChangeText={(value) => setConfirmPassword(value)}
+                maxLength={100}
+              />
+              <Pressable
+                style={styles.buttonShowPassword}
+                onPress={() => setBoolShowSecondPassword((prev) => !prev)}
               >
-                {options.map(
-                  (option, index) =>
-                    option != translations.options[2] && (
-                      <Picker.Item key={index} label={option} value={option} />
-                    )
+                {!boolShowSecondPassword ? (
+                  <Image
+                    source={eyeNotLooking}
+                    style={styles.imageShowPassword}
+                  />
+                ) : (
+                  <Video
+                    source={eyeLooking}
+                    style={{
+                      width: 40,
+                      height: 40,
+                      right: -5,
+                    }}
+                    shouldPlay
+                    isLooping
+                    resizeMode="cover"
+                    rate={0.8}
+                  />
                 )}
-              </Picker>
-            )}
+              </Pressable>
+            </View>
           </View>
 
-          <View style={stylesMC.newAccountView} />
+          <Text style={styles.roles}>{translations.TextRoles}</Text>
+
+          {options != null && (
+            <View style={styles.pickerContainer}>
+              {Platform.OS != "ios" ? (
+                <Picker
+                  selectedValue={role}
+                  onValueChange={(itemValue) => setRole(itemValue)}
+                  style={styles.picker}
+                >
+                  {options.map(
+                    (option, index) =>
+                      option != translations.options[2] && (
+                        <Picker.Item
+                          key={index}
+                          label={option}
+                          value={option}
+                        />
+                      )
+                  )}
+                </Picker>
+              ) : (
+                <PickerIOS
+                  selectedValue={role}
+                  onValueChange={(itemValue) => setRole(itemValue)}
+                  style={styles.pickerIOS}
+                >
+                  {options.map(
+                    (option, index) =>
+                      option != translations.options[2] && (
+                        <PickerIOS.Item
+                          key={index}
+                          label={option}
+                          value={option}
+                        />
+                      )
+                  )}
+                </PickerIOS>
+              )}
+            </View>
+          )}
+
+          <View style={styles.newAccountView} />
 
           {passwordConfirmed() ? (
             <Pressable
               style={({ pressed }) => [
-                stylesMC.signInButton,
+                styles.signInButton,
                 { opacity: pressed ? 0.5 : 1 },
               ]}
               onPress={() => checkSignin()}
@@ -330,14 +421,14 @@ export default AddEmployeOwner = ({
               {boolSigningIn ? (
                 <ActivityIndicator size={25} />
               ) : (
-                <Text style={stylesMC.signInText}>
+                <Text style={styles.signInText}>
                   {translations.addNewEmploye}
                 </Text>
               )}
             </Pressable>
           ) : (
-            <View style={[stylesMC.signInButton, { backgroundColor: "gray" }]}>
-              <Text style={stylesMC.signInText}>
+            <View style={[styles.signInButton, { backgroundColor: "gray" }]}>
+              <Text style={styles.signInText}>
                 {translations.addNewEmploye}
               </Text>
             </View>

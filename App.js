@@ -18,6 +18,7 @@ import {
   BOOL_ANIMATIONS,
   FIRST_TIME_LOADING_APP,
 } from "./components/globalVariables";
+import OwnerB from "./Screens/OwnerBackup";
 
 export default App = () => {
   const Stack = createNativeStackNavigator();
@@ -42,7 +43,7 @@ export default App = () => {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName={isFirstTime ? "Cook" : "Login"}>
+      <Stack.Navigator initialRouteName={isFirstTime ? "Login" : "Login"}>
         {/*//? Para cada vista se tiene que agregar aqui para mostrarse mediante un boton */}
         <Stack.Screen
           name="Welcome"

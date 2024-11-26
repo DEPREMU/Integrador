@@ -1,4 +1,10 @@
 import {
+  logIn,
+  getName,
+  getDateToken,
+  insertInTable,
+} from "../components/DataBaseConnection";
+import {
   View,
   Text,
   Alert,
@@ -6,20 +12,20 @@ import {
   Switch,
   TextInput,
   Pressable,
+  ScrollView,
   BackHandler,
   ActivityIndicator,
 } from "react-native";
-import stylesMC from "../styles/stylesMainComponents";
-import React, { useEffect, useState } from "react";
 import {
   appName,
-  loadData,
   saveData,
   userImage,
-  removeData,
+  eyeLooking,
+  eyeNotLooking,
   checkLanguage,
   saveDataSecure,
   loadDataSecure,
+  BOOL_ANIMATIONS,
   removeDataSecure,
   ROLE_STORAGE_KEY,
   TOKEN_KEY_STORAGE,
@@ -27,31 +33,26 @@ import {
   tableNameErrorLogs,
   RESTAURANT_NAME_KEY_STORAGE,
 } from "../components/globalVariables";
-import languages from "../components/languages.json";
-import {
-  logIn,
-  getName,
-  getRole,
-  getDateToken,
-  insertInTable,
-  updateTableByDict,
-} from "../components/DataBaseConnection";
-import ErrorComponent from "../components/ErrorComponent";
 import Loading from "../components/Loading";
+import languages from "../components/languages.json";
+import { Video } from "expo-av";
 import AlertModel from "../components/AlertModel";
+import ErrorComponent from "../components/ErrorComponent";
 import { useFocusEffect } from "@react-navigation/native";
+import { stylesLogin as styles } from "../styles/stylesLogIn";
+import React, { useCallback, useEffect, useState } from "react";
 
 const Login = ({ navigation }) => {
   const thingsToLoad = 2;
   const [user, setUser] = useState("");
-  const [onOk, setOnOk] = useState(() => () => {});
+  const [onOk, setOnOk] = useState(() => () => setVisible(false));
   const [error, setError] = useState(null);
   const [title, setTitle] = useState("Title");
   const [OkText, setOkText] = useState("Ok");
   const [message, setMessage] = useState("Message");
   const [loading, setLoading] = useState(true);
   const [visible, setVisible] = useState(false);
-  const [onCancel, setOnCancel] = useState(() => () => {});
+  const [onCancel, setOnCancel] = useState(() => () => setVisible(false));
   const [language, setLanguage] = useState(null);
   const [password, setPassword] = useState("");
   const [errorText, setErrorText] = useState(null);
@@ -60,12 +61,13 @@ const Login = ({ navigation }) => {
   const [thingsLoaded, setThingsLoaded] = useState(0);
   const [boolLogginIn, setBoolLoggingIn] = useState(false);
   const [restaurantName, setRestaurantName] = useState("");
+  const [boolShowPassword, setBoolShowPassword] = useState(false);
   const getTranslations = () => languages[language] || languages.en;
 
   const loggingIn = async () => {
     const translations = getTranslations();
     setBoolLoggingIn(true);
-    if (password == "" || user == "" || restaurantName == "") {
+    if (!password || !user || !restaurantName) {
       setTitle(translations.error);
       setMessage(translations.pleaseFillFields);
       setOnOk(() => () => setVisible(false));
@@ -87,6 +89,7 @@ const Login = ({ navigation }) => {
 
         await saveDataSecure(RESTAURANT_NAME_KEY_STORAGE, restaurantName);
         await saveDataSecure(ROLE_STORAGE_KEY, data.role);
+        await saveData(BOOL_ANIMATIONS, "true");
 
         setTitle(interpolateMessage(translations.welcome, [data.name]));
         setMessage(translations.logInSuccess);
@@ -138,13 +141,13 @@ const Login = ({ navigation }) => {
         RESTAURANT_NAME_KEY_STORAGE
       );
 
-      if (!(dataToken && dataRestaurantName))
+      if (!dataToken || !dataRestaurantName)
         return setThingsLoaded((prev) => prev + 1);
 
       const { dateToken } = await getDateToken(dataRestaurantName, dataToken);
       const dateOfToken = new Date(dateToken);
       const timeDifference = new Date() - dateOfToken;
-      const daysDifference = timeDifference / (1000 * 3600 * 24); //? ms, s, h => days
+      const daysDifference = timeDifference / (1000 * 3600 * 24); //? (ms * s * h) => days
 
       if (!dateToken || daysDifference > 30) {
         await removeDataSecure(TOKEN_KEY_STORAGE);
@@ -186,7 +189,7 @@ const Login = ({ navigation }) => {
   }, [thingsLoaded, loading]);
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       const translations = getTranslations();
       const onBackPress = async () => {
         Alert.alert(translations.exitText, translations.exitAppConfirmation, [
@@ -207,7 +210,7 @@ const Login = ({ navigation }) => {
     }, [language])
   );
 
-  if (loading)
+  if (loading) {
     return (
       <View style={{ flex: 1 }}>
         <AlertModel
@@ -219,15 +222,10 @@ const Login = ({ navigation }) => {
           OkText={OkText}
           cancelText={cancelText}
         />
-        <Loading
-          progress={
-            thingsLoaded / thingsToLoad > 1 ? 1 : thingsLoaded / thingsToLoad
-          }
-        />
+        <Loading progress={thingsLoaded / thingsToLoad} />
       </View>
     );
-
-  if (error)
+  } else if (error) {
     return (
       <ErrorComponent
         navigation={navigation}
@@ -237,100 +235,134 @@ const Login = ({ navigation }) => {
         }
       />
     );
+  }
 
   const translations = getTranslations();
 
   return (
-    <View style={stylesMC.container}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{
+        flexGrow: 1,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
       <AlertModel
-        visible={visible}
-        title={title}
-        message={message}
         onOk={onOk}
-        onCancel={onCancel}
+        title={title}
         OkText={OkText}
+        visible={visible}
+        message={message}
+        onCancel={onCancel}
         cancelText={cancelText}
       />
-      <Image source={userImage} style={stylesMC.imageUser} />
-      <Text style={stylesMC.text}>{translations.logIn}</Text>
+      <Image source={userImage} style={styles.imageUser} />
 
-      <View style={stylesMC.formLogin}>
-        <View style={stylesMC.user}>
-          <Text style={stylesMC.textUser}>
-            {translations.TextRestaurantName}
-          </Text>
+      <View style={{ justifyContent: "center", alignItems: "center" }}>
+        <Text style={styles.text}>{translations.logIn}</Text>
 
-          <TextInput
-            placeholder={translations.TextRestaurantName}
-            onChangeText={(value) => setRestaurantName(value)}
-            style={stylesMC.textInputUser}
-          />
-        </View>
+        <View style={styles.formLogin}>
+          <View style={styles.user}>
+            <Text style={styles.textUser}>
+              {translations.TextRestaurantName}
+            </Text>
 
-        <View style={stylesMC.user}>
-          <Text style={stylesMC.textUser}>{translations.TextUser}</Text>
+            <TextInput
+              placeholder={translations.TextRestaurantName}
+              onChangeText={(value) => setRestaurantName(value)}
+              style={styles.textInputUser}
+            />
+          </View>
 
-          <TextInput
-            placeholder={translations.TextUser}
-            onChangeText={(value) => setUser(value)}
-            style={stylesMC.textInputUser}
-          />
-        </View>
+          <View style={styles.user}>
+            <Text style={styles.textUser}>{translations.TextUser}</Text>
 
-        <View style={stylesMC.pass}>
-          <Text style={stylesMC.textPass}>{translations.TextPassword}</Text>
+            <TextInput
+              placeholder={translations.TextUser}
+              onChangeText={(value) => setUser(value)}
+              style={styles.textInputUser}
+            />
+          </View>
 
-          <TextInput
-            placeholder={translations.TextPassword}
-            style={stylesMC.textInputPass}
-            secureTextEntry={true}
-            onChangeText={(value) => setPassword(value)}
-          />
-        </View>
+          <View style={styles.pass}>
+            <Text style={styles.textPass}>{translations.TextPassword}</Text>
 
-        <Pressable
-          style={({ pressed }) => [
-            stylesMC.ViewRemeberMe,
-            { opacity: pressed ? 0.5 : 1 },
-          ]}
-          onPress={() => setRememberMe((prev) => !prev)}
-        >
-          <Text style={stylesMC.rememberMeText}>{translations.rememberMe}</Text>
-
-          <Switch
-            value={rememberMe}
-            onChange={() => setRememberMe((prev) => !prev)}
-          />
-        </Pressable>
-
-        <View style={stylesMC.newAccountView}>
-          <Text style={stylesMC.newAccountText}>
-            {translations.LogInNewAccount}
-          </Text>
+            <View style={{ flexDirection: "row" }}>
+              <TextInput
+                placeholder={translations.examplePassword}
+                style={styles.textInputPass}
+                secureTextEntry={!boolShowPassword}
+                onChangeText={(value) => setPassword(value)}
+                maxLength={100}
+              />
+              <Pressable
+                style={styles.buttonShowPassword}
+                onPress={() => setBoolShowPassword((prev) => !prev)}
+              >
+                {!boolShowPassword ? (
+                  <Image
+                    source={eyeNotLooking}
+                    style={styles.imageShowPassword}
+                  />
+                ) : (
+                  <Video
+                    source={eyeLooking}
+                    style={styles.videoShowPassword}
+                    shouldPlay
+                    isLooping
+                    resizeMode="cover"
+                    rate={0.8}
+                  />
+                )}
+              </Pressable>
+            </View>
+          </View>
 
           <Pressable
-            onPress={() => navigation.replace("Signin")}
-            style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}
+            style={({ pressed }) => [
+              styles.buttonRemeberMe,
+              { opacity: pressed ? 0.9 : 1 },
+            ]}
+            onPress={() => setRememberMe((prev) => !prev)}
           >
-            <Text style={stylesMC.textSignin}>{translations.signIn}</Text>
+            <Text style={styles.rememberMeText}>{translations.rememberMe}</Text>
+
+            <Switch
+              value={rememberMe}
+              onChange={() => setRememberMe((prev) => !prev)}
+            />
+          </Pressable>
+
+          <View style={styles.newAccountView}>
+            <Text style={styles.newAccountText}>
+              {translations.LogInNewAccount}
+            </Text>
+
+            <Pressable
+              onPress={() => navigation.replace("Signin")}
+              style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}
+            >
+              <Text style={styles.textSignin}>{translations.signIn}</Text>
+            </Pressable>
+          </View>
+
+          <Pressable
+            style={({ pressed }) => [
+              styles.logInButton,
+              { opacity: pressed ? 0.5 : 1 },
+            ]}
+            onPress={() => loggingIn()}
+          >
+            {boolLogginIn ? (
+              <ActivityIndicator size={25} />
+            ) : (
+              <Text style={styles.logInText}>{translations.logIn}</Text>
+            )}
           </Pressable>
         </View>
-
-        <Pressable
-          style={({ pressed }) => [
-            stylesMC.signInButton,
-            { opacity: pressed ? 0.5 : 1 },
-          ]}
-          onPress={() => loggingIn()}
-        >
-          {boolLogginIn ? (
-            <ActivityIndicator size={25} />
-          ) : (
-            <Text style={stylesMC.signInText}>{translations.logIn}</Text>
-          )}
-        </Pressable>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

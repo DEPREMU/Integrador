@@ -1,4 +1,4 @@
-import EachCuadro from "./EachCuadro";
+import EachRectangle from "./EachRectangle";
 import { useFocusEffect } from "@react-navigation/native";
 import React, { useCallback, useEffect, useState } from "react";
 import {
@@ -12,11 +12,11 @@ import {
 import { getAllDataFromTable } from "./DataBaseConnection";
 import TableOfEmployes from "./TableEmployes";
 import AddEmployeOwner from "./AddEmployeOwner";
+import { userImage } from "./globalVariables";
 
 export default EmployesManagement = ({
   returnToMP,
   translations,
-  onPress,
   restaurantName,
 }) => {
   const [employes, setEmployes] = useState(null);
@@ -29,10 +29,16 @@ export default EmployesManagement = ({
         return true;
       };
 
-      BackHandler.addEventListener("hardwareBackPress", onBackPress);
+      BackHandler.addEventListener(
+        "hardwareBackPressEmployesManagement",
+        onBackPress
+      );
       return () =>
-        BackHandler.removeEventListener("hardwareBackPress", onBackPress);
-    }, [])
+        BackHandler.removeEventListener(
+          "hardwareBackPressEmployesManagement",
+          onBackPress
+        );
+    }, [returnToMP])
   );
 
   const handleAddEmploye = () => setBoolAddEmploye((prev) => !prev);
@@ -46,7 +52,7 @@ export default EmployesManagement = ({
     loadEmployes();
   }, []);
 
-  if (!translations)
+  if (!translations) {
     return (
       <Text
         style={{
@@ -59,6 +65,7 @@ export default EmployesManagement = ({
         Error with args
       </Text>
     );
+  }
 
   if (boolAddEmploye)
     return (
@@ -71,9 +78,10 @@ export default EmployesManagement = ({
 
   return (
     <View style={styles.container}>
-      <EachCuadro
+      <EachRectangle
         texts={[restaurantName, translations.ownerText]}
         onPress={returnToMP}
+        imageVariable={userImage}
       />
       <View style={styles.containerEmployesManagement}>
         <Text style={[styles.textsTitle]}>
@@ -81,22 +89,26 @@ export default EmployesManagement = ({
         </Text>
 
         <View style={styles.employesTable}>
-          <Text style={styles.texts}>{translations.tableOfEmployes}</Text>
+          <Text style={styles.textsTableOfEmployes}>
+            {translations.tableOfEmployes}
+          </Text>
 
           <TableOfEmployes employes={employes} translations={translations} />
 
           <Pressable
-            onPress={() => {
-              handleAddEmploye();
-              console.log("Add employe");
-            }}
-            style={styles.button}
+            onPress={handleAddEmploye}
+            style={({ pressed }) => [
+              styles.buttonAddEmploye,
+              { opacity: pressed ? 0.7 : 1 },
+            ]}
           >
-            <Text style={styles.texts}>{translations.addEmploye}</Text>
+            <Text style={styles.textButtonAddEmploye}>
+              {translations.addEmploye}
+            </Text>
           </Pressable>
         </View>
 
-        <View style={styles.employesRoles}></View>
+        {/* //! Verify whats next <View style={styles.employesRoles}></View> */}
       </View>
     </View>
   );
@@ -105,57 +117,61 @@ export default EmployesManagement = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#F9F9F9",
+    paddingHorizontal: 20,
+    paddingTop: 30,
   },
   containerEmployesManagement: {
-    flex: 1,
-    justifyContent: "space-around",
-    alignItems: "center",
-    backgroundColor: "blueviolet",
-    borderRadius: 20,
-    marginVertical: 5,
-    marginHorizontal: 10,
-    padding: 5,
-  },
-  texts: {
-    fontSize: 20,
-    fontWeight: "bold",
+    flex: 6,
+    marginTop: 20,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 5,
   },
   textsTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "bold",
-    color: "white",
-    margin: 10,
-  },
-  containerOfLeftSide: {
-    flex: 2 / 3,
-    padding: 5,
-  },
-  scrollView: {
-    flex: 1,
+    color: "#333",
+    marginBottom: 15,
   },
   employesTable: {
-    backgroundColor: "white",
-    width: "90%",
+    marginTop: 10,
     flex: 1,
-    borderRadius: 20,
-    margin: 5,
-    padding: 5,
+  },
+  texts: {
+    fontSize: 16,
+    color: "#555",
+  },
+  buttonAddEmploye: {
+    marginTop: 15,
+    backgroundColor: "#6F42C1",
+    paddingVertical: 12,
+    borderRadius: 8,
     alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#007BFF",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   employesRoles: {
-    flex: 1,
-    backgroundColor: "white",
-    width: "90%",
-    borderRadius: 20,
-    margin: 5,
-    padding: 5,
+    marginTop: 20,
   },
-  button: {
-    backgroundColor: "blueviolet",
-    width: "90%",
-    height: 50,
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
+  textsTableOfEmployes: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 10,
+  },
+  textButtonAddEmploye: {
+    color: "#FFF",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });

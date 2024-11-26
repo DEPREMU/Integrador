@@ -4,36 +4,33 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 import {
-  Text,
-  View,
-  Alert,
-  Pressable,
-  ScrollView,
-  BackHandler,
-} from "react-native";
-import {
   width,
-  appName,
+  IDsImage,
+  loadData,
+  userImage,
+  exitImage,
+  cutleryImage,
+  settingsImage,
+  registerImage,
   checkLanguage,
   loadDataSecure,
-  tableNameErrorLogs,
-  RESTAURANT_NAME_KEY_STORAGE,
-  loadData,
   BOOL_ANIMATIONS,
+  removeDataSecure,
+  ROLE_STORAGE_KEY,
+  TOKEN_KEY_STORAGE,
+  RESTAURANT_NAME_KEY_STORAGE,
 } from "../components/globalVariables";
 import Menu from "./Menu";
 import Sales from "../components/Sales";
-import LogOut from "../components/LogOut";
 import Loading from "../components/Loading";
 import languages from "../components/languages.json";
 import AlertModel from "../components/AlertModel";
-import EachCuadro from "../components/EachCuadro";
+import EachRectangle from "../components/EachRectangle";
 import ErrorComponent from "../components/ErrorComponent";
-import DeleteRestaurant from "../components/DeleteRestaurant";
-import { insertInTable } from "../components/DataBaseConnection";
 import { useFocusEffect } from "@react-navigation/native";
 import EmployesManagement from "../components/EmployesManagement";
 import { styleOwner as styles } from "../styles/stylesScreenOwner";
+import { Alert, ScrollView, BackHandler } from "react-native";
 import React, { useEffect, useState, useCallback } from "react";
 
 const Owner = ({ navigation }) => {
@@ -56,28 +53,8 @@ const Owner = ({ navigation }) => {
   const [thingsLoaded, setThingsLoaded] = useState(0);
   const [boolAnimations, setBoolAnimations] = useState(null);
   const [restaurantName, setRestaurantName] = useState();
-  const [boolDeleteRestaurant, setBoolDeleteRestaurant] = useState(false);
 
   const getTranslations = () => languages[lang] || languages.en;
-  const onCancelDeleteRestaurant = () => setBoolDeleteRestaurant(false);
-
-  //? Confirm delete restaurant to show page with the delete
-  const confirmDeleteRestaurant = () => {
-    const translations = getTranslations();
-    setVisible(true);
-    setTitle(translations.deleteRestaurant);
-    setMessage(translations.deleteRestaurantConfirmation);
-    setOnOk(() => () => {
-      setVisible(false);
-      setBoolDeleteRestaurant(true);
-    });
-    setOnCancel(() => () => setVisible(false));
-    setOkText(translations.deleteRestaurant);
-    setCancelText(translations.cancel);
-    setOnCancel(() => () => {
-      setVisible(false);
-    });
-  };
 
   //? Animate to show page
   const animateValueTo = (page) => {
@@ -96,7 +73,41 @@ const Owner = ({ navigation }) => {
       });
   };
 
-  //? Load data
+  const logOut = async (navigation) => {
+    try {
+      await removeDataSecure(ROLE_STORAGE_KEY);
+      await removeDataSecure(TOKEN_KEY_STORAGE);
+      await removeDataSecure(RESTAURANT_NAME_KEY_STORAGE);
+      setOnOk(() => () => navigation.replace("Login"));
+      setCancelText(null);
+      setMessage(translations.logOutSeeYouSoon);
+      setTitle(translations.logOutSuccess);
+      setOkText(translations.ok);
+      setVisible(true);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const askLogOut = (navigation) => {
+    try {
+      const translations = getTranslations();
+      setTitle(translations.logOut);
+      setMessage(translations.askLogOut);
+      setOkText(translations.logOut);
+      setCancelText(translations.cancel);
+      setOnOk(() => async () => {
+        setVisible(false);
+        await logOut(navigation);
+      });
+      setOnCancel(() => () => setVisible(false));
+      setVisible(true);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  //? Load all data
   useEffect(() => {
     const loadLanguage = async () => {
       setLang(await checkLanguage());
@@ -105,26 +116,14 @@ const Owner = ({ navigation }) => {
 
     const loadAnimation = async () => {
       const bool = await loadData(BOOL_ANIMATIONS);
-      setBoolAnimations(JSON.parse(bool));
+      setBoolAnimations(bool ? true : false);
       if (!bool) animatedValue.value = 0;
     };
 
     const loadRestaurantName = async () => {
-      try {
-        const data = await loadDataSecure(RESTAURANT_NAME_KEY_STORAGE);
-        setRestaurantName(data);
-      } catch (error) {
-        setError(true);
-        setErrorText(`Error loading restaurant name ${error}`);
-        await insertInTable(tableNameErrorLogs, {
-          appName: appName,
-          error: `Error loading restaurant name ${error}`,
-          date: new Date().toLocaleString(),
-          component: `./Owner/useEffect/loadRestaurantName() catch (error) => Error loading restaurant name: ${error}`,
-        });
-      } finally {
-        setThingsLoaded((prev) => prev + 1);
-      }
+      const data = await loadDataSecure(RESTAURANT_NAME_KEY_STORAGE);
+      setRestaurantName(data);
+      setThingsLoaded((prev) => prev + 1);
     };
 
     loadLanguage();
@@ -269,18 +268,6 @@ const Owner = ({ navigation }) => {
 
   const translations = getTranslations();
 
-  if (boolDeleteRestaurant) {
-    return (
-      <Animated.View style={{ flex: 1, left: animatedValue }}>
-        <DeleteRestaurant
-          translations={translations}
-          navigation={navigation}
-          onCancel={onCancelDeleteRestaurant}
-          restaurantName={restaurantName}
-        />
-      </Animated.View>
-    );
-  }
   if (showPage == "EM") {
     return (
       <Animated.View style={{ flex: 1, left: animatedValue }}>
@@ -326,43 +313,48 @@ const Owner = ({ navigation }) => {
         cancelText={cancelText}
       />
 
-      <ScrollView style={styles.scrollView}>
-        <EachCuadro
+      <ScrollView
+        contentContainerStyle={{
+          flex: 1,
+          paddingVertical: 20,
+          justifyContent: "flex-start",
+        }}
+      >
+        <EachRectangle
           texts={[restaurantName, translations.ownerText]}
           onPress={() => setEasterEgg((prev) => prev + 1)}
+          imageVariable={userImage}
         />
 
-        <EachCuadro
+        <EachRectangle
           texts={[translations.weeklySales]}
           onPress={() => animateValueTo("WS")}
+          imageVariable={registerImage}
         />
 
-        <EachCuadro
+        <EachRectangle
           texts={[translations.employesManagement]}
           onPress={() => animateValueTo("EM")}
+          imageVariable={IDsImage}
         />
 
-        <EachCuadro
+        <EachRectangle
           texts={[translations.restaurantManagement]}
           onPress={() => animateValueTo("RM")}
+          imageVariable={cutleryImage}
         />
 
-        <EachCuadro
+        <EachRectangle
           texts={[translations.extraOptions]}
           onPress={() => navigation.navigate("Settings")}
+          imageVariable={settingsImage}
         />
 
-        <View style={styles.viewDeleteRestaurant}>
-          <Pressable
-            style={styles.buttonDeleteRestaurant}
-            onPress={confirmDeleteRestaurant}
-          >
-            <Text style={styles.textDeleteRestaurant}>
-              {translations.deleteRestaurant}
-            </Text>
-          </Pressable>
-        </View>
-        <LogOut top={30} navigation={navigation} translations={translations} />
+        <EachRectangle
+          texts={[translations.logOut]}
+          onPress={() => askLogOut(navigation)}
+          imageVariable={exitImage}
+        />
       </ScrollView>
     </Animated.View>
   );

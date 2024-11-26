@@ -120,23 +120,4 @@ export const styleOwner = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
-  buttonDeleteRestaurant: {
-    backgroundColor: "red",
-    padding: 10,
-    borderRadius: 10,
-    width: "90%",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  textDeleteRestaurant: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  viewDeleteRestaurant: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 10,
-  },
 });

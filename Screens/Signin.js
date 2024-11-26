@@ -1,7 +1,6 @@
 import {
   signIn,
   getName,
-  getRole,
   getDateToken,
   boolUserExist,
   insertInTable,
@@ -12,6 +11,7 @@ import {
   Text,
   Alert,
   Image,
+  Platform,
   Pressable,
   TextInput,
   ScrollView,
@@ -20,59 +20,54 @@ import {
 } from "react-native";
 import {
   appName,
-  loadData,
   userImage,
-  removeData,
   hashPassword,
   checkLanguage,
+  loadDataSecure,
+  removeDataSecure,
   TOKEN_KEY_STORAGE,
   interpolateMessage,
   tableNameErrorLogs,
-  LANGUAGE_KEY_STORAGE,
   RESTAURANT_NAME_KEY_STORAGE,
-  loadDataSecure,
-  removeDataSecure,
+  ROLE_STORAGE_KEY,
+  eyeNotLooking,
+  eyeLooking,
 } from "../components/globalVariables";
-import ErrorComponent from "../components/ErrorComponent";
 import Loading from "../components/Loading";
-import stylesMC from "../styles/stylesMainComponents";
 import languages from "../components/languages.json";
 import AlertModel from "../components/AlertModel";
-import { Picker } from "@react-native-picker/picker";
+import ErrorComponent from "../components/ErrorComponent";
 import { useFocusEffect } from "@react-navigation/native";
+import { Picker, PickerIOS } from "@react-native-picker/picker";
+import { stylesSignUp as styles } from "../styles/stylesSignUp";
 import React, { useEffect, useState, useCallback } from "react";
+import { Video } from "expo-av";
 
 const Signin = ({ navigation }) => {
   const thingsToLoad = 3;
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
   const [user, setUser] = useState("");
+  const [onOk, setOnOk] = useState(() => () => setVisible(false));
   const [error, setError] = useState(false);
-  const [title, setTitle] = React.useState("Titulo");
-  const [OkText, setOkText] = React.useState("Ok");
+  const [title, setTitle] = useState("Titulo");
+  const [OkText, setOkText] = useState("Ok");
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = React.useState("Mensaje");
+  const [message, setMessage] = useState("Mensaje");
   const [options, setOptions] = useState(null);
-  const [visible, setVisible] = React.useState(false);
+  const [visible, setVisible] = useState(false);
+  const [onCancel, setOnCancel] = useState(() => () => setVisible(false));
   const [language, setLanguage] = useState(null);
   const [password, setPassword] = useState("");
   const [errorText, setErrorText] = useState("");
-  const [cancelText, setCancelText] = React.useState(null);
-  const [loadingText, setLoadingText] = useState("Loading.");
+  const [cancelText, setCancelText] = useState(null);
   const [thingsLoaded, setThingsLoaded] = useState(0);
   const [boolSigningIn, setBoolSigningIn] = useState(false);
   const [restaurantName, setRestaurantName] = useState("");
+  const [boolShowPassword, setBoolShowPassword] = useState(false);
   const getTranslations = () => languages[language] || languages.en;
   const checkRestaurantName = (value) =>
-    value.indexOf(" ") === -1 ? setRestaurantName(value) : null;
-  const [onOk, setOnOk] = useState(() => () => {
-    console.log("Modificar!!");
-    setVisible(false);
-  });
-  const [onCancel, setOnCancel] = useState(() => () => {
-    console.log("Modificar!!");
-    setVisible(false);
-  });
+    value.indexOf(" ") == -1 ? setRestaurantName(value) : null;
 
   const signingIn = async () => {
     try {
@@ -246,7 +241,9 @@ const Signin = ({ navigation }) => {
       const lang = await checkLanguage();
       const translations = languages[lang];
       const dataToken = await loadDataSecure(TOKEN_KEY_STORAGE);
-      const dataRestaurantName = await loadDataSecure(RESTAURANT_NAME_KEY_STORAGE);
+      const dataRestaurantName = await loadDataSecure(
+        RESTAURANT_NAME_KEY_STORAGE
+      );
 
       if (dataToken && dataRestaurantName) {
         const { dateToken } = await getDateToken(dataRestaurantName, dataToken);
@@ -266,24 +263,22 @@ const Signin = ({ navigation }) => {
         }
 
         const { name } = await getName(dataRestaurantName, dataToken);
-        const { role, error } = await getRole(dataRestaurantName, dataToken);
+        const role = await loadDataSecure(ROLE_STORAGE_KEY);
         if (role) {
-          setTitle(
-            interpolateMessage(translations.welcome, [name ? name : ""])
-          );
+          setTitle(interpolateMessage(translations.welcome, [name || ""]));
           setMessage(translations.logInSuccess);
           setOnOk(() => () => navigation.replace(role));
           setOkText(translations.ok);
           setVisible(true);
         } else {
           setError(true);
-          setErrorText(`An error occurred during log in: ${error}`);
-          console.error("Error during log in:", error);
+          setErrorText(`An error occurred during log in.`);
+          console.error("Error during log in:");
           await insertInTable(tableNameErrorLogs, {
             appName: appName,
-            error: `An error occurred during log in: ${error}`,
+            error: `An error occurred during log in.`,
             date: new Date().toLocaleString(),
-            component: `./Screens/Signin/loadTokenAndRestaurantName() else {} => Error during log in: ${error}`,
+            component: `./Screens/Signin/loadTokenAndRestaurantName() else {} => Error during log in`,
           });
         }
       } else setThingsLoaded((prevThingsLoaded) => prevThingsLoaded + 1);
@@ -295,19 +290,8 @@ const Signin = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    let timer;
     if (thingsLoaded >= thingsToLoad) setLoading(false);
-    else
-      timer = setTimeout(() => {
-        setLoadingText((prev) => {
-          if (prev === "Loading.") return "Loading..";
-          else if (prev === "Loading..") return "Loading...";
-          return "Loading.";
-        });
-      }, 750);
-
-    return () => clearTimeout(timer);
-  }, [loadingText]);
+  }, [thingsLoaded]);
 
   useFocusEffect(
     useCallback(() => {
@@ -344,11 +328,7 @@ const Signin = ({ navigation }) => {
           cancelText={cancelText}
         />
 
-        <Loading
-          progress={
-            thingsLoaded / thingsToLoad > 1 ? 1 : thingsLoaded / thingsToLoad
-          }
-        />
+        <Loading progress={thingsLoaded / thingsToLoad} />
       </View>
     );
   if (error)
@@ -363,7 +343,10 @@ const Signin = ({ navigation }) => {
   const translations = getTranslations();
 
   return (
-    <ScrollView style={stylesMC.scrollView}>
+    <ScrollView
+      style={styles.scrollView}
+      contentContainerStyle={{ flexGrow: 1 }}
+    >
       <AlertModel
         visible={visible}
         title={title}
@@ -373,99 +356,137 @@ const Signin = ({ navigation }) => {
         OkText={OkText}
         cancelText={cancelText}
       />
-      <View style={stylesMC.container}>
-        <Image source={userImage} style={stylesMC.imageUser} />
+      <View style={styles.container}>
+        <Image source={userImage} style={styles.imageUser} />
 
-        <Text style={stylesMC.text}>{translations.signIn}</Text>
+        <View>
+          <Text style={styles.text}>{translations.signIn}</Text>
+          <View style={styles.formLogin}>
+            <View style={styles.user}>
+              <Text style={styles.textUser}>
+                {translations.TextRestaurantName}
+              </Text>
 
-        <View style={stylesMC.formLogin}>
-          <View style={stylesMC.user}>
-            <Text style={stylesMC.textUser}>
-              {translations.TextRestaurantName}
-            </Text>
+              <TextInput
+                placeholder={translations.exampleRestaurantName}
+                value={restaurantName}
+                onChangeText={(value) => checkRestaurantName(value)}
+                style={styles.textInputUser}
+                maxLength={100}
+              />
+            </View>
 
-            <TextInput
-              placeholder={translations.TextRestaurantName}
-              value={restaurantName}
-              onChangeText={(value) => checkRestaurantName(value)}
-              style={stylesMC.textInputUser}
-              maxLength={100}
-            />
-          </View>
+            <View style={styles.user}>
+              <Text style={styles.textUser}>{translations.TextName}</Text>
+              <TextInput
+                placeholder={translations.exampleUserName}
+                onChangeText={(value) => setName(value)}
+                style={styles.textInputUser}
+                maxLength={100}
+              />
+            </View>
 
-          <View style={stylesMC.user}>
-            <Text style={stylesMC.textUser}>{translations.TextName}</Text>
-            <TextInput
-              placeholder={translations.TextName}
-              onChangeText={(value) => setName(value)}
-              style={stylesMC.textInputUser}
-              maxLength={100}
-            />
-          </View>
+            <View style={styles.user}>
+              <Text style={styles.textUser}>{translations.TextUser}</Text>
+              <TextInput
+                placeholder={translations.exampleUserName}
+                onChangeText={(value) => setUser(value)}
+                style={styles.textInputUser}
+                maxLength={50}
+              />
+            </View>
 
-          <View style={stylesMC.user}>
-            <Text style={stylesMC.textUser}>{translations.TextUser}</Text>
-            <TextInput
-              placeholder={translations.TextUser}
-              onChangeText={(value) => setUser(value)}
-              style={stylesMC.textInputUser}
-              maxLength={50}
-            />
-          </View>
+            <View style={styles.pass}>
+              <Text style={styles.textPass}>{translations.TextPassword}</Text>
+              <View style={{ flexDirection: "row" }}>
+                <TextInput
+                  placeholder={translations.examplePassword}
+                  style={styles.textInputPass}
+                  secureTextEntry={!boolShowPassword}
+                  onChangeText={(value) => setPassword(value)}
+                  maxLength={100}
+                />
+                <Pressable
+                  style={styles.buttonShowPassword}
+                  onPress={() => setBoolShowPassword((prev) => !prev)}
+                >
+                  {!boolShowPassword ? (
+                    <Image
+                      source={eyeNotLooking}
+                      style={styles.imageShowPassword}
+                    />
+                  ) : (
+                    <Video
+                      source={eyeLooking}
+                      style={{
+                        width: 40,
+                        height: 40,
+                        right: -5,
+                      }}
+                      shouldPlay
+                      isLooping
+                      resizeMode="cover"
+                      rate={0.8}
+                    />
+                  )}
+                </Pressable>
+              </View>
+            </View>
 
-          <View style={stylesMC.pass}>
-            <Text style={stylesMC.textPass}>{translations.TextPassword}</Text>
-            <TextInput
-              placeholder={translations.TextPassword}
-              style={stylesMC.textInputPass}
-              secureTextEntry={true}
-              onChangeText={(value) => setPassword(value)}
-              maxLength={100}
-            />
-          </View>
+            <Text style={styles.roles}>{translations.TextRoles}</Text>
 
-          <Text style={stylesMC.roles}>{translations.TextRoles}</Text>
+            <View style={styles.pickerContainer}>
+              {Platform.OS == "ios" && (
+                <PickerIOS
+                  selectedValue={role}
+                  onValueChange={(itemValue) => setRole(itemValue)}
+                  style={styles.pickerIOS}
+                >
+                  {options.map((option, index) => (
+                    <PickerIOS.Item key={index} label={option} value={option} />
+                  ))}
+                </PickerIOS>
+              )}
+              {Platform.OS != "ios" && (
+                <Picker
+                  selectedValue={role}
+                  onValueChange={(itemValue) => setRole(itemValue)}
+                  style={styles.picker}
+                >
+                  {options.map((option, index) => (
+                    <Picker.Item key={index} label={option} value={option} />
+                  ))}
+                </Picker>
+              )}
+            </View>
 
-          <View style={stylesMC.pickerContainer}>
-            {options != null && (
-              <Picker
-                selectedValue={role}
-                onValueChange={(itemValue) => setRole(itemValue)}
-                style={stylesMC.picker}
+            <View style={styles.newAccountView}>
+              <Text style={styles.newAccountText}>
+                {translations.SignInLogIn}
+              </Text>
+
+              <Pressable
+                onPress={() => navigation.replace("Login")}
+                style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}
               >
-                {options.map((option, index) => (
-                  <Picker.Item key={index} label={option} value={option} />
-                ))}
-              </Picker>
-            )}
-          </View>
-
-          <View style={stylesMC.newAccountView}>
-            <Text style={stylesMC.newAccountText}>
-              {translations.SignInLogIn}
-            </Text>
+                <Text style={styles.textSignin}>{translations.logIn}</Text>
+              </Pressable>
+            </View>
 
             <Pressable
-              onPress={() => navigation.replace("Login")}
-              style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}
+              style={({ pressed }) => [
+                styles.signInButton,
+                { opacity: pressed ? 0.5 : 1 },
+              ]}
+              onPress={() => checkSignin()}
             >
-              <Text style={stylesMC.textSignin}>{translations.logIn}</Text>
+              {boolSigningIn ? (
+                <ActivityIndicator size={25} />
+              ) : (
+                <Text style={styles.signInText}>{translations.signIn}</Text>
+              )}
             </Pressable>
           </View>
-
-          <Pressable
-            style={({ pressed }) => [
-              stylesMC.signInButton,
-              { opacity: pressed ? 0.5 : 1 },
-            ]}
-            onPress={() => checkSignin()}
-          >
-            {boolSigningIn ? (
-              <ActivityIndicator size={25} />
-            ) : (
-              <Text style={stylesMC.signInText}>{translations.signIn}</Text>
-            )}
-          </Pressable>
         </View>
       </View>
     </ScrollView>

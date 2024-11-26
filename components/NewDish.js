@@ -10,7 +10,8 @@ import {
 } from "react-native";
 import Loading from "./Loading";
 import { getAllDataFromTable, insertInTable } from "./DataBaseConnection";
-import { appName, tableNameErrorLogs } from "./globalVariables";
+import { appName, tableNameErrorLogs, userImage } from "./globalVariables";
+import EachRectangle from "./EachRectangle";
 
 const NewDish = ({
   navigation,
@@ -148,93 +149,108 @@ const NewDish = ({
         cancelText={cancelText}
       />
 
-      <EachCuadro
+      <EachRectangle
         texts={[restaurantName, translations.ownerText]}
         onPress={() => onPressToReturn()}
+        imageVariable={userImage}
       />
 
-      <View style={styles.header}>
-        <Text style={styles.headerText}>{translations.newDish}</Text>
-      </View>
+      <View style={styles.main}>
+        <View style={styles.header}>
+          <Text style={styles.headerText}>{translations.newDish}</Text>
+        </View>
 
-      <View style={styles.body}>
-        <TextInput
-          style={styles.input}
-          placeholder={translations.dishName}
-          onChangeText={(text) => setNewDishName(text)}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder={translations.dishPrice}
-          value={newDishPrice}
-          onChangeText={(text) => setNewDishPrice(isFinite(text) ? text : "")}
-          keyboardType="numeric"
-        />
+        <View style={styles.body}>
+          <View style={styles.containerDishName}>
+            <Text style={styles.textLabel}>{translations.dishName}</Text>
+            <TextInput
+              style={styles.input}
+              placeholder={translations.exampleDishName}
+              onChangeText={(text) => setNewDishName(text)}
+            />
+          </View>
+          <View style={styles.containerDishPrice}>
+            <Text style={styles.textLabel}>{translations.dishPrice}</Text>
+            <TextInput
+              style={styles.input}
+              placeholder={translations.exampleDishPrice}
+              value={newDishPrice}
+              onChangeText={(text) =>
+                setNewDishPrice(isFinite(text) ? text : "")
+              }
+              keyboardType="numeric"
+            />
+          </View>
 
-        {allIngredients != null && allIngredients.length > 0 && (
-          <ScrollView style={styles.scrollView}>
-            {JSON.parse(allIngredients).map((value) => (
-              <View style={styles.eachProduct} key={value.id}>
-                <Switch
-                  value={newDishIngredients.includes(value.id)}
-                  onValueChange={() => changeIngredients(value.id)}
-                />
-
-                {newDishIngredients.includes(value.id) && (
-                  <TextInput
-                    style={styles.input}
-                    placeholder={translations.quantity}
-                    value={JSON.parse(ingredients)[value.id]}
-                    keyboardType="numeric"
-                    onChangeText={(text) => verifyQuantity(text, value.id)}
+          {allIngredients != null && allIngredients.length > 0 && (
+            <ScrollView style={styles.scrollView}>
+              {JSON.parse(allIngredients).map((value) => (
+                <View style={styles.eachProduct} key={value.id}>
+                  <Switch
+                    value={newDishIngredients.includes(value.id)}
+                    onValueChange={() => changeIngredients(value.id)}
                   />
-                )}
-                <Text style={styles.textEachIngredient}>
-                  {value.productName}
-                </Text>
-              </View>
-            ))}
-          </ScrollView>
-        )}
 
-        {(allIngredients == null || allIngredients.length == 0) && (
-          <Text style={styles.noInventoryAdded}>
-            {translations.noInventoryAdded}
-          </Text>
-        )}
+                  {newDishIngredients.includes(value.id) && (
+                    <TextInput
+                      style={styles.input}
+                      placeholder={translations.quantity}
+                      value={JSON.parse(ingredients)[value.id]}
+                      keyboardType="numeric"
+                      onChangeText={(text) => verifyQuantity(text, value.id)}
+                    />
+                  )}
+                  <Text style={styles.textEachIngredient}>
+                    {value.productName}
+                  </Text>
+                </View>
+              ))}
+            </ScrollView>
+          )}
 
-        <Pressable
-          style={({ pressed }) => [styles.row, { opacity: pressed ? 0.5 : 1 }]}
-          onPress={() => setBoolAddImageLink((prev) => !prev)}
-        >
-          <Text style={styles.textAddImageLink}>
-            {translations.addImageLink}
-          </Text>
-          <Switch
-            onValueChange={() => setBoolAddImageLink((prev) => !prev)}
-            value={boolAddImageLink}
-          />
-        </Pressable>
+          {(!allIngredients || allIngredients.length == 0) && (
 
-        {boolAddImageLink && (
-          <TextInput
-            style={styles.input}
-            placeholder={translations.dishImageLink}
-            onChangeText={(text) => setNewDishImageLink(text)}
-            value={newDishImageLink}
-          />
-        )}
-        <Pressable
-          style={({ pressed }) => [
-            styles.buttonAddNew,
-            { opacity: pressed ? 0.5 : 1 },
-          ]}
-          onPress={() => askAddNewDish()}
-        >
-          <Text style={styles.buttonTextAddNewDish}>
-            {translations.addDish}
-          </Text>
-        </Pressable>
+            <Text style={styles.noInventoryAdded}>
+              {translations.noInventoryAdded}
+            </Text>
+          )}
+
+          <Pressable
+            style={({ pressed }) => [
+              styles.row,
+              { opacity: pressed ? 0.7 : 1 },
+            ]}
+            onPress={() => setBoolAddImageLink((prev) => !prev)}
+          >
+            <Text style={styles.textAddImageLink}>
+              {translations.addImageLink}
+            </Text>
+            <Switch
+              onValueChange={() => setBoolAddImageLink((prev) => !prev)}
+              value={boolAddImageLink}
+            />
+          </Pressable>
+
+          {boolAddImageLink && (
+            <TextInput
+              style={styles.input}
+              placeholder={translations.dishImageLink}
+              onChangeText={(text) => setNewDishImageLink(text)}
+              value={newDishImageLink}
+            />
+          )}
+          <Pressable
+            style={({ pressed }) => [
+              styles.buttonAddNew,
+              { opacity: pressed ? 0.5 : 1 },
+            ]}
+            onPress={() => askAddNewDish()}
+          >
+            <Text style={styles.buttonTextAddNewDish}>
+              {translations.addDish}
+            </Text>
+          </Pressable>
+        </View>
       </View>
     </View>
   );
@@ -245,51 +261,70 @@ export default NewDish;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: "#fff",
+    backgroundColor: "#F9F9F9",
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  main: {
+    flex: 5,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+    marginBottom: 20,
   },
   header: {
-    marginVertical: 20,
+    marginBottom: 20,
+    backgroundColor: "#6F42C1",
+    paddingVertical: 15,
+    borderRadius: 8,
     alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#6F42C1",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 3,
   },
   headerText: {
-    fontSize: 24,
+    color: "#FFF",
+    fontSize: 18,
     fontWeight: "bold",
-    color: "#333",
   },
   body: {
     flex: 1,
-    paddingBottom: 20,
   },
   input: {
     height: 45,
-    borderColor: "#ccc",
+    borderColor: "#D3D3D3",
     borderWidth: 1,
     borderRadius: 8,
-    marginBottom: 16,
     paddingHorizontal: 10,
+    marginVertical: 10,
     fontSize: 16,
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#F2F2F2",
   },
   scrollView: {
-    marginBottom: 20,
-    flexDirection: "row",
-    flexWrap: "wrap",
+    marginVertical: 15,
   },
   eachProduct: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
-    maxWidth: "60%",
+    marginBottom: 15,
   },
   textEachIngredient: {
+    flex: 1,
     fontSize: 16,
     color: "#333",
     marginLeft: 10,
   },
   noInventoryAdded: {
     fontSize: 16,
-    color: "#d9534f",
+    color: "#B0B0B0",
     textAlign: "center",
     marginTop: 20,
   },
@@ -297,22 +332,29 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
+    marginVertical: 10,
   },
   textAddImageLink: {
     fontSize: 16,
-    color: "#007bff",
+    color: "#333",
+    flex: 1,
   },
   buttonAddNew: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#6F42C1",
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: "center",
+    justifyContent: "center",
     marginTop: 20,
+    shadowColor: "#6F42C1",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 3,
   },
   buttonTextAddNewDish: {
+    color: "#FFF",
     fontSize: 18,
     fontWeight: "bold",
-    color: "#fff",
   },
 });

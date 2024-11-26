@@ -10,10 +10,17 @@ import * as Localization from "expo-localization";
 import Constants from "expo-constants";
 
 const appName = "Order.by";
+const IDsImage = require("../assets/IDsImage.png");
 const userImage = require("../assets/userImage.png");
+const exitImage = require("../assets/exitImage.png");
+const eyeLooking = require("../assets/eyeLooking.mp4");
 const appLogoImage = require("../assets/appLogoImage.png");
 const nameAppImage = require("../assets/appNameImage.png");
+const cutleryImage = require("../assets/cutleryImage.png");
+const settingsImage = require("../assets/settingsImage.png");
+const registerImage = require("../assets/registerImage.png");
 const BOOL_LOG_OUT = "@boolLogOut";
+const eyeNotLooking = require("../assets/eyeNotLooking.png");
 const BOOL_ANIMATIONS = "@boolAnimations";
 const ROLE_STORAGE_KEY = "_role";
 const USER_KEY_STORAGE = "@userName";
@@ -66,16 +73,15 @@ const removeDataSecure = async (key) => {
 const loadData = async (key) => await AsyncStorage.getItem(key);
 
 const loadDataSecure = async (key) => {
-  if (Platform.OS == "web") {
-    const value = localStorage.getItem(key);
-    if (!value) return null;
-    const uncryptedValue = CryptoJS.AES.decrypt(
-      value,
-      Constants.expoConfig.extra.SECRET_KEY_TO_ENCRYPT
-    ).toString(CryptoJS.enc.Utf8);
-    return uncryptedValue;
-  }
-  await SecureStore.getItemAsync(key);
+  if (Platform.OS != "web") return await SecureStore.getItemAsync(key);
+
+  const value = localStorage.getItem(key);
+  if (!value) return null;
+  const uncryptedValue = CryptoJS.AES.decrypt(
+    value,
+    Constants.expoConfig.extra.SECRET_KEY_TO_ENCRYPT
+  ).toString(CryptoJS.enc.Utf8);
+  return uncryptedValue;
 };
 
 const saveData = async (key, value) => await AsyncStorage.setItem(key, value);
@@ -200,7 +206,10 @@ export {
   appName,
   loadData,
   saveData,
+  IDsImage,
+  exitImage,
   userImage,
+  eyeLooking,
   removeData,
   appLogoImage,
   BOOL_LOG_OUT,
@@ -208,10 +217,14 @@ export {
   hashPassword,
   saveDataJSON,
   widthDivided,
+  cutleryImage,
+  eyeNotLooking,
   checkLanguage,
   calculateTime,
   generateToken,
   heightDivided,
+  settingsImage,
+  registerImage,
   getStartOfWeek,
   verifyPassword,
   saveDataSecure,

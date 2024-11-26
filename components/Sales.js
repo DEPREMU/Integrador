@@ -1,25 +1,24 @@
 import {
-  View,
-  Text,
-  FlatList,
-  Pressable,
-  BackHandler,
-  ActivityIndicator,
-} from "react-native";
-import {
   insertInTable,
   updateTableByEq,
   getAllDataFromTable,
 } from "./DataBaseConnection";
-import styles from "../styles/stylesSales";
+import {
+  View,
+  Text,
+  Pressable,
+  BackHandler,
+  ActivityIndicator,
+} from "react-native";
 import EachSale from "./EachSale";
 import languages from "./languages.json";
 import AlertModel from "./AlertModel";
-import EachCuadro from "./EachCuadro";
+import EachRectangle from "./EachRectangle";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useFocusEffect } from "@react-navigation/native";
+import { stylesSales as styles } from "../styles/stylesSales";
 import React, { useState, useCallback } from "react";
-import { appName, getStartOfWeek, tableNameErrorLogs } from "./globalVariables";
+import { appName, getStartOfWeek, tableNameErrorLogs, userImage } from "./globalVariables";
 
 export default Sales = ({
   translations = languages.en,
@@ -192,9 +191,10 @@ export default Sales = ({
       />
 
       {/*//? Header */}
-      <EachCuadro
+      <EachRectangle
         texts={[restaurantName, translations.ownerText]}
         onPress={() => returnToBackPage()}
+        imageVariable={userImage}
       />
 
       {/*//? Main*/}

@@ -1,26 +1,36 @@
 import {
+  View,
+  Text,
+  Switch,
+  Platform,
+  Pressable,
+  ScrollView,
+} from "react-native";
+import {
   appName,
   loadData,
   saveData,
+  userImage,
+  removeData,
   checkLanguage,
+  loadDataSecure,
+  BOOL_ANIMATIONS,
+  ROLE_STORAGE_KEY,
   TOKEN_KEY_STORAGE,
   tableNameErrorLogs,
   LANGUAGE_KEY_STORAGE,
   RESTAURANT_NAME_KEY_STORAGE,
-  loadDataSecure,
-  ROLE_STORAGE_KEY,
-  BOOL_ANIMATIONS,
 } from "../components/globalVariables";
-import ErrorComponent from "../components/ErrorComponent";
 import Loading from "../components/Loading";
 import languages from "../components/languages.json";
 import AlertModel from "../components/AlertModel";
-import { Picker } from "@react-native-picker/picker";
-import stylesSettings from "../styles/stylesSettings";
-import { getRole, insertInTable } from "../components/DataBaseConnection";
+import EachRectangle from "../components/EachRectangle";
+import ErrorComponent from "../components/ErrorComponent";
+import DeleteRestaurant from "../components/DeleteRestaurant";
+import { insertInTable } from "../components/DataBaseConnection";
+import { Picker, PickerIOS } from "@react-native-picker/picker";
+import { stylesSettings as styles } from "../styles/stylesSettings";
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, Pressable } from "react-native";
-import { Switch } from "react-native";
 
 const Settings = ({ navigation }) => {
   const thingsToLoad = 3;
@@ -31,20 +41,74 @@ const Settings = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [seconds, setSeconds] = useState(8);
   const [language, setLanguage] = useState("en");
-  const [bodyAlert, setBodyAlert] = useState(null);
+  const [message, setMessage] = useState(null);
   const [errorText, setErrorText] = useState(null);
-  const [onOkAlert, setOnOkAlert] = useState(() => () => {});
+  const [onOk, setOnOk] = useState(() => () => {});
   const [cancelText, setCancelText] = useState(null);
-  const [titleAlert, setTitleAlert] = useState(null);
+  const [title, setTitle] = useState(null);
   const [thingsLoaded, setThingsLoaded] = useState(0);
-  const [visibleAlert, setVisibleAlert] = useState(false);
-  const [onCancelAlert, setOnCancelAlert] = useState(() => () => {});
+  const [visible, setVisible] = useState(false);
+  const [onCancel, setOnCancel] = useState(() => () => {});
   const [languageCache, setLanguageCache] = useState("en");
   const [restaurantName, setRestaurantName] = useState(null);
   const [boolAnimations, setBoolAnimations] = useState(null);
+  const [boolDeleteRestaurant, setBoolDeleteRestaurant] = useState(false);
   const [languageBeforeChange, setLanguageBeforeChange] = useState("en");
+  const [boolSaveSettings, setBoolSaveSettings] = useState(false);
 
   const getTranslations = () => languages[language] || languages.en;
+
+  const confirmDeleteRestaurant = () => {
+    const translations = getTranslations();
+    setVisible(true);
+    setTitle(translations.deleteRestaurant);
+    setMessage(translations.deleteRestaurantConfirmation);
+    setOnOk(() => () => {
+      setVisible(false);
+      setBoolDeleteRestaurant(true);
+    });
+    setOnCancel(() => () => setVisible(false));
+    setOkText(translations.deleteRestaurant);
+    setCancelText(translations.cancel);
+    setOnCancel(() => () => {
+      setVisible(false);
+    });
+  };
+
+  const saveSettings = () => {
+    const translations = getTranslations();
+    setLanguage(languageBeforeChange);
+    setBoolSaveSettings(true);
+    setSeconds(8);
+    setTitle(translations.save);
+    setMessage(translations.saveSettingsConfirm);
+    setCancelText(translations.cancel);
+    setOnCancel(() => () => {
+      setVisible(false);
+      setLanguage(languageCache);
+      setBoolSaveSettings(false);
+    });
+    setOkText(translations.ok);
+    setOnOk(() => () => {
+      setBoolSaveSettings(false);
+      confirm();
+    });
+    setVisible(true);
+  };
+
+  const confirm = async () => {
+    if (languageBeforeChange != languageCache) {
+      await saveData(LANGUAGE_KEY_STORAGE, languageBeforeChange);
+      setTitle(languages[languageBeforeChange].confirmed);
+      setMessage(languages[languageBeforeChange].recommendRestart);
+      setOkText(languages[languageBeforeChange].ok);
+      setOnOk(() => () => navigation.replace(role || "Login"));
+      setVisible(true);
+    }
+    if (!boolAnimations) await removeData(BOOL_ANIMATIONS);
+    else await saveData(BOOL_ANIMATIONS, "true");
+    setVisible(false);
+  };
 
   useEffect(() => {
     const loadLanguage = async () => {
@@ -55,8 +119,10 @@ const Settings = ({ navigation }) => {
       setThingsLoaded((prev) => (prev < thingsToLoad ? prev + 1 : prev));
     };
 
-    const loadBoolAnimations = async () =>
-      setBoolAnimations(JSON.parse(await loadData(BOOL_ANIMATIONS)));
+    const loadBoolAnimations = async () => {
+      const data = await loadData(BOOL_ANIMATIONS);
+      setBoolAnimations(data ? true : false);
+    };
 
     const loadTokenAndRestaurantName = async () => {
       try {
@@ -91,42 +157,11 @@ const Settings = ({ navigation }) => {
         setSeconds((prev) => (prev > 0 ? prev - 1 : prev));
       }, 1000);
     } else if (seconds == 0) {
-      setVisibleAlert(false);
+      setVisible(false);
       setLanguage(languageCache);
     }
     return () => clearTimeout(timer);
   }, [seconds]);
-
-  const saveSettings = () => {
-    const translations = getTranslations();
-    setLanguage(languageBeforeChange);
-    setSeconds(8);
-    setTitleAlert(translations.save);
-    setBodyAlert(translations.saveSettingsConfirm);
-    setCancelText(translations.cancel);
-    setOnCancelAlert(() => () => {
-      setVisibleAlert(false);
-      setLanguage(languageCache);
-    });
-    setOkText(translations.ok);
-    setOnOkAlert(() => () => {
-      confirm();
-    });
-    setVisibleAlert(true);
-  };
-
-  const confirm = async () => {
-    if (languageBeforeChange != languageCache) {
-      await saveData(LANGUAGE_KEY_STORAGE, languageBeforeChange);
-      setTitleAlert(languages[languageBeforeChange].confirmed);
-      setBodyAlert(languages[languageBeforeChange].recommendRestart);
-      setOkText(languages[languageBeforeChange].ok);
-      setOnOkAlert(() => () => navigation.replace(role || "Login"));
-      setVisibleAlert(true);
-    }
-    await saveData(BOOL_ANIMATIONS, JSON.stringify(boolAnimations));
-    setVisibleAlert(false);
-  };
 
   if (loading) return <Loading progress={thingsLoaded / thingsToLoad} />;
   if (error)
@@ -140,79 +175,132 @@ const Settings = ({ navigation }) => {
 
   const translations = getTranslations();
 
-  return (
-    <View style={stylesSettings.container}>
-      <AlertModel
-        visible={visibleAlert}
-        title={titleAlert}
-        message={bodyAlert}
-        OkText={okText}
-        onOk={onOkAlert}
-        cancelText={`${cancelText} ${visibleAlert ? seconds : ""}`}
-        onCancel={onCancelAlert}
+  if (boolDeleteRestaurant) {
+    return (
+      <DeleteRestaurant
+        translations={translations}
+        navigation={navigation}
+        onCancel={setBoolDeleteRestaurant}
+        restaurantName={restaurantName}
       />
+    );
+  }
 
-      <View style={stylesSettings.settingsView}>
-        <Text style={stylesSettings.textsTitles}>
-          {translations.settingsText}
-        </Text>
-      </View>
+  return (
+    <View style={styles.container}>
+      <AlertModel
+        visible={visible}
+        title={title}
+        message={message}
+        OkText={okText}
+        onOk={onOk}
+        cancelText={`${cancelText} ${boolSaveSettings ? seconds : ""}`}
+        onCancel={onCancel}
+      />
+      <EachRectangle
+        texts={[restaurantName, role]}
+        onPress={() => navigation.replace(role)}
+        imageVariable={userImage}
+      />
+      <View style={styles.main}>
+        <View style={styles.settingsView}>
+          <Text style={styles.textsTitles}>{translations.settingsText}</Text>
+        </View>
 
-      {role != null && (
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: "flex-start",
+          }}
+        >
+          <View style={styles.viewPicker}>
+            <View style={styles.changeLanguage}>
+              <Text style={styles.textLabel}>
+                {translations.selectLanguage}
+              </Text>
+
+              <PickerLanguage
+                languageBeforeChange={languageBeforeChange}
+                setLanguageBeforeChange={setLanguageBeforeChange}
+                languages={languages.languagesNames}
+              />
+            </View>
+          </View>
+          <View style={styles.animations}>
+            <Text style={styles.textLabel}>{translations.animations}</Text>
+            <View style={styles.row}>
+              <Text style={styles.texts}>{translations.showAnimations}</Text>
+
+              <Switch
+                value={boolAnimations}
+                onValueChange={() => setBoolAnimations((prev) => !prev)}
+              />
+            </View>
+          </View>
+
+          <View style={styles.viewDeleteRestaurant}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.buttonDeleteRestaurant,
+                { opacity: pressed ? 0.5 : 1 },
+              ]}
+              onPress={confirmDeleteRestaurant}
+            >
+              <Text style={styles.textDeleteRestaurant}>
+                {translations.deleteRestaurant}
+              </Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+
         <Pressable
-          onPress={() => navigation.replace(role)}
+          onPress={saveSettings}
           style={({ pressed }) => [
-            stylesSettings.buttonBack,
-            { opacity: pressed ? 0.5 : 1 },
+            styles.buttonSave,
+            { opacity: pressed ? 0.7 : 1 },
           ]}
         >
-          <Text style={stylesSettings.settings}>{translations.back}</Text>
+          <Text style={styles.buttonTextSave}>{translations.save}</Text>
         </Pressable>
-      )}
-
-      <ScrollView style={stylesSettings.scrollView}>
-        <View style={stylesSettings.viewPicker}>
-          <Text style={[stylesSettings.texts, { textAlign: "center" }]}>
-            {translations.selectLanguage}
-          </Text>
-          <Picker
-            selectedValue={languageBeforeChange}
-            style={stylesSettings.picker}
-            onValueChange={(itemValue) => setLanguageBeforeChange(itemValue)}
-          >
-            {Object.entries(languages.languagesNames).map(([code, name]) => (
-              <Picker.Item key={code} label={name} value={code} />
-            ))}
-          </Picker>
-        </View>
-        <View style={stylesSettings.animations}>
-          <Text style={stylesSettings.textsTitles}>
-            {translations.animations}
-          </Text>
-          <View style={stylesSettings.row}>
-            <Text style={stylesSettings.texts}>
-              {translations.showAnimations}
-            </Text>
-
-            <Switch
-              value={boolAnimations}
-              onValueChange={() => setBoolAnimations((prev) => !prev)}
-            />
-          </View>
-        </View>
-      </ScrollView>
-
-      <Pressable
-        onPress={saveSettings}
-        style={({ pressed }) => [
-          stylesSettings.buttonSave,
-          { opacity: pressed ? 0.5 : 1 },
-        ]}
-      >
-        <Text style={stylesSettings.texts}>{translations.save}</Text>
-      </Pressable>
+      </View>
     </View>
   );
 };
 
 export default Settings;
+
+const PickerLanguage = ({
+  languageBeforeChange,
+  setLanguageBeforeChange,
+  languages,
+}) => {
+  {
+    /*//?Picker for iOS  */
+  }
+
+  if (Platform.OS == "ios")
+    return (
+      <PickerIOS
+        selectedValue={languageBeforeChange}
+        style={styles.pickerIOS}
+        onValueChange={(itemValue) => setLanguageBeforeChange(itemValue)}
+      >
+        {Object.entries(languages).map(([code, name]) => (
+          <PickerIOS.Item key={code} label={name} value={code} />
+        ))}
+      </PickerIOS>
+    );
+  else
+    return (
+      <Picker
+        selectedValue={languageBeforeChange}
+        style={styles.picker}
+        onValueChange={(itemValue) => setLanguageBeforeChange(itemValue)}
+      >
+        {Object.entries(languages).map(([code, name]) => (
+          <Picker.Item key={code} label={name} value={code} />
+        ))}
+      </Picker>
+    );
+};

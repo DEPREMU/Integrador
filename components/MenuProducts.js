@@ -33,6 +33,7 @@ const MenuProducts = ({ menuData, translations, restaurantName }) => {
   return (
     <>
       {menuData != null &&
+        menuData.length > 0 &&
         JSON.parse(menuData).map((item) => (
           <View key={item.id} style={styles.containerEachProduct}>
             <View style={styles.containerName}>
