@@ -206,7 +206,7 @@ const getDateToken = async (restaurantName, token) => {
     .single();
 
   if (error) {
-    console.error("Error getting date token:", error);
+    // console.error("Error getting date token:", error);
     await insertInTable(tableNameErrorLogs, {
       appName: appName,
       error: error.message,
@@ -255,26 +255,27 @@ const boolUserExist = async (restaurantName, userName) => {
 };
 
 const deleteOrderDB = async (restaurantName, orderID) => {
-  try {
-    const restaurantNameOrders = `${restaurantName}_orders`;
+  // try {
+  const restaurantNameOrders = `${restaurantName}_orders`;
 
-    // 1. Eliminar la orden mediante orderID
-    const { error: deleteError } = await supabase
-      .from(restaurantNameOrders)
-      .delete()
-      .match({ id: orderID });
+  // 1. Eliminar la orden mediante orderID
+  const { error: deleteError } = await supabase
+    .from(restaurantNameOrders)
+    .delete()
+    .match({ id: orderID });
 
-    if (deleteError) {
-      await insertInTable(tableNameErrorLogs, {
-        appName: appName,
-        error: deleteError,
-        date: new Date().toLocaleString(),
-        component: `./DataBaseConnection/deleteOrderDB() if (deleteError) => Error deleting order: ${deleteError}`,
-      });
-      return { success: false, error: deleteError };
-    }
-
+  if (deleteError) {
+    await insertInTable(tableNameErrorLogs, {
+      appName: appName,
+      error: deleteError,
+      date: new Date().toLocaleString(),
+      component: `./DataBaseConnection/deleteOrderDB() if (deleteError) => Error deleting order: ${deleteError}`,
+    });
+    return { success: false, error: deleteError };
+  }
+  /*
     // 2. Reordenar IDs en la tabla
+    
     const { data: rows, error: fetchError } = await supabase
       .from(restaurantNameOrders)
       .select("*");
@@ -322,7 +323,7 @@ const deleteOrderDB = async (restaurantName, orderID) => {
       component: `./DataBaseConnection/deleteOrderDB() catch (error) => Error: ${error}`,
     });
     return { success: false, error: error };
-  }
+  */
 };
 
 const deleteFromTable = async (
@@ -344,7 +345,7 @@ const loadOrders = async (restaurantName) => {
   if (data && data.length > 0) {
     data.forEach((value) => {
       orders[value.id] = {
-        order: value.order,
+        order: value.orderDetail,
         characteristics: value.characteristics,
         orderTime: value.orderTime,
       };
@@ -461,6 +462,7 @@ const showColumnsFromTable = async (restaurantName) => {
 };
 
 const insertInTable = async (tableName, dict) => {
+  console.log("TableName:", tableName);
   try {
     await supabase.from(tableName).insert(dict);
   } catch (error) {
@@ -493,6 +495,33 @@ const getAllDataFromTable = async (tableName) => {
   return null;
 };
 
+const getAllDataFromTableByEq = async (tableName, equalColumn, valueEqual) => {
+  try {
+    const { data, error } = await supabase
+      .from(tableName)
+      .select("*")
+      .eq(equalColumn, valueEqual);
+    if (error) {
+      await insertInTable(tableNameErrorLogs, {
+        appName: appName,
+        error: error,
+        date: new Date().toLocaleString(),
+        component: `./DataBaseConnection/getAllDataFromTable() if (error) => Error fetching data: ${error}`,
+      });
+    }
+    if (data) return data;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    await insertInTable(tableNameErrorLogs, {
+      appName: appName,
+      error: error,
+      date: new Date().toLocaleString(),
+      component: `./DataBaseConnection/getAllDataFromTable() catch (error) => Error fetching data: ${error}`,
+    });
+  }
+  return null;
+};
+
 export {
   logIn,
   signIn,
@@ -500,15 +529,16 @@ export {
   getRole,
   loadOrders,
   createTable,
-  updateTableByEq,
   deleteTables,
   getDateToken,
   boolUserExist,
   deleteOrderDB,
   insertInTable,
+  updateTableByEq,
   deleteFromTable,
   boolIsRestaurant,
   updateTableByDict,
   getAllDataFromTable,
   showColumnsFromTable,
+  getAllDataFromTableByEq,
 };

@@ -1,37 +1,37 @@
 import { View, Text, Pressable, StyleSheet } from "react-native";
-import { appName, calculateTime, tableNameErrorLogs } from "./globalVariables";
+import {
+  appName,
+  calculateTime,
+  removeDataSecure,
+  separatorForDB,
+  separatorForDB2,
+  tableNameErrorLogs,
+  TOKEN_KEY_STORAGE,
+} from "./globalVariables";
 import { deleteOrderDB, insertInTable, loadOrders } from "./DataBaseConnection";
 import { useEffect, useState } from "react";
 
 const Orders = ({ translations, restaurantName }) => {
-  const [orders, setOrders] = useState(
-    JSON.stringify({
-      1: {
-        order: "dsdsds1",
-        orderTime: "Wed Nov 20 2024 12:48:07 GMT-0600",
-        characteristics: "dsdsds",
-      },
-      2: {
-        order: "dsdsds2, sdsdsds",
-        orderTime: "Wed Nov 20 2024 12:48:07 GMT-0600",
-        characteristics: "dsdsds, sdsdsdsd",
-      },
-      3: {
-        order: "dsdsds3, sdsdsds",
-        orderTime: "Wed Nov 20 2024 12:48:07 GMT-0600",
-        characteristics: "dsdsds, sdsdsdsd",
-      },
-      4: {
-        order: "dsdsds4, sdsdsds",
-        orderTime: "Wed Nov 20 2024 12:48:07 GMT-0600",
-        characteristics: "dsdsds, sdsdsdsd",
-      },
-    })
-  );
+  const [orders, setOrders] = useState(null);
+  removeDataSecure(TOKEN_KEY_STORAGE);
 
   //? Delete the order selected and organize the ids in a function from databaseConnection
   const deleteOrder = async (key) => {
     const ordersDict = JSON.parse(orders);
+    const order = ordersDict[key];
+    // Table sales
+    // id, saleDate, totalAmount, products, paymentMethod, saleStatus, notes
+    console.log(ordersDict[key]);
+
+    const sale = {
+      saleDate: new Date().toString(),
+      totalAmount: order.totalAmount,
+      products: order.order,
+      paymentMethod: null,
+      saleStatus: false,
+      notes: order.characteristics,
+    };
+    await insertInTable(`${restaurantName}_sales`, sale);
     delete ordersDict[key];
     const lengthOrders = Object.keys(ordersDict).length;
     if (lengthOrders > 0) setOrders(JSON.stringify(ordersDict));
@@ -76,9 +76,7 @@ const Orders = ({ translations, restaurantName }) => {
   return Object.entries(JSON.parse(orders)).map(([key, value]) => (
     <View key={key} style={stylesCook.viewByOrder}>
       <View style={stylesCook.containerNumberOrder}>
-        <Text style={stylesCook.textOrderNumber}>
-          {translations.orderText} {key}
-        </Text>
+        <Text style={stylesCook.textOrderNumber}>{translations.orderText}</Text>
         <Text style={stylesCook.textTimeAgo}>
           {calculateTime(value["orderTime"])} {translations.minAgo}
         </Text>
@@ -90,14 +88,23 @@ const Orders = ({ translations, restaurantName }) => {
           </Text>
 
           <Text style={stylesCook.texts}>
-            {"\t" + value["order"].split(", ").join("\n\t")}
+            {"\t\t" +
+              value["order"]
+                .split(separatorForDB)
+                .map((item) => item)
+                .join("\n\t\t")}
           </Text>
         </View>
         <View style={stylesCook.orderCharacteristics}>
           <Text style={stylesCook.textTitle}>{translations.notes + "\n"}</Text>
 
           <Text style={stylesCook.texts}>
-            {"\t" + value["characteristics"].split(", ").join("\n\t")}
+            {value.characteristics &&
+              "\t\t" +
+                value["characteristics"]
+                  .split(separatorForDB)
+                  .map((item) => item.split(separatorForDB2).join("\n\t\t"))
+                  .join("\n\t\t\t")}
           </Text>
         </View>
         <Pressable
@@ -107,9 +114,7 @@ const Orders = ({ translations, restaurantName }) => {
           ]}
           onPress={() => deleteOrder(key)}
         >
-          <Text style={stylesCook.buttonText}>
-            {translations.ready} {key}
-          </Text>
+          <Text style={stylesCook.buttonText}>{translations.ready}</Text>
         </Pressable>
       </View>
     </View>

@@ -2,35 +2,42 @@ import uuid from "react-native-uuid";
 import bcrypt from "react-native-bcrypt";
 import CryptoJS from "crypto-js";
 import languages from "../components/languages.json";
+import Constants from "expo-constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { supabase } from "./supabaseClient";
-import { Dimensions, Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import * as Localization from "expo-localization";
-import Constants from "expo-constants";
+import { Dimensions, Platform } from "react-native";
 
 const appName = "Order.by";
+const fontApp = require("../assets/fonts/Acumin.ttf");
 const IDsImage = require("../assets/IDsImage.png");
 const userImage = require("../assets/userImage.png");
 const exitImage = require("../assets/exitImage.png");
+const plusImage = require("../assets/plusImage.png");
 const eyeLooking = require("../assets/eyeLooking.mp4");
 const appLogoImage = require("../assets/appLogoImage.png");
 const nameAppImage = require("../assets/appNameImage.png");
 const cutleryImage = require("../assets/cutleryImage.png");
+const BOOL_LOG_OUT = "@boolLogOut";
 const settingsImage = require("../assets/settingsImage.png");
 const registerImage = require("../assets/registerImage.png");
-const BOOL_LOG_OUT = "@boolLogOut";
 const eyeNotLooking = require("../assets/eyeNotLooking.png");
+const fontAppItalic = require("../assets/fonts/AcuminItalic.ttf");
+const separatorForDB = "&&%$&&";
+const substractImage = require("../assets/substractImage.png");
+const separatorForDB2 = "%%!^$%%";
+const separatorForDB3 = "$^**^$";
 const BOOL_ANIMATIONS = "@boolAnimations";
 const ROLE_STORAGE_KEY = "_role";
 const USER_KEY_STORAGE = "@userName";
 const TOKEN_KEY_STORAGE = "_tokenUser";
+const { width, height } = Dimensions.get("window");
 const tableNameErrorLogs = "ErrorLogs";
 const LANGUAGE_KEY_STORAGE = "@language";
 const FIRST_TIME_LOADING_APP = "@firstTimeLoadingApp";
 const RESTAURANT_NAME_KEY_STORAGE = "_restaurantName";
 
-const { width, height } = Dimensions.get("window");
 const generateToken = () => uuid.v4();
 const widthDivided = (num) => width / num;
 const heightDivided = (num) => height / num;
@@ -67,8 +74,10 @@ const checkLanguage = async () => {
 const removeData = async (key) => await AsyncStorage.removeItem(key);
 
 const removeDataSecure = async (key) => {
-  if (Platform.OS == "web") localStorage.removeItem(key);
-  else await SecureStore.deleteItemAsync(key);
+  try {
+    if (Platform.OS == "web") localStorage.removeItem(key);
+    else await SecureStore.deleteItemAsync(key);
+  } catch (error) {}
 };
 const loadData = async (key) => await AsyncStorage.getItem(key);
 
@@ -204,9 +213,11 @@ export {
   width,
   height,
   appName,
+  fontApp,
   loadData,
   saveData,
   IDsImage,
+  plusImage,
   exitImage,
   userImage,
   eyeLooking,
@@ -218,6 +229,7 @@ export {
   saveDataJSON,
   widthDivided,
   cutleryImage,
+  fontAppItalic,
   eyeNotLooking,
   checkLanguage,
   calculateTime,
@@ -225,11 +237,15 @@ export {
   heightDivided,
   settingsImage,
   registerImage,
+  separatorForDB,
+  substractImage,
   getStartOfWeek,
   verifyPassword,
   saveDataSecure,
   loadDataSecure,
+  separatorForDB2,
   BOOL_ANIMATIONS,
+  separatorForDB3,
   saltHashPassword,
   removeDataSecure,
   ROLE_STORAGE_KEY,

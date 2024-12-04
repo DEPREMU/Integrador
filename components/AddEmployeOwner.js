@@ -180,7 +180,7 @@ export default AddEmployeOwner = ({
       } catch (error) {
         setError(true);
         setErrorText(error.message || "An error occurred.");
-        console.error("Error loading options:", error);
+        // console.error("Error loading options:", error);
         await insertInTable(tableNameErrorLogs, {
           appName: appName,
           error: error.message,

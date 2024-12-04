@@ -1,9 +1,10 @@
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet, ScrollView } from "react-native";
 import { getAllDataFromTable } from "./DataBaseConnection";
 import { useEffect, useState } from "react";
 
 const MenuProducts = ({ menuData, translations, restaurantName }) => {
   const [inventory, setInventory] = useState(JSON.stringify({}));
+  const [notesInventory, setNotesInventory] = useState(null);
 
   const fetchInventory = async () => {
     const dataInventory = await getAllDataFromTable(
@@ -13,7 +14,7 @@ const MenuProducts = ({ menuData, translations, restaurantName }) => {
 
     const dict = {};
     dataInventory.forEach((item) => {
-      dict[item.id] = item.productName;
+      dict[item.productName] = item.productDescription;
     });
     setInventory(JSON.stringify(dict));
   };
@@ -31,50 +32,63 @@ const MenuProducts = ({ menuData, translations, restaurantName }) => {
   }, []);
 
   return (
-    <>
+    <ScrollView
+      showsHorizontalScrollIndicator={false}
+      // horizontal={true}
+      contentContainerStyle={styles.scrollViewContentContainer}
+      style={styles.scrollView}
+    >
       {menuData != null &&
         menuData.length > 0 &&
-        JSON.parse(menuData).map((item) => (
-          <View key={item.id} style={styles.containerEachProduct}>
-            <View style={styles.containerName}>
-              <Text style={styles.name}>{item.name}</Text>
-            </View>
-            {item.imageLink != null && item.imageLink.length > 0 && (
-              <Image
-                style={styles.imageProduct}
-                source={{ uri: item.imageLink }}
-              />
-            )}
-            {item.ingredients != null && (
-              <View style={styles.containerIngredients}>
-                <Text style={styles.ingredientsTitle}>
-                  {translations.ingredients}:
-                </Text>
-                {Object.entries(JSON.parse(item.ingredients)).map(
-                  ([id, value], index) => (
-                    <Text style={styles.ingredients} key={id}>
-                      {index + 1}
-                      {". "}
-                      {value} {JSON.parse(inventory)[id]}
-                    </Text>
-                  )
-                )}
+        JSON.parse(menuData).map((item) => {
+          return (
+            <View key={item.id} style={styles.containerEachProduct}>
+              <View style={styles.containerName}>
+                <Text style={styles.name}>{item.name}</Text>
               </View>
-            )}
-            <View style={styles.containerPrice}>
-              <Text style={styles.priceProductTitle}>{translations.price}</Text>
-              <Text style={styles.priceProduct}>${item.price}</Text>
+              {item.imageLink != null && item.imageLink.length > 0 && (
+                <Image
+                  style={styles.imageProduct}
+                  source={{ uri: item.imageLink }}
+                />
+              )}
+              {item.ingredients != null && (
+                <View style={styles.containerIngredients}>
+                  <Text style={styles.ingredientsTitle}>
+                    {translations.ingredients}:
+                  </Text>
+                  {Object.entries(JSON.parse(item.ingredients)).map(
+                    ([key, value]) => (
+                      <Text style={styles.ingredients} key={key}>
+                        {value} {key}{" "}
+                        {JSON.parse(inventory)[key]
+                          ? `(${JSON.parse(inventory)[key]})`
+                          : ""}
+                      </Text>
+                    )
+                  )}
+                </View>
+              )}
+              <View style={styles.containerPrice}>
+                <Text style={styles.priceProductTitle}>
+                  {translations.price}
+                </Text>
+                <Text style={styles.priceProduct}>${item.price}</Text>
+              </View>
             </View>
-          </View>
-        ))}
-    </>
+          );
+        })}
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   containerEachProduct: {
     backgroundColor: "#fff",
-    marginBottom: 15,
+    minWidth: 200,
+    maxWidth: 350,
+    flexWrap: "wrap",
+    margin: 15,
     padding: 15,
     borderRadius: 10,
     shadowColor: "#000",
@@ -125,6 +139,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#2e7d32",
     fontWeight: "bold",
+  },
+  scrollView: {
+    flex: 1,
+    padding: 10,
+    flexWrap: "wrap",
+    maxWidth: "100%",
+  },
+  scrollViewContentContainer: {
+    flex: 1,
+    flexWrap: "wrap",
+    flexDirection: "row",
   },
 });
 

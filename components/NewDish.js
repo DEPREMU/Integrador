@@ -26,6 +26,7 @@ const NewDish = ({
   const [newDishImageLink, setNewDishImageLink] = useState("");
   const [allIngredients, setAllIngredients] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [newDishCategory, setNewDishCategory] = useState("");
   const [thingsLoaded, setThingsLoaded] = useState(0);
   const [error, setError] = useState(null);
   const [onOk, setOnOk] = useState(() => () => {});
@@ -77,6 +78,13 @@ const NewDish = ({
   };
 
   const askAddNewDish = () => {
+    if (
+      !newDishCategory ||
+      !newDishName ||
+      !newDishPrice ||
+      newDishIngredients.length == 0
+    )
+      return;
     setOnOk(() => () => setBoolAddDish(true));
     setOnCancel(() => () => setVisible(false));
     setTitle(translations.addDish);
@@ -99,15 +107,19 @@ const NewDish = ({
   }, [thingsLoaded]);
 
   useEffect(() => {
+    if (!boolAddDish) return;
     const addNewDish = async () => {
       try {
         setVisible(false);
+
         const newDish = {
-          name: newDishName,
-          ingredients: ingredients,
-          price: newDishPrice,
-          imageLink: boolAddImageLink ? newDishImageLink : "",
+          name: newDishName || "Untitled Dish", // Valor por defecto si está vacío
+          ingredients: JSON.stringify(ingredients) || "{}", // Asegura un JSON válido
+          price: parseFloat(newDishPrice || "0"), // Convierte precio a número
+          imageLink: boolAddImageLink ? newDishImageLink : null,
+          category: newDishCategory || "Uncategorized", // Valor por defecto
         };
+
         await insertInTable(`${restaurantName}_menu`, newDish);
         setMessage(translations.dishAdded);
         setOkText(translations.ok);
@@ -116,17 +128,18 @@ const NewDish = ({
         setVisible(true);
         setBoolAddDish(false);
         setNewDishName("");
-        setNewDishPrice(0);
+        setNewDishPrice("");
         setNewDishImageLink("");
         setBoolAddImageLink(false);
         setIngredients(JSON.stringify({}));
+        setNewDishIngredients([]);
       } catch (error) {
         console.error(error);
         setError(true);
         await insertInTable(tableNameErrorLogs, {
           appName: appName,
           error: `An error occurred adding new dish: ${error}`,
-          date: new Date().toLocaleString(),
+          date: new Date().toString(),
           component: `./Screens/Menu/NewDish/useEffect/addNewDish() catch (error) => Error adding new dish: ${error}`,
         });
       }
@@ -169,6 +182,14 @@ const NewDish = ({
               onChangeText={(text) => setNewDishName(text)}
             />
           </View>
+          <View style={styles.containerDishName}>
+            <Text style={styles.textLabel}>{translations.category}</Text>
+            <TextInput
+              style={styles.input}
+              placeholder={translations.exampleCategory}
+              onChangeText={(text) => setNewDishCategory(text)}
+            />
+          </View>
           <View style={styles.containerDishPrice}>
             <Text style={styles.textLabel}>{translations.dishPrice}</Text>
             <TextInput
@@ -209,7 +230,6 @@ const NewDish = ({
           )}
 
           {(!allIngredients || allIngredients.length == 0) && (
-
             <Text style={styles.noInventoryAdded}>
               {translations.noInventoryAdded}
             </Text>

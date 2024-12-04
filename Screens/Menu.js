@@ -158,23 +158,14 @@ const Menu = ({ navigation, translations, onPressToReturn }) => {
           <View style={styles.header}>
             <Text style={styles.headerText}>{translations.menu}</Text>
           </View>
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{
-              flex: 1,
-              justifyContent: "flex-start",
-              alignItems: "center",
-            }}
-            style={styles.scrollView}
-          >
-            {menuData != null && (
-              <MenuProducts
-                restaurantName={restaurantName}
-                menuData={menuData}
-                translations={translations}
-              />
-            )}
-          </ScrollView>
+
+          {menuData != null && (
+            <MenuProducts
+              restaurantName={restaurantName}
+              menuData={menuData}
+              translations={translations}
+            />
+          )}
         </View>
       </View>
     </View>
@@ -237,6 +228,7 @@ const styles = StyleSheet.create({
   },
   body: {
     flex: 1,
+    maxWidth: "100%",
   },
   scrollView: {
     flex: 1,

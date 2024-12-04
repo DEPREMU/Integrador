@@ -43,7 +43,7 @@ BEGIN
   EXECUTE format('
     CREATE TABLE IF NOT EXISTS %I (
       id bigint primary key generated always as identity,
-      order_detail text,
+      orderDetail text,
       characteristics text,
       "orderTime" varchar(50)
     )

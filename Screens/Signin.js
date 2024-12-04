@@ -39,21 +39,23 @@ import AlertModel from "../components/AlertModel";
 import ErrorComponent from "../components/ErrorComponent";
 import { useFocusEffect } from "@react-navigation/native";
 import { Picker, PickerIOS } from "@react-native-picker/picker";
-import { stylesSignUp as styles } from "../styles/stylesSignUp";
+import { stylesSignUp } from "../styles/stylesSignUp";
 import React, { useEffect, useState, useCallback } from "react";
 import { Video } from "expo-av";
 
 const Signin = ({ navigation }) => {
+  const styles = stylesSignUp();
   const thingsToLoad = 3;
+
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
   const [user, setUser] = useState("");
   const [onOk, setOnOk] = useState(() => () => setVisible(false));
   const [error, setError] = useState(false);
-  const [title, setTitle] = useState("Titulo");
+  const [title, setTitle] = useState("Title");
   const [OkText, setOkText] = useState("Ok");
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState("Mensaje");
+  const [message, setMessage] = useState("Message");
   const [options, setOptions] = useState(null);
   const [visible, setVisible] = useState(false);
   const [onCancel, setOnCancel] = useState(() => () => setVisible(false));
@@ -74,6 +76,8 @@ const Signin = ({ navigation }) => {
       const translations = getTranslations();
       const indexOfRole = translations.options.indexOf(role);
       const roleValue = languages.en.options[indexOfRole];
+      console.log(roleValue);
+
       const hashedPassword = hashPassword(password);
       const { success, error } = await signIn(
         restaurantName,
@@ -145,7 +149,7 @@ const Signin = ({ navigation }) => {
 
     const boolExistRestaurant = await boolIsRestaurant(restaurantName);
 
-    if (!boolExistRestaurant && role != translations.options[2]) {
+    if (!boolExistRestaurant && role != translations.options[3]) {
       setTitle(translations.error);
       setMessage(translations.restaurantNameWrong);
       setOkText(translations.ok);
@@ -156,7 +160,7 @@ const Signin = ({ navigation }) => {
       });
       setVisible(true);
       return;
-    } else if (role == translations.options[2] && boolExistRestaurant) {
+    } else if (role == translations.options[3] && boolExistRestaurant) {
       setTitle(translations.error);
       setMessage(translations.restaurantAlreadyExists);
       setOkText(translations.ok);
@@ -344,8 +348,12 @@ const Signin = ({ navigation }) => {
 
   return (
     <ScrollView
-      style={styles.scrollView}
-      contentContainerStyle={{ flexGrow: 1 }}
+      style={styles.container}
+      contentContainerStyle={{
+        flexGrow: 1,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
     >
       <AlertModel
         visible={visible}
@@ -356,137 +364,138 @@ const Signin = ({ navigation }) => {
         OkText={OkText}
         cancelText={cancelText}
       />
-      <View style={styles.container}>
+      <View style={styles.main}>
         <Image source={userImage} style={styles.imageUser} />
 
-        <View>
-          <Text style={styles.text}>{translations.signIn}</Text>
-          <View style={styles.formLogin}>
-            <View style={styles.user}>
-              <Text style={styles.textUser}>
-                {translations.TextRestaurantName}
-              </Text>
+        <Text style={styles.text}>{translations.signIn}</Text>
+        <View style={styles.formSignin}>
+          <View style={styles.user}>
+            <Text style={styles.textUser}>
+              {translations.TextRestaurantName}
+            </Text>
 
+            <TextInput
+              placeholder={translations.exampleRestaurantName}
+              value={restaurantName}
+              onChangeText={(value) => checkRestaurantName(value)}
+              style={styles.textInputUser}
+              maxLength={100}
+            />
+          </View>
+
+          <View style={styles.user}>
+            <Text style={styles.textUser}>{translations.TextName}</Text>
+            <TextInput
+              placeholder={translations.exampleName}
+              onChangeText={(value) => setName(value)}
+              style={styles.textInputUser}
+              maxLength={100}
+            />
+          </View>
+
+          <View style={styles.user}>
+            <Text style={styles.textUser}>{translations.TextUser}</Text>
+            <TextInput
+              placeholder={translations.exampleUserName}
+              onChangeText={(value) => setUser(value)}
+              style={styles.textInputUser}
+              maxLength={50}
+            />
+          </View>
+
+          <View style={styles.pass}>
+            <Text style={styles.textPass}>{translations.TextPassword}</Text>
+            <View style={{ flexDirection: "row" }}>
               <TextInput
-                placeholder={translations.exampleRestaurantName}
-                value={restaurantName}
-                onChangeText={(value) => checkRestaurantName(value)}
-                style={styles.textInputUser}
+                placeholder={translations.examplePassword}
+                style={styles.textInputPass}
+                secureTextEntry={!boolShowPassword}
+                onChangeText={(value) => setPassword(value)}
                 maxLength={100}
               />
-            </View>
-
-            <View style={styles.user}>
-              <Text style={styles.textUser}>{translations.TextName}</Text>
-              <TextInput
-                placeholder={translations.exampleUserName}
-                onChangeText={(value) => setName(value)}
-                style={styles.textInputUser}
-                maxLength={100}
-              />
-            </View>
-
-            <View style={styles.user}>
-              <Text style={styles.textUser}>{translations.TextUser}</Text>
-              <TextInput
-                placeholder={translations.exampleUserName}
-                onChangeText={(value) => setUser(value)}
-                style={styles.textInputUser}
-                maxLength={50}
-              />
-            </View>
-
-            <View style={styles.pass}>
-              <Text style={styles.textPass}>{translations.TextPassword}</Text>
-              <View style={{ flexDirection: "row" }}>
-                <TextInput
-                  placeholder={translations.examplePassword}
-                  style={styles.textInputPass}
-                  secureTextEntry={!boolShowPassword}
-                  onChangeText={(value) => setPassword(value)}
-                  maxLength={100}
-                />
-                <Pressable
-                  style={styles.buttonShowPassword}
-                  onPress={() => setBoolShowPassword((prev) => !prev)}
-                >
-                  {!boolShowPassword ? (
-                    <Image
-                      source={eyeNotLooking}
-                      style={styles.imageShowPassword}
-                    />
-                  ) : (
-                    <Video
-                      source={eyeLooking}
-                      style={{
-                        width: 40,
-                        height: 40,
-                        right: -5,
-                      }}
-                      shouldPlay
-                      isLooping
-                      resizeMode="cover"
-                      rate={0.8}
-                    />
-                  )}
-                </Pressable>
-              </View>
-            </View>
-
-            <Text style={styles.roles}>{translations.TextRoles}</Text>
-
-            <View style={styles.pickerContainer}>
-              {Platform.OS == "ios" && (
-                <PickerIOS
-                  selectedValue={role}
-                  onValueChange={(itemValue) => setRole(itemValue)}
-                  style={styles.pickerIOS}
-                >
-                  {options.map((option, index) => (
-                    <PickerIOS.Item key={index} label={option} value={option} />
-                  ))}
-                </PickerIOS>
-              )}
-              {Platform.OS != "ios" && (
-                <Picker
-                  selectedValue={role}
-                  onValueChange={(itemValue) => setRole(itemValue)}
-                  style={styles.picker}
-                >
-                  {options.map((option, index) => (
-                    <Picker.Item key={index} label={option} value={option} />
-                  ))}
-                </Picker>
-              )}
-            </View>
-
-            <View style={styles.newAccountView}>
-              <Text style={styles.newAccountText}>
-                {translations.SignInLogIn}
-              </Text>
-
               <Pressable
-                onPress={() => navigation.replace("Login")}
-                style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}
+                style={styles.buttonShowPassword}
+                onPress={() => setBoolShowPassword((prev) => !prev)}
               >
-                <Text style={styles.textSignin}>{translations.logIn}</Text>
+                {!boolShowPassword ? (
+                  <Image
+                    source={eyeNotLooking}
+                    style={styles.imageShowPassword}
+                  />
+                ) : (
+                  <Video
+                    source={eyeLooking}
+                    style={{
+                      width: 40,
+                      height: 40,
+                      right: -5,
+                    }}
+                    shouldPlay
+                    isLooping
+                    resizeMode="cover"
+                    rate={0.8}
+                  />
+                )}
               </Pressable>
             </View>
+          </View>
+
+          <Text style={styles.roles}>{translations.TextRoles}</Text>
+
+          <View style={styles.pickerContainer}>
+            {Platform.OS == "ios" && (
+              <PickerIOS
+                selectedValue={role}
+                onValueChange={(itemValue) => setRole(itemValue)}
+                style={styles.pickerIOS}
+              >
+                {options.map((option, index) => (
+                  <PickerIOS.Item key={index} label={option} value={option} />
+                ))}
+              </PickerIOS>
+            )}
+            {Platform.OS != "ios" && (
+              <Picker
+                selectedValue={role}
+                onValueChange={(itemValue) => setRole(itemValue)}
+                style={styles.picker}
+              >
+                {options.map((option, index) => (
+                  <Picker.Item key={index} label={option} value={option} />
+                ))}
+              </Picker>
+            )}
+          </View>
+
+          <View style={styles.newAccountView}>
+            <Text style={styles.newAccountText}>
+              {translations.SignInLogIn}
+            </Text>
 
             <Pressable
+              onPress={() => navigation.replace("Login")}
               style={({ pressed }) => [
-                styles.signInButton,
+                styles.buttonLogIn,
                 { opacity: pressed ? 0.5 : 1 },
               ]}
-              onPress={() => checkSignin()}
             >
-              {boolSigningIn ? (
-                <ActivityIndicator size={25} />
-              ) : (
-                <Text style={styles.signInText}>{translations.signIn}</Text>
-              )}
+              <Text style={styles.textLogin}>{translations.logIn}</Text>
             </Pressable>
           </View>
+
+          <Pressable
+            style={({ pressed }) => [
+              styles.signInButton,
+              { opacity: pressed ? 0.5 : 1 },
+            ]}
+            onPress={() => checkSignin()}
+          >
+            {boolSigningIn ? (
+              <ActivityIndicator size={25} />
+            ) : (
+              <Text style={styles.signInText}>{translations.signIn}</Text>
+            )}
+          </Pressable>
         </View>
       </View>
     </ScrollView>

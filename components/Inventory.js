@@ -263,15 +263,13 @@ const Inventory = ({ translations, restaurantName, onPressToReturn }) => {
           </Pressable>
         </View>
         {inventory != null && (
-          <View style={styles.containerIngredients}>
-            <TableInventory
-              inventory={inventory}
-              setIdSelected={setIdSelected}
-              translations={translations}
-              setIdSelectedToDelete={setIdSelectedToDelete}
-              idSelected={idSelected}
-            />
-          </View>
+          <TableInventory
+            inventory={inventory}
+            setIdSelected={setIdSelected}
+            translations={translations}
+            setIdSelectedToDelete={setIdSelectedToDelete}
+            idSelected={idSelected}
+          />
         )}
       </View>
     </View>

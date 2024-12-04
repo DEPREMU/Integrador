@@ -39,10 +39,13 @@ import { Video } from "expo-av";
 import AlertModel from "../components/AlertModel";
 import ErrorComponent from "../components/ErrorComponent";
 import { useFocusEffect } from "@react-navigation/native";
-import { stylesLogin as styles } from "../styles/stylesLogIn";
+import { useStylesLogin } from "../styles/stylesLogIn";
 import React, { useCallback, useEffect, useState } from "react";
 
 const Login = ({ navigation }) => {
+  const styles = useStylesLogin();
+
+  //? language, fonts, token and restaurantName
   const thingsToLoad = 2;
   const [user, setUser] = useState("");
   const [onOk, setOnOk] = useState(() => () => setVisible(false));
@@ -259,7 +262,9 @@ const Login = ({ navigation }) => {
       />
       <Image source={userImage} style={styles.imageUser} />
 
-      <View style={{ justifyContent: "center", alignItems: "center" }}>
+      <View
+        style={styles.main}
+      >
         <Text style={styles.text}>{translations.logIn}</Text>
 
         <View style={styles.formLogin}>

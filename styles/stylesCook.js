@@ -87,4 +87,16 @@ export default stylesCook = StyleSheet.create({
     fontWeight: "bold",
     color: "black",
   },
+  buttonLogOut: {
+    backgroundColor: "red",
+    padding: 15,
+    borderRadius: 10,
+    margin: 20,
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });

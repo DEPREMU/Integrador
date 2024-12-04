@@ -18,7 +18,12 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { useFocusEffect } from "@react-navigation/native";
 import { stylesSales as styles } from "../styles/stylesSales";
 import React, { useState, useCallback } from "react";
-import { appName, getStartOfWeek, tableNameErrorLogs, userImage } from "./globalVariables";
+import {
+  appName,
+  getStartOfWeek,
+  tableNameErrorLogs,
+  userImage,
+} from "./globalVariables";
 
 export default Sales = ({
   translations = languages.en,
