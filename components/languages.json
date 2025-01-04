@@ -120,7 +120,7 @@
     "easterEggMessage1": "Stop touching there silly!, you will break the app!",
     "easterEggMessage2": "I'm warning you!",
     "easterEggMessage3": "Don't do it!",
-    "easterEggMEssage4": "I'm serious, stop touching there!",
+    "easterEggMessage4": "I'm serious, stop touching there!",
     "easterEggMessage5": "I'm getting mad, stop... touching... there!!!",
     "easterEggMessage6": "I'm done, your stronger than me, keep touching wherever you want :'(",
     "animations": "Animations",
@@ -280,7 +280,7 @@
     "easterEggMessage1": "¡Deja de tocar ahí tonto! ¡Vas a romper la app!",
     "easterEggMessage2": "¡Te estoy advirtiendo!",
     "easterEggMessage3": "¡No lo hagas!",
-    "easterEggMEssage4": "¡Te lo digo en serio, deja de tocar ahí!",
+    "easterEggMessage4": "¡Te lo digo en serio, deja de tocar ahí!",
     "easterEggMessage5": "¡Me estoy enojando, deja de... tocar... ahí!",
     "easterEggMessage6": "Ya terminé, eres más fuerte que yo, sigue tocando donde quieras :'(",
     "animations": "Animaciones",
@@ -323,8 +323,8 @@
     "sendOrder": "Enviar pedido",
     "orderSent": "Pedido enviado",
     "orderSentSuccess": "Pedido enviado con éxito",
-    "category": "Categoria"
-  ,"exampleCategory":"Ej. Plato principal"
+    "category": "Categoria",
+    "exampleCategory": "Ej. Plato principal"
   },
   "fr": {
     "TextUser": "Utilisateur",
@@ -440,7 +440,7 @@
     "easterEggMessage1": "Arrêtez de toucher là, vous allez casser l'application !",
     "easterEggMessage2": "Je vous préviens !",
     "easterEggMessage3": "Ne le faites pas !",
-    "easterEggMEssage4": "Je suis sérieux, arrêtez de toucher là !",
+    "easterEggMessage4": "Je suis sérieux, arrêtez de toucher là !",
     "easterEggMessage5": "Je m'énerve, arrêtez... de... toucher... là !!!",
     "easterEggMessage6": "D'accord, vous êtes plus fort que moi, continuez à toucher où vous voulez :'(",
     "animations": "Animations",
@@ -482,7 +482,9 @@
     "askSendOrder": "Êtes-vous sûr de vouloir envoyer la commande ?",
     "sendOrder": "Envoyer la commande",
     "orderSent": "Commande envoyée",
-    "orderSentSuccess": "Commande envoyée avec succès"
+    "orderSentSuccess": "Commande envoyée avec succès",
+    "category": "Catégorie",
+    "exampleCategory": "Ex. Plat principal"
   },
   "jp": {
     "TextUser": "ユーザー",
@@ -598,7 +600,7 @@
     "easterEggMessage1": "そこを触るのをやめて！アプリが壊れるよ！",
     "easterEggMessage2": "警告してるよ！",
     "easterEggMessage3": "やめて！",
-    "easterEggMEssage4": "本気だよ、そこを触るのをやめて！",
+    "easterEggMessage4": "本気だよ、そこを触るのをやめて！",
     "easterEggMessage5": "怒るよ…触るのを…やめて！！！",
     "easterEggMessage6": "もういいよ、あなたが強いよ。好きに触って… :'(",
     "animations": "アニメーション",
@@ -640,6 +642,8 @@
     "sendOrder": "注文を送信",
     "askSendOrder": "本当に注文を送信しますか？",
     "orderSent": "注文が送信されました",
-    "orderSentSuccess": "注文が正常に送信されました"
+    "orderSentSuccess": "注文が正常に送信されました",
+    "category": "カテゴリー",
+    "exampleCategory": "例: メインディッシュ"
   }
 }
