@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { useResponsiveLayout } from "../components/LayoutContext"; // Asegúrate de importar tu contexto
+import { useResponsiveLayout } from "../components/context/LayoutContext"; // Asegúrate de importar tu contexto
 
 export const stylesSignUp = () => {
   const { isWeb, isTablet, isLargeTablet } = useResponsiveLayout();
@@ -93,7 +93,7 @@ export const stylesSignUp = () => {
       flexDirection: "row",
       justifyContent: "center",
       alignItems: "center",
-      marginBottom: 20,
+      margin: 8,
       padding: 10,
     },
     newAccountText: {
@@ -157,26 +157,31 @@ export const stylesSignUp = () => {
     },
     textLogin: {
       fontSize: 16,
-      color: "#555",
+      fontWeight: "bold",
+      color: "#007BFF",
       textDecorationLine: "underline",
       marginRight: 5,
       fontFamily: "fontApp",
     },
-    roles: {},
+    roles: {
+      fontSize: 16,
+      fontFamily: "fontApp",
+      color: "#555",
+      fontWeight: "bold",
+      marginBottom: 5,
+    },
     pickerContainer: {},
     picker: {
-      height: 45,
+      maxHeight: 60,
       borderWidth: 1,
       borderColor: "#DDD",
-      borderRadius: 8,
-      paddingHorizontal: 10,
       backgroundColor: "#FAFAFA",
       shadowColor: "#000",
       shadowOffset: { width: 0, height: 1 },
       shadowOpacity: 0.1,
       fontFamily: "fontApp",
       shadowRadius: 2,
-      elevation: 2,
+      elevation: 3,
     },
     pickerIOS: {
       height: 45,

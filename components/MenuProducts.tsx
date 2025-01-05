@@ -1,7 +1,6 @@
-import React from "react";
-import { Translations } from "./interfaceTranslations";
-import { getAllDataFromTable } from "./DataBaseConnection";
-import { useEffect, useState } from "react";
+import { Translations } from "../utils/interfaceTranslations";
+import { getAllDataFromTable } from "../utils/database/DataBaseConnection";
+import React, { useEffect, useState } from "react";
 import { View, Text, Image, StyleSheet, ScrollView } from "react-native";
 
 interface MenuProductsProps {

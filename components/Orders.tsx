@@ -1,14 +1,18 @@
 import {
+  loadOrders,
+  insertInTable,
+  deleteOrderDB,
+} from "../utils/database/DataBaseConnection";
+import {
   appName,
-  calculateTime,
   separatorForDB,
   separatorForDB2,
   tableNameErrorLogs,
-} from "./globalVariables";
-import { Translations } from "./interfaceTranslations";
+} from "../utils/globalVariables/constants";
+import { Translations } from "../utils/interfaceTranslations";
+import { calculateTime } from "../utils/globalVariables/utils";
 import React, { useEffect, useState } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
-import { deleteOrderDB, insertInTable, loadOrders } from "./DataBaseConnection";
 
 interface OrdersProps {
   translations: Translations;

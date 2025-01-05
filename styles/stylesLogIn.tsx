@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { useResponsiveLayout } from "../components/LayoutContext";
+import { useResponsiveLayout } from "../components/context/LayoutContext";
 
 export const useStylesLogin = () => {
   const { isWeb, isTablet, isLargeTablet } = useResponsiveLayout();
@@ -44,7 +44,7 @@ export const useStylesLogin = () => {
     },
     textUser: {
       fontSize: 16,
-      fontWeight: "600",
+      fontWeight: "bold",
       fontFamily: "fontApp",
       color: "#555",
       marginBottom: 5,

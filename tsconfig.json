@@ -2,10 +2,7 @@
   "compilerOptions": {
     "jsx": "react",
     "allowSyntheticDefaultImports": true,
-    "lib": [
-      "dom",
-      "es6"
-    ],
+    "lib": ["dom", "es6"],
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -19,8 +16,12 @@
   },
   "include": [
     "src",
+    "screens",
     "components",
-    "Screens"
+    "screens/cook/Cook.tsx",
+    "utils/DataBaseConnection.tsx",
+    "utils/interfaceTranslations.tsx",
+    "utils/database/supabaseClient.tsx"
   ],
   "extends": "expo/tsconfig.base"
 }

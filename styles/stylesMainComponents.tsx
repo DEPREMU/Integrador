@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { widthDivided, heightDivided } from "../components/globalVariables";
+import { widthDivided } from "../components/globalVariables";
 
 const stylesMC1 = StyleSheet.create({
   scrollView: {

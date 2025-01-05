@@ -1,8 +1,13 @@
 import {
+  appName,
+  userImage,
+  tableNameErrorLogs,
+} from "../utils/globalVariables/constants";
+import {
   insertInTable,
   updateTableByEq,
   getAllDataFromTable,
-} from "./DataBaseConnection";
+} from "../utils/database/DataBaseConnection";
 import {
   View,
   Text,
@@ -11,20 +16,15 @@ import {
   ActivityIndicator,
 } from "react-native";
 import EachSale from "./EachSale";
-import languages from "./languages.json";
-import AlertModel from "./AlertModel";
-import EachRectangle from "./EachRectangle";
+import languages from "../utils/languages.json";
+import AlertModel from "../components/common/AlertModel";
+import EachRectangle from "./common/EachRectangle";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { Translations } from "../utils/interfaceTranslations";
 import { useFocusEffect } from "@react-navigation/native";
+import { getStartOfWeek } from "../utils/globalVariables/utils";
 import { stylesSales as styles } from "../styles/stylesSales";
 import React, { useState, useCallback } from "react";
-import {
-  appName,
-  getStartOfWeek,
-  tableNameErrorLogs,
-  userImage,
-} from "./globalVariables";
-import { Translations } from "./interfaceTranslations";
 
 interface SalesProps {
   translations: Translations;

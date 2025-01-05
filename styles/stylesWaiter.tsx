@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { useResponsiveLayout } from "../components/LayoutContext";
+import { useResponsiveLayout } from "../components/context/LayoutContext";
 
 export const useStylesWaiter = () => {
   const { isTablet, isLargeTablet, isPhone, isWeb, width, height } =

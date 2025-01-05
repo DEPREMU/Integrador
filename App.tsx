@@ -1,34 +1,35 @@
 import {
-  fontApp,
   loadData,
   saveData,
-  fontAppItalic,
   checkLanguage,
+} from "./utils/globalVariables/utils";
+import {
+  fontApp,
+  fontAppItalic,
   BOOL_ANIMATIONS,
   FIRST_TIME_LOADING_APP,
-} from "./components/globalVariables";
-import Cook from "./Screens/Cook";
-import Menu from "./Screens/Menu";
-import Login from "./Screens/Login";
-import Owner from "./Screens/Owner";
+} from "./utils/globalVariables/constants";
+import Cook from "./screens/cook/Cook";
+import Menu from "./screens/owner/Menu";
+import Login from "./screens/auth/Login";
+import Owner from "./screens/owner/Owner";
 import Sales from "./components/Sales";
-import Signin from "./Screens/Signin";
-import Waiter from "./Screens/Waiter";
-import Loading from "./components/Loading";
-import Welcome from "./Screens/Welcome";
-import Settings from "./Screens/Settings";
-import Register from "./Screens/Register";
-import languages from "./components/languages.json";
+import Signin from "./screens/auth/Signin";
+import Waiter from "./screens/waiter/Waiter";
+import Loading from "./components/common/Loading";
+import Welcome from "./screens/auth/Welcome";
+import Settings from "./screens/common/Settings";
+import Register from "./screens/register/Register";
 import { useFonts } from "expo-font";
-import { LayoutProvider } from "./components/LayoutContext";
+import { LayoutProvider } from "./components/context/LayoutContext";
 import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 const App: React.FC = () => {
   const Stack = createNativeStackNavigator();
-  const [isFirstTime, setIsFirstTime] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [isFirstTime, setIsFirstTime] = useState<boolean>(false);
   const [fontsLoaded, errors] = useFonts({
     fontApp: fontApp,
     fontAppI: fontAppItalic,
@@ -37,7 +38,8 @@ const App: React.FC = () => {
   useEffect(() => {
     const checkFirstTimeLoading = async () => {
       const firstTime = await loadData(FIRST_TIME_LOADING_APP);
-      if (firstTime == null) {
+
+      if (!firstTime) {
         await saveData(BOOL_ANIMATIONS, JSON.stringify(false));
         await checkLanguage();
         setIsFirstTime(true);
@@ -53,7 +55,7 @@ const App: React.FC = () => {
   return (
     <LayoutProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName={isFirstTime ? "Signin" : "Login"}>
+        <Stack.Navigator initialRouteName={isFirstTime ? "Welcome" : "Welcome"}>
           {/*//? Para cada vista se tiene que agregar aqui para mostrarse mediante un boton */}
           <Stack.Screen
             name="Welcome"
@@ -99,22 +101,13 @@ const App: React.FC = () => {
 
           <Stack.Screen
             name="Sales"
-            component={(props) => (
-              <Sales
-                {...props}
-                translations={{}}
-                returnToBackPage={() => {}}
-                restaurantName=""
-              />
-            )}
+            component={Sales}
             options={{ headerShown: false }}
           />
 
           <Stack.Screen
             name="Menu"
-            component={(props) => (
-              <Menu {...props} translations={{}} onPressToReturn={() => {}} />
-            )}
+            component={Menu}
             options={{ headerShown: false }}
           />
 
