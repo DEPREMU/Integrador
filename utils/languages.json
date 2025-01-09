@@ -165,7 +165,16 @@
     "orderSentSuccess": "Order sent successfully",
     "category": "Category",
     "exampleCategory": "E.g. Main course",
-    "welcomeFirstTime": "Welcome to OrderBy! We are happy to have you here."
+    "welcomeFirstTime": "Welcome to OrderBy! We are happy to have you here.",
+    "forgotPassword": "I forgot my password",
+    "forgotPasswordQuestion": "Forgot your password?",
+    "recoveryPassword": "Recovery password",
+    "writeUserNameForgotPassword": "Write your username to recover your password",
+    "selectDateForgotPassword": "Select the date you registered to recover your password",
+    "verifyData": "Verify the data",
+    "newPassword": "New password",
+    "verifyNewPassword": "Verify new password",
+    "writeFullNameForgotPassword": "Write the same name you used to register to recover your password"
   },
   "es": {
     "TextUser": "Usuario",
@@ -326,7 +335,16 @@
     "orderSentSuccess": "Pedido enviado con éxito",
     "category": "Categoria",
     "exampleCategory": "Ej. Plato principal",
-    "welcomeFirstTime": "¡Bienvenido a OrderBy! Estamos felices de tenerte aquí."
+    "welcomeFirstTime": "¡Bienvenido a OrderBy! Estamos felices de tenerte aquí.",
+    "forgotPassword": "Olvide mi contraseña",
+    "forgotPasswordQuestion": "¿Olvidaste tu contraseña?",
+    "recoveryPassword": "Recuperar contraseña",
+    "writeUserNameForgotPassword": "Escribe tu nombre de usuario para recuperar tu contraseña",
+    "selectDateForgotPassword": "Selecciona la fecha en la que te registraste para recuperar tu contraseña",
+    "verifyData": "Verificar los datos",
+    "newPassword": "Nueva contraseña",
+    "verifyNewPassword": "Verificar nueva contraseña",
+    "writeFullNameForgotPassword": "Escribe el mismo nombre que usaste para registrarte para recuperar tu contraseña"
   },
   "fr": {
     "TextUser": "Utilisateur",
@@ -487,7 +505,16 @@
     "orderSentSuccess": "Commande envoyée avec succès",
     "category": "Catégorie",
     "exampleCategory": "Ex. Plat principal",
-    "welcomeFirstTime": "Bienvenue sur OrderBy ! Nous sommes heureux de vous avoir ici."
+    "welcomeFirstTime": "Bienvenue sur OrderBy ! Nous sommes heureux de vous avoir ici.",
+    "forgotPassword": "J'ai oublié mon mot de passe",
+    "forgotPasswordQuestion": "Avez-vous oublié votre mot de passe ?",
+    "recoveryPassword": "Récupérer le mot de passe",
+    "writeUserNameForgotPassword": "Écrivez votre nom d'utilisateur pour récupérer votre mot de passe",
+    "selectDateForgotPassword": "Sélectionnez la date à laquelle vous vous êtes inscrit pour récupérer votre mot de passe",
+    "verifyData": "Vérifier les données",
+    "newPassword": "Nouveau mot de passe",
+    "verifyNewPassword": "Vérifier le nouveau mot de passe",
+    "writeFullNameForgotPassword": "Écrivez le même nom que vous avez utilisé pour vous inscrire pour récupérer votre mot de passe"
   },
   "jp": {
     "TextUser": "ユーザー",
@@ -648,6 +675,15 @@
     "orderSentSuccess": "注文が正常に送信されました",
     "category": "カテゴリー",
     "exampleCategory": "例: メインディッシュ",
-    "welcomeFirstTime": "OrderBy へようこそ！ここにいてくれてうれしいです。"
+    "welcomeFirstTime": "OrderBy へようこそ！ここにいてくれてうれしいです。",
+    "forgotPassword": "パスワードを忘れました",
+    "forgotPasswordQuestion": "パスワードを忘れましたか？",
+    "recoveryPassword": "パスワードの回復",
+    "writeUserNameForgotPassword": "パスワードを回復するためのユーザー名を入力してください",
+    "selectDateForgotPassword": "パスワードを回復するために登録した日付を選択してください",
+    "verifyData": "データを確認",
+    "newPassword": "新しいパスワード",
+    "verifyNewPassword": "新しいパスワードを確認",
+    "writeFullNameForgotPassword": "パスワードを回復するために登録した名前を入力してください"
   }
 }

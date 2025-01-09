@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
-import { useResponsiveLayout } from "../components/context/LayoutContext"; // Asegúrate de importar tu contexto
+import { useResponsiveLayout } from "../components/context/LayoutContext";
 
-export const stylesSignUp = () => {
+export const useStylesForgotPassword = () => {
   const { isWeb, isTablet, isLargeTablet } = useResponsiveLayout();
 
   return StyleSheet.create({
@@ -10,17 +10,17 @@ export const stylesSignUp = () => {
       backgroundColor: "#F9F9F9",
       paddingHorizontal: 20,
     },
-    contentContainer: {
-      flexGrow: 1,
-      justifyContent: "center",
-      alignItems: "center",
-    },
     imageUser: {
       width: 120,
       height: 120,
       marginBottom: 20,
     },
-    text: {
+    contentContainer: {
+      flexGrow: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    title: {
       fontSize: 28,
       fontWeight: "bold",
       fontFamily: "fontApp",
@@ -31,7 +31,7 @@ export const stylesSignUp = () => {
       textShadowOffset: { width: 1, height: 1 },
       textShadowRadius: 2,
     },
-    formSignin: {
+    containerForm: {
       width: "100%",
       padding: 20,
       backgroundColor: "#FFFFFF",
@@ -49,9 +49,9 @@ export const stylesSignUp = () => {
     },
     textUser: {
       fontSize: 16,
+      fontWeight: "bold",
       fontFamily: "fontApp",
       color: "#555",
-      fontWeight: "bold",
       marginBottom: 5,
     },
     textInputUser: {
@@ -65,13 +65,14 @@ export const stylesSignUp = () => {
       shadowOffset: { width: 0, height: 1 },
       shadowOpacity: 0.1,
       fontFamily: "fontApp",
+
       shadowRadius: 2,
       elevation: 2,
     },
-    pass: {
+    date: {
       marginBottom: 15,
     },
-    textPass: {
+    textDate: {
       fontSize: 16,
       fontWeight: "bold",
       fontFamily: "fontApp",
@@ -93,12 +94,32 @@ export const stylesSignUp = () => {
       elevation: 2,
       flex: 1,
     },
+    buttonDatePicker: {
+      alignItems: "center",
+      justifyContent: "center",
+      marginTop: 10,
+      marginBottom: 20,
+      padding: 15,
+      borderRadius: 8,
+      backgroundColor: "#6F42C1",
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    textDatePicker: {
+      fontSize: 16,
+      textAlign: "center",
+      fontFamily: "fontApp",
+      color: "#FFF",
+    },
     newAccountView: {
       flexDirection: "row",
+      flexWrap: "wrap",
       justifyContent: "center",
       alignItems: "center",
-      margin: 8,
-      padding: 10,
+      marginBottom: 20,
     },
     newAccountText: {
       fontSize: 16,
@@ -106,30 +127,11 @@ export const stylesSignUp = () => {
       marginRight: 5,
       fontFamily: "fontApp",
     },
-    textLogIn: {
+    textSignin: {
       fontSize: 14,
       color: "#007BFF",
       fontWeight: "bold",
       textDecorationLine: "underline",
-      fontFamily: "fontApp",
-    },
-    signInButton: {
-      height: 50,
-      backgroundColor: "#6F42C1",
-      borderRadius: 8,
-      alignItems: "center",
-      justifyContent: "center",
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 3 },
-      shadowOpacity: 0.2,
-      shadowRadius: 4,
-      elevation: 4,
-    },
-    signInText: {
-      color: "#FFF",
-      fontSize: 16,
-      fontWeight: "bold",
-      textAlign: "center",
       fontFamily: "fontApp",
     },
     imageShowPassword: {
@@ -158,48 +160,43 @@ export const stylesSignUp = () => {
     buttonLogIn: {
       justifyContent: "center",
       alignItems: "center",
+      padding: 10,
+      borderRadius: 8,
+      backgroundColor: "#FFF",
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+      borderWidth: 1,
+      marginVertical: 10,
+    },
+    buttonVerifyData: {
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 10,
+      borderRadius: 8,
+      backgroundColor: "green",
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+      marginVertical: 10,
     },
     textLogin: {
       fontSize: 16,
       fontWeight: "bold",
-      color: "#007BFF",
-      textDecorationLine: "underline",
+      color: "black",
       marginRight: 5,
       fontFamily: "fontApp",
     },
-    roles: {
+    textVerifyData: {
       fontSize: 16,
-      fontFamily: "fontApp",
-      color: "#555",
       fontWeight: "bold",
-      marginBottom: 5,
-    },
-    pickerContainer: {},
-    picker: {
-      maxHeight: 60,
-      borderWidth: 1,
-      borderColor: "#DDD",
-      backgroundColor: "#FAFAFA",
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.1,
+      color: "white",
+      marginRight: 5,
       fontFamily: "fontApp",
-      shadowRadius: 2,
-      elevation: 3,
-    },
-    pickerIOS: {
-      height: 45,
-      borderWidth: 1,
-      borderColor: "#DDD",
-      borderRadius: 8,
-      paddingHorizontal: 10,
-      backgroundColor: "#FAFAFA",
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.1,
-      fontFamily: "fontApp",
-      shadowRadius: 2,
-      elevation: 2,
     },
   });
 };

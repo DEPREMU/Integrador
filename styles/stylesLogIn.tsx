@@ -10,6 +10,11 @@ export const useStylesLogin = () => {
       backgroundColor: "#F9F9F9",
       paddingHorizontal: 20,
     },
+    contentContainer: {
+      flexGrow: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    },
     imageUser: {
       width: 120,
       height: 120,
@@ -113,6 +118,7 @@ export const useStylesLogin = () => {
     },
     newAccountView: {
       flexDirection: "row",
+      flexWrap: "wrap",
       justifyContent: "center",
       alignItems: "center",
       marginBottom: 20,

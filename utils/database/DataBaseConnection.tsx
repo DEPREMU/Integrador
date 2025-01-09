@@ -1,6 +1,10 @@
 import { supabase } from "./supabaseClient";
 import { appName, tableNameErrorLogs } from "../globalVariables/constants";
-import { generateToken, verifyPassword } from "../globalVariables/utils";
+import {
+  generateToken,
+  hashPassword,
+  verifyPassword,
+} from "../globalVariables/utils";
 
 const createTable = async (baseName: string) => {
   try {
@@ -543,18 +547,87 @@ const getAllDataFromTableByEq = async (
   return null;
 };
 
+const verifyData = async (
+  restaurantName: string,
+  userName: string,
+  fullName: string,
+  date: Date
+) => {
+  try {
+    const { data, error } = await supabase
+      .from(restaurantName)
+      .select("*")
+      .match({ username: userName, name: fullName })
+      .single();
+
+    if (data) {
+      const dateRegister = new Date(data.registerTime);
+      const boolIsOnDay =
+        dateRegister.getDate() == date.getDate() &&
+        dateRegister.getMonth() == date.getMonth() &&
+        dateRegister.getFullYear() == date.getFullYear();
+
+      if (boolIsOnDay) return true;
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    await insertInTable(tableNameErrorLogs, {
+      appName: appName,
+      error: error,
+      date: new Date().toLocaleString(),
+      component: `./DataBaseConnection/verifyData() catch (error) => Error: ${error}`,
+    });
+  }
+  return false;
+};
+
+const changePassword = async (
+  restaurantName: string,
+  userName: string,
+  fullName: string,
+  password: string
+) => {
+  try {
+    const passwordHashed = hashPassword(password);
+
+    const { error } = await supabase
+      .from(restaurantName)
+      .update({ password: passwordHashed })
+      .match({ username: userName, name: fullName });
+
+    if (error) {
+      await insertInTable(tableNameErrorLogs, {
+        appName: appName,
+        error: error,
+        date: new Date().toLocaleString(),
+        component: `./DataBaseConnection/changePassword() if (error) => Error changing password: ${error}`,
+      });
+      throw error;
+    }
+  } catch (error) {
+    console.error("Error changing password:", error);
+    await insertInTable(tableNameErrorLogs, {
+      appName: appName,
+      error: error,
+      date: new Date().toLocaleString(),
+      component: `./DataBaseConnection/changePassword() catch (error) => Error changing password: ${error}`,
+    });
+  }
+};
 export {
   logIn,
   signIn,
   getName,
   getRole,
   loadOrders,
+  verifyData,
   createTable,
   deleteTables,
   getDateToken,
   boolUserExist,
   deleteOrderDB,
   insertInTable,
+  changePassword,
   updateTableByEq,
   deleteFromTable,
   boolIsRestaurant,

@@ -21,6 +21,7 @@ import Welcome from "./screens/auth/Welcome";
 import Settings from "./screens/common/Settings";
 import Register from "./screens/register/Register";
 import { useFonts } from "expo-font";
+import ForgotPassword from "./screens/auth/ForgotPassword";
 import { LayoutProvider } from "./components/context/LayoutContext";
 import { NavigationContainer } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
@@ -30,7 +31,7 @@ const App: React.FC = () => {
   const Stack = createNativeStackNavigator();
   const [loading, setLoading] = useState<boolean>(true);
   const [isFirstTime, setIsFirstTime] = useState<boolean>(false);
-  const [fontsLoaded, errors] = useFonts({
+  const [fontsLoaded, error] = useFonts({
     fontApp: fontApp,
     fontAppI: fontAppItalic,
   });
@@ -39,12 +40,15 @@ const App: React.FC = () => {
     const checkFirstTimeLoading = async () => {
       const firstTime = await loadData(FIRST_TIME_LOADING_APP);
 
-      if (!firstTime) {
-        await saveData(BOOL_ANIMATIONS, JSON.stringify(false));
-        await checkLanguage();
-        setIsFirstTime(true);
+      if (firstTime) {
         setLoading(false);
-      } else setLoading(false);
+        return;
+      }
+
+      await saveData(BOOL_ANIMATIONS, JSON.stringify(false));
+      await checkLanguage();
+      setIsFirstTime(true);
+      setLoading(false);
     };
 
     checkFirstTimeLoading();
@@ -55,7 +59,7 @@ const App: React.FC = () => {
   return (
     <LayoutProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName={isFirstTime ? "Welcome" : "Welcome"}>
+        <Stack.Navigator initialRouteName={isFirstTime ? "Welcome" : "Login"}>
           {/*//? Para cada vista se tiene que agregar aqui para mostrarse mediante un boton */}
           <Stack.Screen
             name="Welcome"
@@ -114,6 +118,12 @@ const App: React.FC = () => {
           <Stack.Screen
             name="Register"
             component={Register}
+            options={{ headerShown: false }}
+          />
+
+          <Stack.Screen
+            name="ForgotPassword"
+            component={ForgotPassword}
             options={{ headerShown: false }}
           />
         </Stack.Navigator>

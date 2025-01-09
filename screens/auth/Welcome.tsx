@@ -1,13 +1,13 @@
 import {
+  withSpring,
   SharedValue,
   useSharedValue,
-  withSpring,
 } from "react-native-reanimated";
 import {
-  FIRST_TIME_LOADING_APP,
+  width,
   height,
   LanguageKeys,
-  width,
+  FIRST_TIME_LOADING_APP,
 } from "../../utils/globalVariables/constants";
 import Page1 from "../../components/welcome/Pages/Page1";
 import Page2 from "../../components/welcome/Pages/Page2";
@@ -127,8 +127,7 @@ const Welcome: React.FC<WelcomeProps> = ({ navigation }) => {
       }, 1000);
   }, [page]);
 
-  if (loading)
-    return <Loading boolActivityIndicator={true} boolLoadingText={false} />;
+  if (loading) return <Loading boolActivityIndicator boolLoadingText={false} />;
 
   const tranlations = getTranslations();
 
@@ -136,10 +135,10 @@ const Welcome: React.FC<WelcomeProps> = ({ navigation }) => {
     <View style={styles.container}>
       {/* Indicadores de página */}
       <PointsIndicator
-        focusAnimation={focusAnimation}
-        maxPages={maxPages}
-        setPage={changePage}
         page={page}
+        setPage={changePage}
+        maxPages={maxPages}
+        focusAnimation={focusAnimation}
       />
 
       {(renderPage == 1 || page == 1) && (

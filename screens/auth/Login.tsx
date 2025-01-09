@@ -23,6 +23,7 @@ import {
   ScrollView,
   BackHandler,
   ActivityIndicator,
+  Platform,
 } from "react-native";
 import {
   appName,
@@ -41,9 +42,11 @@ import languages from "../../utils/languages.json";
 import AlertModel from "../../components/common/AlertModel";
 import ErrorComponent from "../../components/common/ErrorComponent";
 import { useFocusEffect } from "@react-navigation/native";
+import axios from "axios";
 import { useStylesLogin } from "../../styles/stylesLogIn";
 import { ResizeMode, Video } from "expo-av";
 import React, { useCallback, useEffect, useState } from "react";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 interface LoginProps {
   navigation: any;
@@ -198,7 +201,7 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
 
   useEffect(() => {
     if (thingsLoaded >= thingsToLoad) setLoading(false);
-  }, [thingsLoaded, loading]);
+  }, [thingsLoaded]);
 
   useFocusEffect(
     useCallback(() => {
@@ -243,7 +246,9 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
         navigation={navigation}
         component="Login"
         error={
-          errorText ? errorText : languages[language].errorText + "Uknown error"
+          errorText
+            ? errorText
+            : languages[language as LanguageKeys].errorText + "Uknown error"
         }
       />
     );
@@ -252,13 +257,13 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
   const translations = getTranslations();
 
   return (
-    <ScrollView
+    <KeyboardAwareScrollView
       style={styles.container}
-      contentContainerStyle={{
-        flexGrow: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
+      contentContainerStyle={styles.contentContainer}
+      resetScrollToCoords={{ x: 0, y: 0 }}
+      enableOnAndroid
+      extraScrollHeight={20}
+      showsVerticalScrollIndicator={Platform.OS != "web" ? false : true}
     >
       <AlertModel
         onOk={onOk}
@@ -359,6 +364,21 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
             </Pressable>
           </View>
 
+          <View style={styles.newAccountView}>
+            <Text style={styles.newAccountText}>
+              {translations.forgotPasswordQuestion}
+            </Text>
+
+            <Pressable
+              onPress={() => navigation.replace("ForgotPassword")}
+              style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}
+            >
+              <Text style={styles.textSignin}>
+                {translations.forgotPassword}
+              </Text>
+            </Pressable>
+          </View>
+
           <Pressable
             style={({ pressed }) => [
               styles.logInButton,
@@ -374,7 +394,7 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
           </Pressable>
         </View>
       </View>
-    </ScrollView>
+    </KeyboardAwareScrollView>
   );
 };
 

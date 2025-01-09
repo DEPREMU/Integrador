@@ -158,4 +158,13 @@ export interface Translations {
   category: string;
   exampleCategory: string;
   welcomeFirstTime: string;
+  forgotPassword: string;
+  forgotPasswordQuestion: string;
+  recoveryPassword: string;
+  writeUserNameForgotPassword: string;
+  selectDateForgotPassword: string;
+  verifyData: string;
+  newPassword: string;
+  verifyNewPassword: string;
+  writeFullNameForgotPassword: string;
 }

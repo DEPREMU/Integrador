@@ -32,7 +32,6 @@ import {
   Platform,
   Pressable,
   TextInput,
-  ScrollView,
   BackHandler,
   ActivityIndicator,
 } from "react-native";
@@ -44,6 +43,7 @@ import { stylesSignUp } from "../../styles/stylesSignUp";
 import { useFocusEffect } from "@react-navigation/native";
 import { Picker, PickerIOS } from "@react-native-picker/picker";
 import { ResizeMode, Video } from "expo-av";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import React, { useEffect, useState, useCallback } from "react";
 
 interface SigninProps {
@@ -357,13 +357,12 @@ const Signin: React.FC<SigninProps> = ({ navigation }) => {
   const translations = getTranslations();
 
   return (
-    <ScrollView
+    <KeyboardAwareScrollView
+      showsVerticalScrollIndicator={Platform.OS != "web" ? false : true}
+      contentContainerStyle={styles.contentContainer}
+      resetScrollToCoords={{ x: 0, y: 0 }}
       style={styles.container}
-      contentContainerStyle={{
-        flexGrow: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
+      enableOnAndroid
     >
       <AlertModel
         visible={visible}
@@ -508,7 +507,7 @@ const Signin: React.FC<SigninProps> = ({ navigation }) => {
           </Pressable>
         </View>
       </View>
-    </ScrollView>
+    </KeyboardAwareScrollView>
   );
 };
 

@@ -1,6 +1,3 @@
-import React, { useEffect } from "react";
-import SkipButton from "../SkipButton";
-import { Translations } from "../../../utils/interfaceTranslations";
 import {
   appLogoImage,
   appNameImage,
@@ -8,12 +5,16 @@ import {
   userImage,
   width,
 } from "../../../utils/globalVariables/constants";
-import { StyleSheet, Text, View } from "react-native";
 import Animated, {
   SharedValue,
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
+import Loading from "../../common/Loading";
+import SkipButton from "../SkipButton";
+import { Translations } from "../../../utils/interfaceTranslations";
+import { StyleSheet, View } from "react-native";
+import React, { useEffect, useState } from "react";
 
 interface Page1Props {
   animationsPages: SharedValue<number>[];
@@ -32,12 +33,17 @@ const Page1: React.FC<Page1Props> = ({
   maxPages,
   boolLoaded,
 }) => {
+  //? Both images
+  const thingsToLoad = 2;
+  const [loading, setLoading] = useState<boolean>(true);
+  const [thingsLoaded, setThingsToLoad] = useState<number>(0);
   const animationImage: SharedValue<number> = useSharedValue(-width);
   const animationTextWelcome: SharedValue<number> = useSharedValue(width);
   const animationImageAppName: SharedValue<number> = useSharedValue(width);
 
   useEffect(() => {
-    if (boolLoaded) {
+    if (boolLoaded && !loading) {
+      setTimeout(() => {}, 1000);
       //? Logo Image
       animationImage.value = withSpring(0, { damping: 15, stiffness: 50 });
 
@@ -55,7 +61,13 @@ const Page1: React.FC<Page1Props> = ({
         });
       }, 800);
     }
-  }, [boolLoaded]);
+  }, [boolLoaded, loading]);
+
+  useEffect(() => {
+    if (thingsLoaded >= thingsToLoad) {
+      setLoading(false);
+    }
+  }, [thingsLoaded]);
 
   return (
     <Animated.View
@@ -67,22 +79,29 @@ const Page1: React.FC<Page1Props> = ({
         },
       ]}
     >
-      <SkipButton
-        text={translations.skip}
-        setPage={setPage}
-        maxPages={maxPages}
-      />
+      {loading && <Loading boolActivityIndicator boolLoadingText={false} />}
+
+      {!loading && (
+        <SkipButton
+          text={translations.skip}
+          setPage={setPage}
+          maxPages={maxPages}
+        />
+      )}
 
       <View style={styles.containerAppNameAndLogo}>
         <Animated.Image
           source={appLogoImage}
           style={[styles.image, { left: animationImage }]}
           resizeMode="cover"
+          onLoad={() => setThingsToLoad((prev) => prev + 1)}
         />
+
         <Animated.Image
           source={appNameImage}
           style={[styles.imageAppName, { left: animationImageAppName }]}
           resizeMode="cover"
+          onLoad={() => setThingsToLoad((prev) => prev + 1)}
         />
       </View>
 
